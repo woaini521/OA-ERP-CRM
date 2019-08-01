@@ -1,0 +1,12 @@
+{
+    "data":[
+          { "value": "张三", "address": "太平洋新疆地区" },
+          { "value": "李四", "address": "太平洋山东地区" },
+          { "value": "王五", "address": "太平洋福建地区" },
+          { "value": "赵二", "address": "太平洋广东地区" },
+          { "value": "孙六", "address": "太平洋海南地区-101" },
+          { "value": "李八", "address": "太平洋辽宁地区" },
+          { "value": "钱一", "address": "太平洋山西地区" },
+          { "value": "黄七", "address": "太平洋陕西地区" }
+    ]
+}

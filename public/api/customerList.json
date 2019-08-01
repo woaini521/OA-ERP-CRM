@@ -1,0 +1,55 @@
+{
+    "data": [
+        {
+            "customerImg": "/img/timg.png",
+            "customerName": "张尚武",
+            "customerSex": "男",
+            "customerBumen": "培训部",
+            "customerZhiwei": "经理",
+            "customerAge": "30",
+            "customerCompany": "中国人寿保险",
+            "customerCompanyFen": "湖北省 --分公司",
+            "customerPhone": "15874122147",
+            "customerZphone": "0731-88700666",
+            "customerJibie": "合作客户",
+            "customerAddress": "浙江省广州市越秀区中山六路109",
+            "id":1,
+            "customerQQ":"123456",
+            "customerWX":"147852"
+        },
+        {
+            "customerImg": "@/assets/timg.png",
+            "customerName": "张天武",
+            "customerSex": "男",
+            "customerBumen": "培训部",
+            "customerZhiwei": "经理",
+            "customerAge": "30",
+            "customerCompany": "中国人寿保险",
+            "customerCompanyFen": "湖北省 --分公司",
+            "customerPhone": "15874122147",
+            "customerZphone": "0731-88700666",
+            "customerJibie": "合作客户",
+            "customerAddress": "浙江省广州市越秀区中山六路109",
+            "id":2,
+            "customerQQ":"123456",
+            "customerWX":"147852"
+        },
+        {
+            "customerImg": "@/assets/timg.png",
+            "customerName": "张下武",
+            "customerSex": "男",
+            "customerBumen": "培训部",
+            "customerZhiwei": "经理",
+            "customerAge": "30",
+            "customerCompany": "中国人寿保险",
+            "customerCompanyFen": "湖北省 --分公司",
+            "customerPhone": "15874122147",
+            "customerZphone": "0731-88700666",
+            "customerJibie": "合作客户",
+            "customerAddress": "浙江省广州市越秀区中山六路109",
+            "id":3,
+            "customerQQ":"123456",
+            "customerWX":"147852"
+        }
+    ]
+}

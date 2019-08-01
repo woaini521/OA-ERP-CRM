@@ -1,0 +1,282 @@
+[
+    {
+        "id": 14,
+        "name": "Webs",
+        "title": "官网",
+        "pid": 0,
+        "child": []
+    },
+    {
+        "id": 15,
+        "name": "oa",
+        "title": "OA公司管理",
+        "pid": 0,
+        "child": [
+            {
+                "id": 1,
+                "name": "Users",
+                "title": "用户管理",
+                "pid": 15,
+                "child": [
+                    {
+                        "id": 1,
+                        "name": "user_select",
+                        "title": "员工查询",
+                        "node_id": 1,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 46,
+                        "name": "firm_select",
+                        "title": "公司列表",
+                        "node_id": 1,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 66,
+                        "name": "dep_select",
+                        "title": "部门管理",
+                        "node_id": 1,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 73,
+                        "name": "user_import",
+                        "title": "用户导入",
+                        "node_id": 1,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 108,
+                        "name": "user_wechat_count",
+                        "title": "推广统计",
+                        "node_id": 1,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    }
+                ]
+            },
+            {
+                "id": 11,
+                "name": "Days",
+                "title": "日常管理",
+                "pid": 15,
+                "child": [
+                    {
+                        "id": 64,
+                        "name": "diligent_select",
+                        "title": "日精进列表",
+                        "node_id": 11,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 65,
+                        "name": "diligent_add",
+                        "title": "发布日精进",
+                        "node_id": 11,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 67,
+                        "name": "leave_select",
+                        "title": "请假外出",
+                        "node_id": 11,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 71,
+                        "name": "leave_count",
+                        "title": "请假统计",
+                        "node_id": 11,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 74,
+                        "name": "task_select",
+                        "title": "任务列表",
+                        "node_id": 11,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 87,
+                        "name": "overtime_select",
+                        "title": "加班申请",
+                        "node_id": 11,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 105,
+                        "name": "task_count",
+                        "title": "任务统计",
+                        "node_id": 11,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": 10,
+        "name": "Members",
+        "title": "会员中心",
+        "pid": 0,
+        "child": []
+    },
+    {
+        "id": 17,
+        "name": "erp",
+        "title": "进销存",
+        "pid": 0,
+        "child": [
+            {
+                "id": 12,
+                "name": "Plans",
+                "title": "活动策划",
+                "pid": 17,
+                "child": [
+                    {
+                        "id": 75,
+                        "name": "plan_select",
+                        "title": "策划列表",
+                        "node_id": 12,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 78,
+                        "name": "plan_class_select",
+                        "title": "分类列表",
+                        "node_id": 12,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    }
+                ]
+            },
+            {
+                "id": 9,
+                "name": "Products",
+                "title": "产品管理",
+                "pid": 17,
+                "child": [
+                    {
+                        "id": 53,
+                        "name": "express_select",
+                        "title": "物流列表",
+                        "node_id": 9,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 94,
+                        "name": "supplier_select",
+                        "title": "供应商",
+                        "node_id": 9,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 43,
+                        "name": "product_select",
+                        "title": "产品列表",
+                        "node_id": 9,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 44,
+                        "name": "product_class_select",
+                        "title": " 产品分类",
+                        "node_id": 9,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 102,
+                        "name": "product_count",
+                        "title": "产品统计",
+                        "node_id": 9,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    }
+                ]
+            },
+            {
+                "id": 13,
+                "name": "Specials",
+                "title": "专题",
+                "pid": 17,
+                "child": [
+                    {
+                        "id": 112,
+                        "name": "special_distribution_select",
+                        "title": "大礼包分销会员",
+                        "node_id": 13,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    },
+                    {
+                        "id": 113,
+                        "name": "special_distribution_order_select",
+                        "title": "大礼包分销订单",
+                        "node_id": 13,
+                        "menu": 1,
+                        "type": 1,
+                        "pid": 0
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": 16,
+        "name": "crm",
+        "title": "CRM系统",
+        "pid": 0,
+        "child": []
+    },
+    {
+        "id": 18,
+        "name": "finance",
+        "title": "财务系统",
+        "pid": 0,
+        "child": []
+    },
+    {
+        "id": 3,
+        "name": "System",
+        "title": "系统配置",
+        "pid": 0,
+        "child": []
+    }
+]

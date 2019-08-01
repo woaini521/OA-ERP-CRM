@@ -1,0 +1,44 @@
+{
+ "data": [
+    {
+        "companyName": "人保财险",
+        "abbreviation": "总公司",
+        "province": "上海",
+        "city": "普陀区",
+        "address": "金沙江路 1518 弄",
+        "customer": 200333,
+        "order": 666,
+        "contact": 666
+      },
+      {
+        "companyName": "众泰保险",
+        "abbreviation": "众泰保险总众泰保险公司",
+        "province": "上海",
+        "city": "普陀区",
+        "address": "上海普陀区金沙江路 1518 弄",
+        "customer": 200333,
+        "order": 666,
+        "contact": 666
+      },
+      {
+        "companyName": "中国人寿",
+        "abbreviation": "可为文化总公司",
+        "province": "湖南",
+        "city": "芙蓉区",
+        "address": "浏阳河大道2段98号鑫科明珠1栋",
+        "customer": 200333,
+        "order": 666,
+        "contact": 666
+      },
+      {
+        "companyName": "湖南可为",
+        "abbreviation": "可为文化总公司",
+        "province": "湖南",
+        "city": "芙蓉区",
+        "address": "浏阳河大道2段98号鑫科明珠1栋",
+        "customer": 200333,
+        "order": 666,
+        "contact": 666
+      }
+]
+}

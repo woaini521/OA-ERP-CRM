@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <el-button type="warning" style="margin-top:10px;" @click="tian">添加</el-button>
+        <el-button type="warning" @click="tian">添加</el-button>
         <el-divider direction='horizontal'></el-divider>
         <el-table :data="tableData" style="margin-top:10px;">
             <el-table-column label="名称" prop="name">

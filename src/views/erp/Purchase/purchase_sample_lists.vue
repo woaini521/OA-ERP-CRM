@@ -14,12 +14,15 @@
             <el-table-column label="状态">
                 <template slot-scope="scope">
                     <span v-if="scope.row.status == 0">草稿</span>
-                    <span v-if="scope.row.status == 1">等待采购配货</span>
-                    <span v-if="scope.row.status == 10">等待财务审核</span>
-                    <span v-if="scope.row.status == 20">等待财务审核</span>
-                    <span v-if="scope.row.status == 30">等待发货</span>
+                    <span v-if="scope.row.status == 1">等待巴长审核</span>
+                    <span v-if="scope.row.status == 5">等待采购配货</span>
+                    <span v-if="scope.row.status == 10">采购设置完毕</span>
+                    <span v-if="scope.row.status == 15">等待财务审核</span>
+                    <span v-if="scope.row.status == 20">等待出纳付款</span>
+                    <span v-if="scope.row.status == 25">等待仓库拿货</span>
+                    <span v-if="scope.row.status == 30">等待厂家发货</span>
                     <span v-if="scope.row.status == 40">已经发货</span>
-                    <span v-if="scope.row.status == 50">已经收到货</span>
+                    <span v-if="scope.row.status == 50">已经签收</span>
                     <span v-if="scope.row.status == 90">结束</span>
                 </template>
             </el-table-column>

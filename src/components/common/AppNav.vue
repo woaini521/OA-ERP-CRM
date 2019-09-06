@@ -1,6 +1,6 @@
 <!-- 左侧菜单导航栏组件 -->
 <template>
-  <el-scrollbar style="height: 100%;">
+  <el-scrollbar style="height: 100%;background:#324057">
     <div class="app-nav-wrap" style="height: 100%;">
       <i style="font-size: 22px;color: #CCC;margin-left: 22px;" :class="[ isCollapse == false ? 'el-icon-s-fold' : 'el-icon-s-unfold']" @click="isCollapse = !isCollapse" :title="[isCollapse == false ? '回收' : '展开']"></i>
       <!-- 这里是动态渲染数据 -->
@@ -17,7 +17,7 @@
 
               <template v-for="items in item.child">
                 <template v-if="items.child !== null">
-                  <el-submenu :index = "items.name" :key="items.id" >
+                  <el-submenu :index="`${item.name}${items.name}`" :key="items.id" >
                       <span slot="title">{{items.title}}</span>
                       <el-menu-item v-for="it in items.child" :index="`/${item.name}/${items.name}/${it.name}`" :key="it.id">{{it.title}}</el-menu-item>
                   </el-submenu>
@@ -82,6 +82,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .app-nav-wrap {
+  background: #324057;
   .el-menu {
     border-right: none;
   }

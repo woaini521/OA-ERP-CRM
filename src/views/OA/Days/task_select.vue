@@ -1,14 +1,21 @@
 <template>
-    <div class="box" style="padding-bottom:20px;">
-        <!-- <div class="head_box">
-            <label>筛选：</label>
+    <div class="box" style="padding-bottom:20px;overflow: hidden;">
+        <div style="float: left;margin-top:0px;">
+            <label>筛选发起人：</label>
             <el-input v-model="name" style="width:217px"></el-input>
             <el-button style="margin-left:20px" @click="seach">确定</el-button>
-        </div> -->
-        <el-button @click="send" style="margin-top:20px;">发起</el-button>
-        <el-table :data="tableData"  style="width: 100%;margin-top:20px;">
+        </div>
+        <el-button @click="send" style="float: right;margin-right:20px;">发起</el-button>
+        <el-table :data="tableData"  style="width: 100%;padding-top: 10px;">
             <el-table-column prop="task_name"  label="名称"></el-table-column>
             <el-table-column prop="apply_name"  label="发起人"></el-table-column>
+            <el-table-column label="参与人" prop="task_user_list"> 
+                <template slot-scope="scope">
+                    <span v-for="item in scope.row.task_user_list" :key="item">
+                        {{item}} 
+                    </span>
+                </template>
+            </el-table-column>
             <el-table-column label="接收部门/负责人">
                 <template slot-scope="scope">
                     <span>{{scope.row.dep_name}}/{{scope.row.receive_name}}</span>
@@ -19,7 +26,7 @@
                     <span>{{scope.row.type.type_text}}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="start_time"  label="时间" width="150px"></el-table-column>
+            <el-table-column prop="start_time"  label="时间" width="155px"></el-table-column>
             <el-table-column label="内容" align="center">
                 <template slot-scope="scope">
                     <el-tooltip class="item" effect="dark"  placement="top">
@@ -33,11 +40,14 @@
                     <span>{{scope.row.status.status_text}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作">
-                <template slot-scope="scope">
-                   <el-button size="mini" type="primary" v-if="scope.row.receive_user == zt && scope.row.status.status == 0" @click="linqu(scope.row)">分配</el-button>
-                   <el-button size="mini" type="primary" v-if="scope.row.status.status == 1" @click="see(scope.row)">查看</el-button>
-                   <el-button size="mini" type="primary" @click="updata(scope.row)" v-if="scope.row.apply_user == zt && scope.row.status.status == 0">修改</el-button>     
+            <el-table-column label="操作" width="210px">
+                <template slot-scope="scope" >
+                   <el-button size="mini" type="primary" v-if="scope.row.receive_user == zt && scope.row.status.status <= 1" @click="linqu(scope.row)">分配</el-button>
+                   <el-button size="mini" type="primary" v-if="scope.row.status.status >= 1" @click="see(scope.row)">查看</el-button>
+                   <el-button size="mini" type="primary" v-if="scope.row.status.status == 1 && scope.row.apply_user == zt" @click="wancheng(scope.row)">完成</el-button>
+                   <el-button size="mini" type="primary" @click="updata(scope.row)" v-if="scope.row.apply_user == zt && scope.row.status.status <= 0">修改</el-button>  
+                   <el-button size="mini" type="danger" @click="deteles(scope.row)" v-if=" (scope.row.apply_user == zt && scope.row.status.status <= 0) || (scope.row.receive_user == 183 && scope.row.status.status <= 0)">删除</el-button>   
+                   <el-button size="mini" type="success" @click="shenhe(scope.row)" v-if="BZ == 1 && scope.row.status.status == -1">审核</el-button>  
                 </template>
             </el-table-column>
         </el-table>
@@ -59,12 +69,12 @@
             <p style="margin-top:10px;margin-bottom:5px;">参与角色</p>
             <template></template>
             <el-form v-for="(item,index) in Options" :key="index" :model="item">
-                <el-form-item label="设计">
+                <el-form-item :label="item.name">
                     <el-select :disabled="show1" v-model="designForm.user_id[index]" placeholder="请选择人员">
                         <el-option v-for="items in item.list" :key="items.user_id" :label="items.name" :value="items.user_id"></el-option>
                     </el-select>
-                    <el-input :disabled="show1" type="number" v-model="designForm.work_time1[index]" style="width:100px;margin-left:10px;" placeholder="工时1"></el-input>
-                    <el-input :disabled="show1" type="number" v-model="designForm.work_time2[index]" style="width:100px;margin-left:10px;" placeholder="工时2"></el-input>
+                    <el-input :disabled="show1" type="number" v-model="designForm.work_time1[index]" style="width:100px;margin-left:10px;" :placeholder="item.name == '策划'? '字数1' :'工时1'"></el-input>
+                    <el-input :disabled="show1" type="number" v-model="designForm.work_time2[index]" style="width:100px;margin-left:10px;" :placeholder="item.name == '策划'? '字数2' :'工时2'"></el-input>
                 </el-form-item>
             </el-form>
            
@@ -104,6 +114,7 @@ export default {
             task_id:'',   
 
             zt:0,
+            BZ:'',
             name:'',
             task_name:'',
             dep_name:'',
@@ -124,7 +135,8 @@ export default {
                 this.total = res.data.data.total;
                 this.per_page = res.data.data.per_page;
                 this.last_page = res.data.data.last_page;
-                this.zt = res.data.user_id
+                this.zt = res.data.user_id;
+                this.BZ= res.data.bazhang;
             })
         },
         // 分页 
@@ -137,6 +149,7 @@ export default {
             });
             this.axios.post('/oa.Days/task_select',{
                 page:val,
+                task_user:this.$route.params.name
             }).then(res => {
                 this.tableData = res.data.data.data;
                 this.currentPage = res.data.data.current_page;
@@ -147,18 +160,30 @@ export default {
             })  
         },
         seach(){
-            // this.axios.post('/oa.Days/task_select',{
-            //     name:this.name
-            // }).then(res => {
-            //     this.tableData = res.data.data.data; 
-            //     this.currentPage = res.data.data.current_page;
-            //     this.total = res.data.data.total;
-            //     this.per_page = res.data.data.per_page;
-            //     this.last_page = res.data.data.last_page;
-            // })
+            this.axios.post('/oa.Days/task_select',{
+                name:this.name
+            }).then(res => {
+                this.tableData = res.data.data.data; 
+                this.currentPage = res.data.data.current_page;
+                this.total = res.data.data.total;
+                this.per_page = res.data.data.per_page;
+                this.last_page = res.data.data.last_page;
+            })
+        },
+        // 统计跳转 获取数据
+        tongData(a){
+            this.axios.post('/oa.Days/task_select',{
+                task_user:a
+            }).then(res => {
+                this.tableData = res.data.data.data; 
+                this.currentPage = res.data.data.current_page;
+                this.total = res.data.data.total;
+                this.per_page = res.data.data.per_page;
+                this.last_page = res.data.data.last_page;
+            })  
         },
         // 发起
-        send(){
+        send(a){
             this.$router.push({ path:'/oa/Days/task_add/0'});
             let ins1 = {
                 route: `/oa/Days/task_add/0`,
@@ -180,8 +205,38 @@ export default {
             this.triggerAddTabs(ins1);
             this.triggerSetActiveIndex(ins2);
         },
+        deteles(a){
+          this.axios.post('/oa.Days/task_delete',{
+              id:a.id
+          }).then(res => {
+                 if(res.data.code == 2000){
+                        this.open(res.data.msg,'success');
+                        
+                        this.gettableData();
+                }else{
+                        this.open(res.data.msg,'error');
+                    } 
+          })  
+        },
+        // 审核
+        shenhe(a){
+            this.axios.post('/oa.Days/task_done',{
+                id:a.id,
+                status:'0',
+            }).then(res => {
+                if(res.data.code == 2000){
+                    this.open(res.data.msg,'success');
+                    this.gettableData();
+                }else{
+                    this.open(res.data.msg,'error');
+                } 
+            })
+        },
         // 领取
         linqu(a){
+            this.designForm.user_id=[]
+            this.designForm.work_time1=[]
+            this.designForm.work_time2=[]
             this.axios.get('/oa.Days/task_assign?id='+a.id).then(res => {
                 this.show = true;
                 this.show1 = false;
@@ -194,9 +249,18 @@ export default {
                 this.dep_name = res.data.data.dep_name;
                 this.dialogVisible = true;
                 this.task_id = res.data.data.id;
+                let arr = res.data.task_user_list
+                arr.map(item => {
+                  this.designForm.user_id.push(item.task_user)
+                  this.designForm.work_time1.push(item.work_time1)
+                  this.designForm.work_time2.push(item.work_time2)
+                })
             })
         },
         see(a){
+            this.designForm.user_id= []
+            this.designForm.work_time1=[]
+            this.designForm.work_time2=[]
             this.axios.get('/oa.Days/task_assign?id='+a.id).then(res => {
                 this.show = false;
                 this.show1 = true;
@@ -241,6 +305,20 @@ export default {
                     } 
             })
         },
+        // 完成
+        wancheng(a){
+            this.axios.post('/oa.Days/task_done',{
+                id:a.id,
+                status:'2',
+            }).then(res => {
+                if(res.data.code == 2000){
+                    this.open(res.data.msg,'success');
+                    this.gettableData();
+                }else{
+                    this.open(res.data.msg,'error');
+                } 
+            })
+        },
         // 公用弹窗
         open(a,b){
             this.$message({
@@ -250,7 +328,13 @@ export default {
         },
     },
     activated(){
-        this.gettableData();
+        console.log(this.$route.params.name)
+        if(this.$route.params.name != undefined){
+            this.tongData(this.$route.params.name)
+        }else{
+            this.gettableData();
+        }
+        
     }
 }
 </script>
@@ -260,5 +344,5 @@ export default {
 </style>
 
 
-</style>
+
 

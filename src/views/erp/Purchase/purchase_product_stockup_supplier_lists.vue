@@ -13,6 +13,8 @@
                             <el-table-column label="供应商" prop="supplier_name"></el-table-column>
                             <el-table-column label="数量" prop="number"></el-table-column>
                             <el-table-column label="单价" prop="purchase_price"></el-table-column>
+                            <el-table-column label="运费" prop="freight_price"></el-table-column>
+                            <el-table-column label="总金额" prop="money"></el-table-column>
                             <el-table-column label="仓库类型" prop="type">
                                  <template slot-scope="scopes">
                                     <span v-if="scopes.row.type == 0">本地储存</span>
@@ -99,6 +101,9 @@
                 <el-form-item label="单价" label-width="90px">
                     <el-input style="width:300px" v-model="dialogPurchaseForm.purchase_price"></el-input>
                 </el-form-item>
+                <el-form-item label="运费" label-width="90px">
+                    <el-input style="width:300px" v-model="dialogPurchaseForm.freight_price"></el-input>
+                </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogPurchase = false">取 消</el-button>
@@ -129,6 +134,7 @@ export default {
               purchase_price:'',  // 单价
               type:'', // 仓库类型
               settlement:'', // 结算方式
+              freight_price:'',
               id:'',
             }
         }
@@ -202,7 +208,8 @@ export default {
                     number:this.dialogPurchaseForm.number,
                     supplier_id:this.dialogPurchaseForm.supplier_id,
                     purchase_price:this.dialogPurchaseForm.purchase_price,
-                    money:`${this.dialogPurchaseForm.number * this.dialogPurchaseForm.purchase_price}`,
+                    freight_price:this.dialogPurchaseForm.freight_price,
+                    money:`${ Number(this.dialogPurchaseForm.number) * Number(this.dialogPurchaseForm.purchase_price) + Number(this.dialogPurchaseForm.freight_price)}`,
                     type:this.dialogPurchaseForm.type,
                     settlement:this.dialogPurchaseForm.settlement,
                 }).then(res => {
@@ -221,7 +228,8 @@ export default {
                     number:this.dialogPurchaseForm.number,
                     supplier_id:this.dialogPurchaseForm.supplier_id,
                     purchase_price:this.dialogPurchaseForm.purchase_price,
-                    money:`${this.dialogPurchaseForm.number * this.dialogPurchaseForm.purchase_price}`,
+                    freight_price:this.dialogPurchaseForm.freight_price,
+                    money:`${ Number(this.dialogPurchaseForm.number) * Number(this.dialogPurchaseForm.purchase_price) + Number(this.dialogPurchaseForm.freight_price)}`,
                     type:this.dialogPurchaseForm.type,
                     settlement:this.dialogPurchaseForm.settlement,
                     id:this.dialogPurchaseForm.id,

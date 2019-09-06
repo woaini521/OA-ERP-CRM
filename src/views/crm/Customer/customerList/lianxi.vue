@@ -1,6 +1,10 @@
 <template>
   <div class="box">
-    <el-button style="margin-left:10px;margin-top:20px" type="primary" @click="addRecord">添加记录</el-button>       
+    <el-button style="margin-left:10px;margin-right: 40px;" type="primary" @click="addRecord">添加记录</el-button>       
+    <label>时间筛选:</label>
+    <el-date-picker style="margin-left: 10px;" v-model="time" type="daterange" range-separator="至" start-placeholder="开始日期" value-format="timestamp" end-placeholder="结束日期">
+    </el-date-picker>
+    <el-button style="margin-left:20px" @click="seach">搜索</el-button> 
     <el-table :data="tableData">
       <el-table-column prop="add_time" label="时间">
       </el-table-column>
@@ -55,7 +59,8 @@
   export default {
     data () {
       return {
-        search:'', // 搜索
+        
+        time:null,
         tableData:[], // 表格
         dialogRecord:false, // 弹窗
         dialogRecordForm:{ // 表单
@@ -106,6 +111,14 @@
       },
       // 分页
       handleCurrentChange(val) {
+        let a,b;
+        if(this.time == null){
+            a='';
+            b=''
+        }else{
+            a=this.time[0]/1000;
+            b=this.time[1]/1000
+        }
         const loading = this.$loading({
           lock: true,
           text: '拼命加载中',
@@ -114,9 +127,17 @@
         });
         this.axios.post('/crm.Customer/customer_record',{
             page:val,
+            customer_id:this.$route.params.id,
+            start_time:a,
+            end_time:b,
           }).then(res => {
-          this.customerListInfo = res.data.customer.data;
+          // this.customerListInfo = res.data.customer.data;
+          // this.currentPage = res.data.customer.current_page;
+          this.tableData = res.data.customer.data;
           this.currentPage = res.data.customer.current_page;
+          this.total = res.data.customer.total;
+          this.per_page = res.data.customer.per_page;
+          this.last_page = res.data.customer.last_page;
           loading.close();
           //console.log(this.customerListInfo)
         })  
@@ -174,7 +195,7 @@
       },
       // 删除按钮
       deletes(a){
-         this.axios.post('/crm.Customer/customer_record_detele',{
+         this.axios.post('/crm.Customer/customer_record_delete',{
             id:a.id,
           }).then(res => {
             if(res.data.code == 2000){
@@ -201,6 +222,32 @@
          return result = false
         }
       },
+
+      seach(){// 搜索
+          let a,b;
+          if(this.time == null){
+            a='';
+            b=''
+          }else{
+            a=this.time[0]/1000;
+            b=this.time[1]/1000
+          }
+          this.axios.post('/crm.Customer/customer_record',{
+            customer_id:this.$route.params.id,
+            start_time:a,
+            end_time:b,
+          }).then(res => {
+          // this.customerListInfo = res.data.customer.data;
+          // this.currentPage = res.data.customer.current_page;
+          this.tableData = res.data.customer.data;
+          this.currentPage = res.data.customer.current_page;
+          this.total = res.data.customer.total;
+          this.per_page = res.data.customer.per_page;
+          this.last_page = res.data.customer.last_page;
+          //console.log(this.customerListInfo)
+        })
+      }, 
+
        // 公用弹窗
       open(a,b){
         this.$message({

@@ -1,7 +1,7 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
   <div class="box">
-    <div class="beizhu" style="overflow: hidden;margin-top:20px;">
+    <div class="beizhu" style="overflow: hidden;">
             <span style="float: left;line-height: 40px;margin-right: 10px;">备注</span>
             <el-input style="float: left;width:95%" v-model="remarks"></el-input>
           </div>
@@ -61,7 +61,7 @@
               </p>
             </div>
             <div class="generatedAddressInnerRight">
-                <el-button type="primary" @click="addWuliu(item)">添加物流信息</el-button>
+                <el-button type="primary" v-if="zt >= 30" @click="addWuliu(item)">添加物流信息</el-button>
             </div>
             <el-table :data="item.express">
                 <el-table-column label="物流名称" prop="express_name"></el-table-column>
@@ -129,6 +129,7 @@ import {mapActions} from 'vuex';
     data () {
       return {
         remarks:'',// 备注 
+        zt:'',// 状态
         // 订单产品数据
         tableData:[],
         fixedAddress:[],
@@ -276,9 +277,10 @@ import {mapActions} from 'vuex';
         },
         // 订单草稿箱
         getcaogao(){
-            this.axios.get('/crm.Sample/sample_update?id='+this.$route.params.id).then(res => {
+            this.axios.get('/crm.Sample/sample_update?id='+this.$route.params.id+'&param=chakan').then(res => {
                 if(res.data.order === undefined){ 
                     this.remarks = res.data.remarks;
+                    this.zt = res.data.status;
                     this.gettableData(res.data.id);
                     this.getfixedAddress(res.data.id);
                 }

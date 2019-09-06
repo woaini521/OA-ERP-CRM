@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <el-form :model="formData" style="margin-top:20px">
+        <el-form :model="formData">
             <el-form-item label="名称" label-width="90px">
                 <el-input v-model="formData.name" style="width:217px"></el-input>
             </el-form-item>
@@ -81,24 +81,28 @@ export default {
         },
         confirm(){
             if(this.$route.params.id == 0){
-                this.axios.post('/oa.Days/task_add',{
-                    task_name:this.formData.name,
-                    receive_user:this.formData.user_id,
-                    type:this.formData.type,
-                    task_type:this.formData.value,
-                    role:this.formData.role.join(","),
-                    content:this.formData.remarks,
-                    dep_id:this.formData.dep_id,
-                    end_time:this.formData.end_time/1000
-                }).then(res => {
-                    if(res.data.code == 2000){
-                        this.open(res.data.msg,'success')
-                        this.triggerDeleteTabs(this.$route.path);
-                        this.$router.push({ path: "/oa/Days/task_select" });
-                    }else{
-                        this.open(res.data.msg,'error');
-                    } 
-                })
+                if(this.formData.name == '' || this.formData.user_id == '' || this.formData.value == '' || this.formData.remarks == '' || this.formData.role == '' || this.formData.end_time == ''){
+                   this.open('填写完整','error'); 
+                }else{
+                    this.axios.post('/oa.Days/task_add',{
+                        task_name:this.formData.name,
+                        receive_user:this.formData.user_id,
+                        type:this.formData.type,
+                        task_type:this.formData.value,
+                        role:this.formData.role.join(","),
+                        content:this.formData.remarks,
+                        dep_id:this.formData.dep_id,
+                        end_time:this.formData.end_time/1000
+                    }).then(res => {
+                        if(res.data.code == 2000){
+                            this.open(res.data.msg,'success')
+                            this.triggerDeleteTabs(this.$route.path);
+                            this.$router.push({ path: "/oa/Days/task_select" });
+                        }else{
+                            this.open(res.data.msg,'error');
+                        } 
+                    })
+                } 
             }else{
                 this.axios.post('/oa.Days/task_update',{
                     task_name:this.formData.name,
@@ -149,10 +153,20 @@ export default {
             })
         }, 
     },
-    created(){
-       this.getoptions()
+    activated(){
        if(this.$route.params.id>0){
+           this.getoptions();
            this.getupdata(this.$route.params.id);
+       }else{
+           this.getoptions();
+            this.formData.name='';
+            this.formData.type='1';
+            this.formData.dep_id='';
+            this.formData.user_id='' ;
+            this.formData.role=[];
+            this.formData.value='';
+            this.formData.remarks='';
+            this.formData.end_time='';
        }
     }
 }

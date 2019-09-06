@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <el-button @click="add" style="margin-top:20px">发起</el-button>
+        <el-button @click="add">发起</el-button>
         <div class="box_head">
             <label>姓名：</label>
             <el-input placeholder="名称" v-model="seachName" style="width:180px;margin-left:10px"></el-input>
@@ -9,17 +9,23 @@
             <label>结束日期：</label>
             <el-date-picker v-model="seachEnd" type="date" style="width:180px;" placeholder="选择日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd"></el-date-picker>
             <label>审批情况：</label>
-            <el-select v-model="value" placeholder="请选择" style="width:100px;">
-                    <el-option label="全部" value="全部"></el-option>
-                    <el-option label="待审批" value="1"></el-option>
-                    <el-option label="已审批" value="2"></el-option>
-                </el-select>
+            <el-select v-model="value" placeholder="请选择" clearable style="width:100px;">
+                <el-option label="巴长审批中" value="1"></el-option>
+                <el-option label="人事审批中" value="2"></el-option>
+                <el-option label="完成" value="3"></el-option>
+            </el-select>
             <el-button type="primary" @click="seach"  style="margin-left:20px;">搜索</el-button>
+           
+             
         </div>
         <div class="content_box">
             <el-table :data="tableData">
                 <el-table-column label="名字" prop="name" width="100px"></el-table-column>
-                <el-table-column label="类型" prop="leave_type" width="80px"></el-table-column>
+                <el-table-column label="类型" width="80px">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.leave_type.leave_type_text }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="开始时间" width="155px;">
                     <template slot-scope="scope">
                         <span>{{ scope.row.start_time }}</span>
@@ -41,11 +47,15 @@
                         <span>{{scope.row.leave_flow.leave_flow_text}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="状态" prop="status"></el-table-column>
-                <el-table-column label="操作">
+                <el-table-column label="状态" prop="status">
                     <template slot-scope="scope">
-                        <el-button type="primary" @click="shenhe(scope.row)" size="mini">审核</el-button>
-                        <br>
+                        <span>{{ scope.row.status.status_text }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="210px">
+                    <template slot-scope="scope">
+                        <el-button type="primary" v-if="scope.row.status.status == 0 && zt == scope.row.user_id" @click="update(scope.row)" size="mini">修改</el-button>
+                        <el-button type="success" :disabled="scope.row.shenpi == 0" @click="shenhe(scope.row)" size="mini">审核</el-button>
                         <el-button type="danger" @click="shanchu(scope.row)" size="mini">删除</el-button>
                     </template>
                 </el-table-column>
@@ -91,6 +101,7 @@ export default {
             seachStart:'',
             seachEnd:'',
             value:'',
+            
             tableData:[],
             currentPage:0,//当前页
             total:0,//总数
@@ -103,6 +114,8 @@ export default {
                text:'',
             },
             yuanyin:'',
+            VS:'',
+            zt:'',
         }
     },
     methods:{
@@ -110,15 +123,17 @@ export default {
         ...mapActions("Tabs", ["triggerAddTabs", "triggerSetActiveIndex"]),
         gettableData(){
             this.axios.get('/oa.Days/leave_select').then(res =>{
-                this.tableData = res.data.data;
-                this.currentPage = res.data.current_page;
-                this.total = res.data.total;
-                this.per_page = res.data.per_page;
-                this.last_page = res.data.last_page;
+                this.tableData = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.total = res.data.data.total;
+                this.per_page = res.data.data.per_page;
+                this.last_page = res.data.data.last_page;
+                this.zt = res.data.user_id;
             })
         },
          // 分页切换
         handleCurrentChange(val) {
+            this.VS = val;
             const loading = this.$loading({
                 lock: true,
                 text: '拼命加载中',
@@ -130,10 +145,13 @@ export default {
                 name:this.seachName,
                 start_time:this.seachStart,
                 end_time:this.seachEnd,
-                status:this.value,
+                leave_flow:this.value,
             }).then(res => {
-                this.tableData = res.data.data;
-                this.currentPage = res.data.current_page;
+                this.tableData = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.total = res.data.data.total;
+                this.per_page = res.data.data.per_page;
+                this.last_page = res.data.data.last_page;
                 loading.close();
             })  
         },
@@ -149,13 +167,13 @@ export default {
                 name:this.seachName,
                 start_time:this.seachStart,
                 end_time:this.seachEnd,
-                status:this.value,
+                leave_flow:this.value,
             }).then(res => {
-                this.tableData = res.data.data;
-                this.currentPage = res.data.current_page;
-                this.total = res.data.total;
-                this.per_page = res.data.per_page;
-                this.last_page = res.data.last_page;
+                this.tableData = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.total = res.data.data.total;
+                this.per_page = res.data.data.per_page;
+                this.last_page = res.data.data.last_page;
                 loading.close();
             })  
         },
@@ -169,6 +187,16 @@ export default {
           let ins2 = `/oa/Days/add`;
           this.triggerAddTabs(ins1);
           this.triggerSetActiveIndex(ins2);  
+        },
+        update(a){
+            this.$router.push({ name:'发起申请',params:{id:a.id,type:a.leave_type.leave_type,} });
+            let ins1 = {
+                route: `/oa/Days/add`,
+                name: "发起申请",
+            };
+            let ins2 = `/oa/Days/add`;
+            this.triggerAddTabs(ins1);
+            this.triggerSetActiveIndex(ins2); 
         },
         // 审核
         shenhe(a){
@@ -196,7 +224,7 @@ export default {
                     }).then(res => {
                         if(res.data.code == 2000){
                             this.dialogshenp = false;
-                            this.gettableData();
+                            this.handleCurrentChange(this.VS);
                             this.open(res.data.msg,'success'); 
                         }else{
                             this.open(res.data.msg,'error'); 
@@ -211,7 +239,7 @@ export default {
                     }).then(res => {
                         if(res.data.code == 2000){
                             this.dialogshenp = false;
-                            this.gettableData();
+                            this.handleCurrentChange(this.VS);
                             this.open(res.data.msg,'success'); 
                         }else{
                             this.open(res.data.msg,'error'); 
@@ -240,14 +268,14 @@ export default {
             })
         }
     },
-    created(){
+    activated(){
         this.gettableData();
     },
-    watch:{
-        $route(to){
-            this.gettableData();  
-        }
-    },
+    // watch:{
+    //     $route(to){
+    //         this.gettableData();  
+    //     }
+    // },
     filters: {
      formatDate: function (value) {
         let date = new Date(value);

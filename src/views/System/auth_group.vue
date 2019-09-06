@@ -1,7 +1,7 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
   <div class="box">
-      <el-button type="warning" @click="add" style="margin-top:20px;">添加分组</el-button>
+      <el-button type="warning" @click="add">添加分组</el-button>
         <el-table :data="tableData" style="width: 100%;margin-top:20px">
           <el-table-column prop="title" label="名称"></el-table-column>
           <el-table-column label="操作">

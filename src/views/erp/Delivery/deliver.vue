@@ -6,25 +6,27 @@
                <el-table-column label="数量" prop="number"></el-table-column>
                <el-table-column label="收货人" prop="address_name"></el-table-column>
                <el-table-column label="收货人号码" prop="address_phone"></el-table-column>
-               <el-table-column label="收货地址" width="450px">
+               <el-table-column label="供应商" prop="supplier_name" width="300px"></el-table-column>
+               <el-table-column label="采购" prop="purchase_user_name"></el-table-column>
+               <el-table-column label="操作"  v-if="this.xian == 1">
                    <template slot-scope="scope">
-                       <span>{{scope.row.address_province}}{{scope.row.address_city}}{{scope.row.address_county}}{{scope.row.address_address}}</span>
+                       <el-button type="primary" size="mini" @click="openWuliu(scope.row)">添加物流信息</el-button>
                    </template>
                </el-table-column>
            </el-table>
         </div>
         <div class="content_box_wuliu">
-            <el-button type="primary" @click="openWuliu">添加物流信息</el-button>
             <el-table :data="tableDataWuliu">
                 <el-table-column label="物流公司" prop="express_name"></el-table-column>
                 <el-table-column label="快递单号" prop="express_numbers"></el-table-column>
                 <el-table-column label="快递联系方式" prop="express_phone"></el-table-column>
                 <el-table-column label="备注" prop="remarks"></el-table-column>
-                <el-table-column label="操作">
+                <el-table-column label="操作" width="310px"  v-if="this.xian == 1">
                     <template slot-scope="scope">
                         <el-button type="primary" size="mini" @click="Feiyong(scope.row)">费用</el-button>
                         <el-button type="warning" size="mini" @click="edit(scope.row)">修改</el-button>
                         <el-button type="danger" size="mini" @click="deletes(scope.row)">删除</el-button>
+                        <el-button type="danger" size="mini" @click="wuliu(scope.row)">物流</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -51,7 +53,7 @@
                         <span>{{status3[scope.row.status]}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="修改">
+                <el-table-column label="修改" v-if="this.xian == 1">
                     <template slot-scope="scope">
                         <el-button type="warning" v-if="scope.row.status == 0" size="small" @click="editFeiyong(scope.row)">修改</el-button>
                          <el-button type="warning" v-else size="small" @click="editFeiyong(scope.row)" disabled>修改</el-button>   
@@ -119,19 +121,26 @@
                 <el-button type="primary" @click="addFeiyong">确 定</el-button>
             </div>
         </el-dialog>
+
+        <el-dialog title="物流状态" :visible.sync="dialogWuliuXx">
+            <trackwuLiu :order_express_id="a"></trackwuLiu>
+        </el-dialog>
+        
     </div>
 </template>
 
 <script>
+import trackwuLiu from "@/views/erp/Delivery/Track";
 export default {
+    components:{
+        trackwuLiu,
+    },
     data(){
         return{
-            shuju:'',//头数据
             tableData:[],//物流表格数据
             feiyongform:{
                 value:''
             },// 费用表单
-            options: [],// 物流公司列表
             dialogWuliu:false,//物流弹窗
             dialogWuliuForm:{
                 value:'',
@@ -139,7 +148,10 @@ export default {
                 number:'',
                 phone:'',
                 id:'',
-                remark:''
+                remark:'',
+                supplier_id:'',
+                customer_order_purchase_id:'',
+                customer_order_id:'',
             },
             dialogFeiyong:false, // 费用弹窗
             dialogFeiyongForm:{
@@ -151,43 +163,39 @@ export default {
                 express_id:'',
                 customer_order_id:'',
                 id:'',
+                supplier_id:'',
+                customer_order_purchase_id:'',
             },
-            tableDataWuliu:[], // 物流信息数据
-            tableDataFeiyong:[], // 费用信息数据
             status1:['无','微信','支付宝','银行卡'],
             status2:['自费','整体结算','月结'],
             status3:['等待财务审核','等待出纳审核','审核通过'],
+            dialogWuliuXx:false,
+            a:'',
+            b:'',
+            c:'',
         }
     },
+    props:['shuju','options','tableDataWuliu','tableDataFeiyong','xian'],
     methods:{
-        getshuju(){
-            this.axios.get('/erp.Delivery/delivery_order_find?supplier_id='+this.$route.params.supplier_id+'&customer_order_id='+this.$route.params.customer_order_id+'&customer_order_purchase_id='+this.$route.params.customer_order_purchase_id).then(res => {
-                this.shuju = res.data.purchase_product;
-                this.options = res.data.express;
-                this.tableDataWuliu = res.data.order_express;
-                this.tableDataFeiyong = res.data.order_express_cost;
-            })
-        },
         // 打开添加物流信息弹窗
-        openWuliu(){
-            let sj = '';
-            for(let i = 0; i<this.shuju.length;i++){
-                sj += `${this.shuju[i].sku_name}${this.shuju[i].name}:\n`
-            }
+        openWuliu(a){
+            this.dialogWuliuForm.supplier_id= a.supplier_id;
+            this.dialogWuliuForm.customer_order_purchase_id= a.customer_order_purchase_id;
+            this.dialogWuliuForm.customer_order_id= a.customer_order_id;
             this.dialogWuliu = true;
             this.dialogWuliuForm.value = '';
             this.dialogWuliuForm.CourierNumber = '';
             this.dialogWuliuForm.phone = '';
             this.dialogWuliuForm.id = '';
-            this.dialogWuliuForm.remark = sj;
+            this.dialogWuliuForm.remark = a.remarks;
         },
         // 提交物流信息
-        addWuliu(){
+        addWuliu(a){
             if(this.dialogWuliuForm.id == ''){
                 this.axios.post('/erp.Delivery/delivery_order_express_add',{
-                customer_order_id:this.$route.params.customer_order_id,
-                supplier_id:this.$route.params.supplier_id,
-                customer_order_purchase_id:this.$route.params.customer_order_purchase_id,
+                customer_order_id:this.dialogWuliuForm.customer_order_id,
+                supplier_id:this.dialogWuliuForm.supplier_id,
+                customer_order_purchase_id:this.dialogWuliuForm.customer_order_purchase_id,
                 express_id:this.dialogWuliuForm.value,
                 express_numbers:this.dialogWuliuForm.CourierNumber,
                 express_phone:this.dialogWuliuForm.phone,
@@ -196,7 +204,7 @@ export default {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
                         this.$refs['dialogWuliuForm'].resetFields();
-                        this.getshuju();
+                        this.$emit('func','1')
                         this.dialogWuliu = false;
                     }else{
                         this.open(res.data.msg,'error');
@@ -206,9 +214,9 @@ export default {
                 })
             }else{
                 this.axios.post('/erp.Delivery/delivery_order_express_update',{
-                   customer_order_id:this.$route.params.customer_order_id,
-                   supplier_id:this.$route.params.supplier_id,
-                   customer_order_purchase_id:this.$route.params.customer_order_purchase_id,
+                   customer_order_id:this.dialogWuliuForm.customer_order_id,
+                   supplier_id:this.dialogWuliuForm.supplier_id,
+                   customer_order_purchase_id:this.dialogWuliuForm.customer_order_purchase_id,
                    express_id:this.dialogWuliuForm.value,
                    express_numbers:this.dialogWuliuForm.CourierNumber,
                    express_phone:this.dialogWuliuForm.phone,
@@ -218,7 +226,7 @@ export default {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
                         this.$refs['dialogWuliuForm'].resetFields();
-                        this.getshuju();
+                        this.$emit('func','1')
                         this.dialogWuliu = false;
                     }else{
                         this.open(res.data.msg,'error');
@@ -239,6 +247,7 @@ export default {
             this.dialogFeiyongForm.type = '';
             this.dialogFeiyongForm.express_id = a.id;
             this.dialogFeiyongForm.customer_order_id = a.customer_order_id;
+            this.dialogFeiyongForm.supplier_id = a.supplier_id
         },
         // 物流 修改按钮
         edit(a){
@@ -247,6 +256,9 @@ export default {
             this.dialogWuliuForm.phone = a.express_phone;
             this.dialogWuliuForm.id = a.id;
             this.dialogWuliuForm.remark = a.remarks;
+            this.dialogFeiyongForm.express_id = a.id;
+            this.dialogFeiyongForm.customer_order_id = a.customer_order_id;
+            this.dialogFeiyongForm.supplier_id = a.supplier_id
             this.dialogWuliu = true;
         },
         // 物流 删除按钮
@@ -256,7 +268,7 @@ export default {
             }).then(res => {
                 if(res.data.code == 2000){
                     this.open(res.data.msg,'success');
-                    this.getshuju();
+                    this.$emit('func','1')
                 }else{
                     this.open(res.data.msg,'error'); 
                 }
@@ -272,11 +284,12 @@ export default {
                 payment_account:this.dialogFeiyongForm.payment_account,
                 type:this.dialogFeiyongForm.type,
                 prepayment:this.dialogFeiyongForm.money,
-                remarks:this.dialogFeiyongForm.remark
+                remarks:this.dialogFeiyongForm.remark,
+                supplier_id:this.dialogFeiyongForm.supplier_id,
                 }).then(res => {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
-                        this.getshuju();
+                        this.$emit('func','1')
                         this.dialogFeiyong = false;
                     }else{
                         this.open(res.data.msg,'error'); 
@@ -293,7 +306,7 @@ export default {
                 }).then(res => {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
-                        this.getshuju();
+                        this.$emit('func','1')
                         this.dialogFeiyong = false;
                     }else{
                         this.open(res.data.msg,'error'); 
@@ -321,11 +334,15 @@ export default {
             }).then(res => {
                 if(res.data.code == 2000){
                     this.open(res.data.msg,'success');
-                    this.getshuju();
+                    this.$emit('func','1')
                 }else{
                     this.open(res.data.msg,'error'); 
                 }
             })
+        },
+        wuliu(a){
+            this.dialogWuliuXx = true;
+            this.a = a.id;
         },
          // 公用弹窗
         open(a,b){
@@ -334,19 +351,8 @@ export default {
                 type: b
             });
         },
+        
     },
-    created(){
-        this.getshuju();
-    },
-    watch:{
-        $route(to){
-            if(!this.$route.params.supplier_id){
-
-            }else{
-                this.getshuju();
-            }
-        }
-    }
 }
 </script>
 

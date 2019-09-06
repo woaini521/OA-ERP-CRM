@@ -30,7 +30,7 @@
           <el-table-column label="业务员" prop="order_user_name"></el-table-column>
           <el-table-column label="操作">
               <template slot-scope="scope">
-                  <el-button type="primary" v-if="scope.row.status != 2" @click="sh(scope.row)" size="small">处理</el-button>
+                  <el-button type="primary" v-if="scope.row.status < 1" @click="sh(scope.row)" size="small">处理</el-button>
               </template>
           </el-table-column>
       </el-table>
@@ -52,7 +52,10 @@
       <h4 style="width:500px;margin-top:10px;">供应商地址：{{dialogSHForm.address}}</h4>
       <h4 style="width:500px;margin-top:10px;">产品名称：{{dialogSHForm.name}}  产品数量：{{dialogSHForm.number}} </h4>
       <h4 style="width:500px;margin-top:10px;">金额：{{dialogSHForm.money}}</h4>
+      <h4 style="width:500px;margin-top:10px;">结算方式：{{dialogSHForm.settlement  == 1 ?'月结':'现结' }}</h4>
       <h4 style="width:500px;margin-top:10px;">备注：{{dialogSHForm.remarks}}</h4>
+      <h4 style="width:500px;margin-top:10px;">采购备注：{{dialogSHForm.purchase_remarks}}</h4>
+      
       
       <el-form :model="dialogSHForm" style="margin-top:20px;">
         <el-form-item label="金额">
@@ -89,6 +92,8 @@ export default {
           number:'',
           money:'',
           remarks:'',
+          settlement:'',
+          purchase_remarks:'',
         },
     };
   },
@@ -130,6 +135,9 @@ export default {
         this.dialogSHForm.money = a.money;
         this.dialogSHForm.number = a.number;
         this.dialogSHForm.remarks = a.remarks;
+        this.dialogSHForm.settlement = a.settlement;
+        this.dialogSHForm.purchase_remarks = a.purchase_remarks;
+        
       },
       addSH(){
         this.axios.post('/erp.Purchase/purchase_order_after_sales_update',{

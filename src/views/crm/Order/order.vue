@@ -1,6 +1,6 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
-  <div class="box">
+  <div class="box" style="min-width: 1150px;">
       <div class="head_box">
        <el-select
           v-model="state4"
@@ -61,8 +61,11 @@
             <el-radio v-model="class_id" label="3">京东</el-radio>
           </div>
           <br>
+          
           <div class="beizhu" style="overflow: hidden;margin-top:20px;">
-            <span style="float: left;line-height: 40px;margin-right: 10px;">备注</span><el-input style="float: left;width:90%" v-model="remarks"></el-input>
+            <label>补开票费用:</label><el-input v-model="repair_invoice" style="width:217px;margin-right:30px"></el-input>
+            <label>补运费费用:</label><el-input v-model="repair_freight" style="width:217px;"></el-input><br>
+            <span style="float: left;line-height: 40px;margin-right: 10px;margin-top:10px">备注</span><el-input style="float: left;width:90%;margin-top:10px" v-model="remarks"></el-input>
           </div>
           <br>
           <div class="danxuan2">
@@ -120,7 +123,7 @@
                     <el-table-column property="ratio" label="提成系数"></el-table-column>
                     <el-table-column label="修改" width='150'>
                       <template slot-scope="scopes">
-                        <el-button type="danger" @click.native="editRoyalty(scopes.row)" size="mini">修改</el-button>
+                        <!-- <el-button type="danger" @click.native="editRoyalty(scopes.row)" size="mini">修改</el-button> -->
                         <el-button type="warning" @click.native="deleteRoyalty(scopes.row)" size="mini">删除</el-button>
                       </template>
                     </el-table-column>
@@ -171,6 +174,7 @@
             <el-table-column  prop="unit" label="单位"></el-table-column>
             <el-table-column  prop="cost_price" label="成本"></el-table-column>
             <el-table-column  prop="selling_price" label="售价"></el-table-column>
+            <el-table-column  prop="supplier_inventory_sum" label="库存"></el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
                 <el-button
@@ -223,7 +227,6 @@
           </div>       
       </el-dialog>
     <div class="content_box_address">
-       
         <div class="content_box_address_left">
           <div class="content_box_address_head">
             <el-button @click="changeAddress">选择地址</el-button>
@@ -247,7 +250,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-select v-model="formAddress.delivery" placeholder="物流方式" style="width:140px;">
-                        <el-option label="上门" value="1">
+                        <el-option label="到楼下" value="1">
                         </el-option>
                         <el-option label="上楼" value="2">
                         </el-option>
@@ -293,10 +296,6 @@
 
     </div>
     <el-dialog title="地址选择" :visible.sync="address" >
-        <!-- <el-input placeholder="省" style="width:20%"></el-input>
-        <el-input placeholder="市" style="width:20%;margin-left:5%"></el-input>
-        <el-input placeholder="区" style="width:20%;margin-left:5%"></el-input>
-        <el-button style="margin-left:5%">筛选</el-button> -->
         <div class="ChoiceAddress" style="height:400px;overflow-y: scroll;">
           <div class="ChoiceAddressInner" v-for="item in ChoiceAddress" :key="item.id">
             <div class="ChoiceAddressInnerLeft">
@@ -324,7 +323,7 @@
                 <span>收货人：{{item.name}}</span>
                 <span style="margin-left:20px;">收货电话：{{item.phone}}</span> 
                 <span style="margin-left:60px;">付款方式:{{ item.payment == 1 ? '到付' : '现付'}}</span>
-                <span v-if="item.delivery==1" style="margin-left:20px;">物流方式:上门</span> 
+                <span v-if="item.delivery==1" style="margin-left:20px;">物流方式:到楼下</span> 
                 <span v-if="item.delivery==2" style="margin-left:20px;">物流方式:上楼</span> 
                 <span v-if="item.delivery==3" style="margin-left:20px;">物流方式:自提</span>
               </p>
@@ -343,7 +342,6 @@
                 <br>
                 <el-button type="danger" @click="generatedAddressshanchu(item)" style="margin-top:10px;">删除</el-button>
             </div>
-              
           </div>      
       </div>
 
@@ -584,6 +582,8 @@ import excel from "@/components/excel";
         radio:'1',
         piao:'',
         class_id:'1',
+        repair_invoice:'',
+        repair_freight:'',
         remarks:'',//订单备注
 
         // 产品数据
@@ -671,6 +671,9 @@ import excel from "@/components/excel";
         imageUrlstate:false,
 
         dialogExcel:false,//文件弹窗
+
+
+        ID:'',
       };
     },
     filters:{
@@ -802,6 +805,8 @@ import excel from "@/components/excel";
               invoice_tax:shu.percentile.substring(0,shu.percentile.length-1),
               class_id:this.class_id,
               remarks:this.remarks,
+              repair_invoice:this.repair_invoice,
+              repair_freight:this.repair_freight,
             }).then(res => {
               if(res.data.code == 2000){
                 this.getProduct(); // 获取产品列表
@@ -834,9 +839,13 @@ import excel from "@/components/excel";
         });
         this.axios.post('/erp.product/product_sku_select',{
             page:val,
+            name:this.tableProductValue
           }).then(res => {
           this.tableProduct = res.data.product.data;
           this.currentPage = res.data.product.current_page;
+          this.total = res.data.product.total;
+          this.per_page = res.data.product.per_page;
+          this.last_page = res.data.product.last_page;
           loading.close();
         })  
       },
@@ -873,6 +882,13 @@ import excel from "@/components/excel";
       gettableData(a){
         this.axios.get('/crm.Order/customer_order_product_sku_select?customer_order_id='+a).then(res => {
           this.tableData = res.data.product_sku;
+          if(this.ID != ''){
+            res.data.product_sku.filter(item => {
+              if(item.id == this.ID){
+                  this.xianRoyalty = item.commission;
+              }
+            })
+          }
         })
       },
       gettableData1(a){
@@ -936,16 +952,10 @@ import excel from "@/components/excel";
          this.formRoyalty.id='';
          this.formRoyalty.product_sku_id = a.id;
          this.xianRoyalty = a.commission;
+         this.ID = a.id;
          this.Royalty = true;
        },
 
-      // 提成修改按钮
-      editRoyalty(a){
-         this.formRoyalty.name= a.user_id;
-         this.formRoyalty.xishu=a.ratio;
-         this.formRoyalty.id=a.id;
-         this.Royalty = true;
-       },
        // 提成删除按钮
       deleteRoyalty(a){
         this.axios.post('/crm.Order/customer_order_commission_delete',{
@@ -954,7 +964,6 @@ import excel from "@/components/excel";
             if(res.data.code == 2000){
               this.open(res.data.msg,'success');
               this.gettableData(this.customer_order_id);
-              this.Royalty = false;
             }else{
                 this.open(res.data.msg,'error');
             }
@@ -978,7 +987,6 @@ import excel from "@/components/excel";
 
       // 提交 提成
       pushRoyalty(){
-        if(this.formRoyalty.id==''){
           this.axios.post('/crm.Order/customer_order_commission_add',{
             customer_order_product_id:this.formRoyalty.product_sku_id,
             user_id:this.formRoyalty.name,
@@ -988,29 +996,14 @@ import excel from "@/components/excel";
           }).then(res => {
             if(res.data.code == 2000){
               this.open(res.data.msg,'success');
-              this.gettableData(this.customer_order_id)
-              this.Royalty = false;
+              this.gettableData(this.customer_order_id); 
             }else{
                 this.open(res.data.msg,'error');
             }
           })
-        }else{
-          this.axios.post('/crm.Order/customer_order_commission_update',{
-            id:this.formRoyalty.id,
-            user_id:this.formRoyalty.name,
-            ratio:this.formRoyalty.xishu,
-            profit:'',
-            customer_order_id:this.customer_order_id,
-          }).then(res => {
-            if(res.data.code == 2000){
-              this.open(res.data.msg,'success');
-              this.gettableData(this.customer_order_id)
-              this.Royalty = false;
-            }else{
-                this.open(res.data.msg,'error');
-            }
-          })
-        }
+          this.formRoyalty.name = '';
+          this.formRoyalty.xishu = '';
+          
       },
       changeAddress(){
         this.address = true;
@@ -1040,7 +1033,7 @@ import excel from "@/components/excel";
       // post地址和配货信息
       tijiao(){
         if(this.formAddress.id == ''){
-            if(this.formAddress.address == '' || this.formAddress.name == '' || this.formAddress.phone == '' || this.formAddress.sheng == '' || this.formAddress.shi == '' || this.formAddress.qu == ''){
+            if(this.formAddress.address == '' || this.formAddress.name == '' || this.formAddress.phone == '' || this.formAddress.sheng == '' || this.formAddress.shi == '' || this.formAddress.qu == '' ||this.formAddress.payment == '' || this.formAddress.delivery == ''){
               this.open('请填写完整客户收货地址','error');
             }else{
               this.axios.post('/crm.Customer/customer_address_add',{
@@ -1067,7 +1060,10 @@ import excel from "@/components/excel";
       },
       // post地址 配货信息
       posttijiao(id){
-            let fenpei = [];
+        if(this.formAddress.address == '' || this.formAddress.name == '' || this.formAddress.phone == '' || this.formAddress.sheng == '' || this.formAddress.shi == '' || this.formAddress.qu == '' ||this.formAddress.payment == '' || this.formAddress.delivery == ''){
+          this.open('请填写完整客户收货地址','error');
+        }else{
+          let fenpei = [];
             for(let i=0;i<this.distributeProduct.length;i++){
               let P = {
                 'number':this.distributeProduct[i].number,
@@ -1113,7 +1109,7 @@ import excel from "@/components/excel";
                   }
                 })
             }
-           
+        } 
       },
 
       // 已经生成的地址和配货信息操作
@@ -1275,10 +1271,14 @@ import excel from "@/components/excel";
         }
       },     
       // 合同上传
-      handleAvatarSuccess() {
+      handleAvatarSuccess(response, file, fileList) {
         //let url = res.src;
         //this.imageUrl.push(url);
-        this.getimgUrl(this.customer_order_id);
+        if(response.code == 2000){
+          this.getimgUrl(this.customer_order_id);
+        }else{
+          this.open(response.msg,'error')
+        }
       },
       beforeAvatarUpload(file) {
         let type = file.type;
@@ -1348,16 +1348,31 @@ import excel from "@/components/excel";
             invoice_type:shu.type,
             invoice_tax:shu.percentile.substring(0,shu.percentile.length-1),
             type_id:this.radio,
+            repair_invoice:this.repair_invoice,
+            repair_freight:this.repair_freight,
+            remarks:this.remarks,
           }).then(res => {
             if(res.data.code == 2000){
+              let d=new Date();
+              let year=d.getFullYear();
+              let month=this.change(d.getMonth()+1);
+              let day=this.change(d.getDate());
+              let hour=this.change(d.getHours());
+              let minute=this.change(d.getMinutes());
+              let second=this.change(d.getSeconds());
+              this.starttime = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;
+
               this.open(res.data.msg,'success')
               this.state4 = '';
               this.listKuhuName = '';
               this.kehuValue = '';
-              this.starttime = '';
+              this.repair_freight = '';
+              this.repair_invoice='';
+              this.remarks='';
               this.endtime = '';
               this.piao = '';
-              this.radio = '';
+              this.radio = '1';
+              this.class_id = '1'
               this.customer_order_id = '';
               this.tableProduct= [];
               this.currentPage='';//当前页
@@ -1421,9 +1436,12 @@ import excel from "@/components/excel";
             this.piao = shu.id;
             this.class_id = String(res.data.class_id);
             
+            
           }
           this.optionsSalesman = res.data.user;
           //loading.close();
+          this.repair_invoice =res.data.repair_invoice;
+          this.repair_freight =res.data.repair_freight;
         })
       },
       // 上传子组件传过来的值
@@ -1459,27 +1477,10 @@ import excel from "@/components/excel";
       this.getcaogao();
       this.getoptions();
     },
-    // watch:{
-    //   $route(to){
-    //     let d=new Date();
-    //     let year=d.getFullYear();
-    //     let month=this.change(d.getMonth()+1);
-    //     let day=this.change(d.getDate());
-    //     let hour=this.change(d.getHours());
-    //     let minute=this.change(d.getMinutes());
-    //     let second=this.change(d.getSeconds());
-    //     this.starttime = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;
-
-    //     this.getCityData();
-    //     this.getcaogao();
-    //     this.getoptions();
-    //   }
-    // }
   }
 </script>
 <style scoped lang="less">
 .head_box{
-  margin-top: 20px;
   border: 1px solid #CCC;
   padding: 20px 10px;
   min-width: 1150px;

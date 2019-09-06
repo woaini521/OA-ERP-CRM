@@ -4,6 +4,14 @@
     <div class="head_box">
         <label>筛选：</label>
         <el-input placeholder="名称" v-model="schanPing" style="width:217px;margin-left:10px"></el-input>
+
+        <el-input placeholder="最低价" v-model="min_price" style="width:100px;margin-right:10px;margin-left:20px"></el-input>-
+        <el-input placeholder="最高价" v-model="max_price" style="width:100px;margin-left:10px"></el-input>
+        <el-select v-model="class_" clearable placeholder="类型" style="width:100px;margin-left:10px">
+          <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id">
+          </el-option>
+        </el-select>
+
         <el-button type="primary"  style="margin-left:20px;" @click="seach">搜索</el-button>
     </div>
 
@@ -11,7 +19,7 @@
       <el-table :data="tableData">
         <el-table-column type="expand">
            <template slot-scope="scope">
-              <el-form label-position="left" inline="true" class="demo-table-expand"  v-if="scope.row.sku != null">
+              <el-form label-position="left" :inline="true" class="demo-table-expand"  v-if="scope.row.sku != null">
                   <el-form-item label-position="left" inline class="demo-table-expand" v-for="(item,index) in scope.row.sku" :key="item.id" :label="index+1" style="overflow: hidden;margin-top:10px;width:1100px;">
                     <img style="width:70px;height:70px;float: left;" :src="item.src">
                     <p style="float: left;margin-top:15px;margin-left:10px;">
@@ -29,7 +37,7 @@
                   </el-form-item>
               </el-form>
               <el-form v-else>
-                <el-form-item label-position="left" inline class="demo-table-expand">
+                <el-form-item label-position="left" :inline="true" class="demo-table-expand">
                   <span>暂无附加产品</span>
                 </el-form-item>
               </el-form>
@@ -37,7 +45,7 @@
         </el-table-column>
         <el-table-column prop="name" label="产品"></el-table-column>
         <el-table-column prop="class_name" label="类别"></el-table-column>
-        <el-table-column prop="supplier" label="供应商数"></el-table-column>
+        <el-table-column prop="supplier_count" label="供应商数"></el-table-column>
         <el-table-column label="修改">
           <template slot-scope="scope">
             <el-button type="primary" @click="Edit(scope.row)" size="small">修改</el-button>
@@ -99,9 +107,10 @@ import { mapActions } from "vuex";
       return {
         value:"",
         schanPing:"",
-        maxPrice:"",
-        minPrice:"",
-        
+        max_price:"",
+        min_price:"",
+        class_:'',
+        options:[],
         tableData:[
         ],
         details:false,
@@ -118,10 +127,10 @@ import { mapActions } from "vuex";
           content:''
         },
         //分页器
-        currentPage:'',//当前页
-        total:'',//总数
-        per_page:'',//每页多少条
-        last_page:''//总页数
+        currentPage:0,//当前页
+        total:0,//总数
+        per_page:0,//每页多少条
+        last_page:0//总页数
       };
     },
     methods:{
@@ -158,6 +167,9 @@ import { mapActions } from "vuex";
         });
         this.axios.post('/erp.Product/product_list',{
             name:this.schanPing,
+            min_price:this.min_price,
+            max_price:this.max_price,
+            class:this.class_,
           }).then(res => {
           this.tableData = res.data.product.data;
           this.currentPage = res.data.product.current_page;
@@ -191,7 +203,12 @@ import { mapActions } from "vuex";
           // loading.close();
         })
       },
-
+      // 获取类别
+      getoption(){
+            this.axios.get('/erp.Product/product_class_list').then(res => {
+                this.options = res.data.product_class; 
+            })
+        },
       // 备货按钮
       beihuo(a){
         this.details = true;
@@ -255,24 +272,20 @@ import { mapActions } from "vuex";
     created(){
       this.$nextTick(() => {
         this.getData();
+        this.getoption();
       })
     },
     watch:{
       $route(to){
          this.$nextTick(() => {
           this.getData();
+          this.getoption();
         })
       }
     }
   }
 </script>
 <style lang="less">
-  .box{
-    min-width: 890px;
-    .head_box{
-      margin-top:20px;
-    }
-  }
   .demo-table-expand {
     font-size: 0;
   }

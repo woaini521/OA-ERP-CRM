@@ -3,18 +3,26 @@
          <div class="head_box">
             <label>筛选：</label>
             <el-input placeholder="名称" v-model="seach" style="width:217px;margin-left:10px"></el-input>
+            <el-input placeholder="税号" v-model="tax_number" style="width:180px;margin-left:10px"></el-input>
             <el-button type="primary" @click="seachName"  style="margin-left:20px;">搜索</el-button>
             <el-button type="primary" @click="add"  style="margin-left:40px;">新增</el-button>
         </div>
 
         <div class="content_box">
             <el-table :data="tabledata">
+                <el-table-column label="添加时间" prop="invoice_date" width="110px"></el-table-column>
                 <el-table-column label="供应商名称" prop="supplier_name" width="300px"></el-table-column>
                 <el-table-column label="发票抬头" prop="rise"></el-table-column>
-                <el-table-column label="发票税号" prop="tax_number" width="240px"></el-table-column>
+                <el-table-column label="发票税号" prop="tax_number" width="120px"></el-table-column>
+                <el-table-column label="税额" prop="tax_amount"></el-table-column>
                 <el-table-column label="品类" prop="category"></el-table-column>
-                <el-table-column label="发票类型" prop="type" width="90px"></el-table-column>
+                <el-table-column label="发票类型" prop="type" width="90px">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.type == 1 ? '普票' : '专票'}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="金额" prop="money"></el-table-column>
+                <el-table-column label="金额" prop="tax_amount"></el-table-column>
                 <el-table-column label="操作">
                     <template slot-scope="scope">
                         <el-button type="primary" size="mini" @click="deletes(scope.row)">删除</el-button>
@@ -51,10 +59,25 @@
                     <el-input v-model="dialogAddForm.category" style="width:70%"></el-input>
                 </el-form-item>
                 <el-form-item label="发票类型" label-width="90px">
-                    <el-input v-model="dialogAddForm.type" style="width:70%"></el-input>
+                    <el-radio v-model="dialogAddForm.type" label="0">专票</el-radio>
+                    <el-radio v-model="dialogAddForm.type" label="1">普票</el-radio>
                 </el-form-item>
                 <el-form-item label="金额" label-width="90px">
-                    <el-input v-model="dialogAddForm.money" @change="jine" style="width:70%"></el-input>
+                    <el-input v-model="dialogAddForm.money" style="width:70%"></el-input>
+                </el-form-item>
+                <el-form-item label="税额" label-width="90px">
+                    <el-input v-model="dialogAddForm.Smoney" style="width:70%"></el-input>
+                </el-form-item>
+                <el-form-item label="备注" label-width="90px">
+                    <el-input type="textarea" v-model="dialogAddForm.remarks" style="width:70%"></el-input>
+                </el-form-item>
+                <el-form-item label="时间" label-width="90px">
+                    <el-date-picker
+                        v-model="dialogAddForm.invoice_date"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="选择日期">
+                    </el-date-picker>                
                 </el-form-item>
                 <el-form-item label="" label-width="90px">
                     <el-button type="primary" @click="confirm">提交</el-button>
@@ -69,6 +92,7 @@ export default {
     data(){
         return{
             seach:'',
+            tax_number:'',
             tabledata:[],// 表格数据
             currentPage:0,//当前页
             total:0,//总数
@@ -84,6 +108,9 @@ export default {
                category:'',
                type:'',
                money:'',
+               Smoney:'',
+               invoice_date:'',
+               remarks:'',
             },
         }
     },
@@ -107,9 +134,14 @@ export default {
             });
             this.axios.post('/Finance/finance_supplier_invoice_lists',{
                 page:val,
+                rise:this.seach,
+                tax_number:this.tax_number,
             }).then(res => {
                 this.tabledata = res.data.supplier_invoice.data;
                 this.currentPage = res.data.supplier_invoice.current_page;
+                this.total = res.data.supplier_invoice.total;
+                this.per_page = res.data.supplier_invoice.per_page;
+                this.last_page = res.data.supplier_invoice.last_page;
                 loading.close();
             })  
         },
@@ -121,12 +153,21 @@ export default {
         },
         //搜索
         seachName(){
-            conlose.log(1);
+            this.axios.post('/Finance/finance_supplier_invoice_lists',{
+                rise:this.seach,
+                tax_number:this.tax_number,
+            }).then(res => {
+                this.tabledata = res.data.supplier_invoice.data;
+                this.currentPage = res.data.supplier_invoice.current_page;
+                this.total = res.data.supplier_invoice.total;
+                this.per_page = res.data.supplier_invoice.per_page;
+                this.last_page = res.data.supplier_invoice.last_page;
+            })
         },
         // 监听金额
-        jine(value){
-            console.log(value)
-        },
+        // jine(value){
+        //     console.log(value)
+        // },
         // 新增
         add(){
           this.getoptions();
@@ -138,6 +179,7 @@ export default {
           this.dialogAddForm.category = '';
           this.dialogAddForm.type = '';
           this.dialogAddForm.money = '';
+          this.dialogAddForm.Smoney = '';
         },
         // 删除
         deletes(a){
@@ -161,6 +203,9 @@ export default {
                     category:this.dialogAddForm.category,
                     type:this.dialogAddForm.type,
                     money:this.dialogAddForm.money,   
+                    tax_amount:this.dialogAddForm.Smoney,
+                    invoice_date:this.dialogAddForm.invoice_date,
+                    remarks:this.dialogAddForm.remarks,
             }).then(res => {
                 if(res.data.code == 2000){
                     this.getTabledata();

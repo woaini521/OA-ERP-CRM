@@ -1,7 +1,7 @@
 <template>
     <div class="box">
-        <el-button type="warning" @click="add" style="margin-top:10px;">添加员工</el-button>
-        <div class="box_head">
+        <el-button type="warning" @click="add">添加员工</el-button>
+        <div class="box_head"  style="margin-top:10px;">
             <label>姓名：</label>
             <el-input v-model="seachName" style="width:200px;margin-right:30px;"></el-input>
             <label>手机：</label>
@@ -14,6 +14,43 @@
             </el-select>
             <label>总人数：{{ total }}</label>
             <el-button type="primary" @click="seach"  style="margin-left:20px;">搜索</el-button>
+             <br>
+            <div style="margin-top:10px">
+                <label>生日：</label>
+                <el-select v-model="shengri" placeholder="请选择" clearable style="width:100px;margin-right:20px">
+                    <el-option v-for="count in 12" :key="count" :label="`${count}月份`" :value="count">
+                        {{count}}月份
+                    </el-option>
+                </el-select>   
+                <label>角色：</label>
+                <el-select v-model="juese" placeholder="请选择" clearable style="width:100px;margin-right:20px">
+                    <el-option v-for="item in JSjuese" :key="item.id" :value="item.id" :label="item.title"></el-option>
+                </el-select> 
+                <label>合同筛选：</label>
+                <el-select v-model="hetong" placeholder="请选择" clearable style="width:100px;margin-right:20px">
+                    <el-option v-for="count in 12" :key="count" :label="`${count}月份`" :value="count">
+                        {{count}}月份
+                    </el-option>
+                </el-select>
+                <label>父亲生日：</label>
+                <el-select v-model="Fshengri" placeholder="请选择" clearable style="width:100px;margin-right:20px">
+                    <el-option v-for="count in 12" :key="count" :label="`${count}月份`" :value="count">
+                        {{count}}月份
+                    </el-option>
+                </el-select>
+                <label>母亲生日：</label>
+                <el-select v-model="Mshengri" placeholder="请选择" clearable style="width:100px;margin-right:20px">
+                    <el-option v-for="count in 12" :key="count" :label="`${count}月份`" :value="count">
+                        {{count}}月份
+                    </el-option>
+                </el-select>
+                <label>入职月份：</label>
+                <el-select v-model="RZ" placeholder="请选择" clearable style="width:100px;margin-right:20px">
+                    <el-option v-for="count in 12" :key="count" :label="`${count}月份`" :value="count">
+                        {{count}}月份
+                    </el-option>
+                </el-select>
+            </div>
         </div>
 
         <div class="content_box">
@@ -22,7 +59,6 @@
                 <el-table-column label="部门" prop="dep_title"></el-table-column>
                 <el-table-column label="手机" prop="phone"></el-table-column>
                 <el-table-column label="角色" prop="role_name"></el-table-column>
-                <el-table-column label="工作手机" prop="work_phone"></el-table-column>
                 <el-table-column label="入职日期">
                     <template slot-scope="scope">
                         <span>{{ scope.row.hiredate*1000 | formatDate }}</span>
@@ -86,6 +122,13 @@ export default {
             seachName:'',
             seachPhone:'',
             seachState:'0',
+            shengri:'',
+            juese:'',
+            hetong:'',
+            Fshengri:'',
+            Mshengri:'',
+            RZ:'',
+            JSjuese:[],
             tableData:[],// 表格数据
             currentPage:0,//当前页
             total:0,//总数
@@ -124,19 +167,30 @@ export default {
          ...mapActions("customerList", ["triggerReplaceId"]),
         ...mapActions("Tabs", ["triggerAddTabs", "triggerSetActiveIndex"]),
         // 获取表格数据
-        gettableData(){
+        gettableData(a){
             // const loading = this.$loading({
             //     lock: true,
             //     text: '拼命加载中',
             //     spinner: 'el-icon-loading',
             //     background: 'rgba(0, 0, 0, 0.7)'
             // });
-           this.axios.get('/oa.User/user_lists').then(res => {
-                this.tableData = res.data.data;
-                this.currentPage = res.data.current_page;
-                this.total = res.data.total;
-                this.per_page = res.data.per_page;
-                this.last_page = res.data.last_page;
+           this.axios.post('/oa.User/user_lists',{
+                page:a,
+                name:this.seachName,
+                phone:this.seachPhone,
+                status:this.seachState,
+                contractdate:this.hetong,
+                birthday:this.shengri,
+                dad_birthday:this.Fshengri,
+                mom_birthday:this.Mshengri,
+                group_id:this.juese,
+           }).then(res => {
+                this.tableData = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.total = res.data.data.total;
+                this.per_page = res.data.data.per_page;
+                this.last_page = res.data.data.last_page;
+                this.JSjuese = res.data.role_list;
                // loading.close();
            }) 
         },
@@ -154,9 +208,18 @@ export default {
                 name:this.seachName,
                 phone:this.seachPhone,
                 status:this.seachState,
+                contractdate:this.hetong,
+                birthday:this.shengri,
+                dad_birthday:this.Fshengri,
+                mom_birthday:this.Mshengri,
+                group_id:this.juese,
+                hiredate:this.RZ,
             }).then(res => {
-                this.tableData = res.data.data;
-                this.currentPage = res.data.current_page;
+                this.tableData = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.total = res.data.data.total;
+                this.per_page = res.data.data.per_page;
+                this.last_page = res.data.data.last_page;
                 loading.close();
             })  
         },
@@ -166,12 +229,18 @@ export default {
                 name:this.seachName,
                 phone:this.seachPhone,
                 status:this.seachState,
+                contractdate:this.hetong,
+                birthday:this.shengri,
+                dad_birthday:this.Fshengri,
+                mom_birthday:this.Mshengri,
+                group_id:this.juese,
+                hiredate:this.RZ,
             }).then(res => {
-                this.tableData = res.data.data;
-                this.currentPage = res.data.current_page;
-                this.total = res.data.total;
-                this.per_page = res.data.per_page;
-                this.last_page = res.data.last_page; 
+                this.tableData = res.data.data.data;
+                this.currentPage = res.data.data.current_page;
+                this.total = res.data.data.total;
+                this.per_page = res.data.data.per_page;
+                this.last_page = res.data.data.last_page; 
             })
         },
         updata(a){
@@ -242,9 +311,6 @@ export default {
 
 
     },
-    created(){
-        this.gettableData();
-    },
     filters: {
      formatDate: function (value) {
         let date = new Date(value);
@@ -262,20 +328,17 @@ export default {
         return y + '-' + MM + '-' + d;
       }
     },
-    watch:{
-        $route(to){
-           this.handleCurrentChange(this.page);  
+    activated(){
+        if(this.page == 0){
+             this.gettableData();   
+        }else{
+            this.gettableData(this.page);
         }
+          
     }
 }
 </script>
 
 <style lang="less" scoped>
-.box{
-    min-width: 998px;
-    .box_head{
-        margin-top: 10px;
 
-    }
-}
 </style>

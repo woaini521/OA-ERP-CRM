@@ -2,72 +2,59 @@
     <div class="box">
         <div class="head_box">
             <label>选择日期：</label>
-            <el-date-picker v-model="times"  type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+            <el-date-picker v-model="times"  type="daterange" range-separator="至" value-format="timestamp" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
             <el-button style="margin-left:20px" @click="confirm">确定</el-button>
         </div>
-        <el-table :data="tableData" border show-summary style="width: 100%;margin-top:20px;">
-            <el-table-column prop="id" label="部门" width="180"></el-table-column>
-            <el-table-column prop="name" label="姓名"></el-table-column>
-            <el-table-column prop="amount1" sortable label="一级机构"></el-table-column>
-            <el-table-column prop="amount2" sortable label="二级机构"></el-table-column>
-            <el-table-column prop="amount3" sortable label="三级机构"></el-table-column>
-            <el-table-column label="合计" sortable prop="amount4"></el-table-column>
+        <el-table :data="tableData" class="aaaaa" border show-summary style="width: 100%;margin-top:20px;">
+            <el-table-column type="index" width="50" label="排名"></el-table-column>
+            <el-table-column prop="dep_title" label="部门"></el-table-column>
+            <el-table-column prop="user_name" label="姓名"></el-table-column>
+            <el-table-column prop="total_price"  label="总销售额" sortable></el-table-column>
+            <el-table-column prop="total_cost_price"  label="总成本" sortable></el-table-column>
+            <el-table-column prop="user_price"  label="业务提成" sortable></el-table-column>
+            <el-table-column prop="logistics_price" label="物流价格" sortable ></el-table-column>
+            <el-table-column prop="after_sales_price" label="售后费用" sortable ></el-table-column>
+            <el-table-column prop="invoice_price" label="开票费用" sortable ></el-table-column>
+            <el-table-column prop="commission_price" label="额外提成" sortable ></el-table-column>
         </el-table>
     </div>
 </template>
 
 <script>
 export default {
+    filters:{
+        
+    },
     data(){
         return{
-            tableData: [{
-                id: '12987122',
-                name: '王小虎',
-                amount1: '234',
-                amount2: '3.2',
-                amount3: 10,
-                amount4:Number(10)+Number(3.2)+Number(234),
-                }, {
-                id: '12987123',
-                name: '王小虎',
-                amount1: '165',
-                amount2: '4.43',
-                amount3: 12,
-                amount4:Number(12)+Number(4.43)+Number(165),
-                }, {
-                id: '12987124',
-                name: '王小虎',
-                amount1: '324',
-                amount2: '1.9',
-                amount3: 9,
-                amount4:Number(9)+Number(1.9)+Number(324),
-                }, {
-                id: '12987125',
-                name: '王小虎',
-                amount1: '621',
-                amount2: '2.2',
-                amount3: 17,
-                amount4:Number(621)+Number(2.2)+Number(17),
-                }, {
-                id: '12987126',
-                name: '王小虎',
-                amount1: '539',
-                amount2: '4.1',
-                amount3: 15,
-                amount4:Number(539)+Number(4.1)+Number(15),
-            }], // 表格数据
-            times:'',
+            tableData: [], // 表格数据
+            times:null,
         }
     },
     methods:{
         getTableData(){
             this.axios.get('/report.User/sales_rank').then(res => {
-
+                this.tableData = res.data.order
             })
         },
         confirm(){
-            window.location.href = 'https://www.baidu.com'
-        }
+            if(this.times!=null){
+                 this.axios.post('/report.User/sales_rank',{
+                    start_time:this.times[0]/1000,
+                    end_time:this.times[1]/1000
+                }).then(res => {
+                    this.tableData = res.data.order
+                })
+            }else{
+                this.axios.post('/report.User/sales_rank',{
+                    start_time:'',
+                    end_time:''
+                }).then(res => {
+                    this.tableData = res.data.order
+                })
+            }
+           
+        },
     },
     created(){
         this.getTableData();   
@@ -75,7 +62,10 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
-
+<style lang="less" >
+.aaaaa td,.aaaaa th{
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
 </style>
 

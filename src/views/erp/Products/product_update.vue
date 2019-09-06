@@ -5,6 +5,10 @@
                 <el-form-item label="产品名称" :label-width="lableWidth">
                     <el-input v-model="formProduct.name" style="width:300px"></el-input>
                 </el-form-item>
+                <el-form-item label="产品类型" :label-width="lableWidth">
+                    <el-radio v-model="formProduct.type" label="1">礼品</el-radio>
+                    <el-radio v-model="formProduct.type" label="0">印刷</el-radio>
+                </el-form-item>
                 <el-form-item label="产品分类" :label-width="lableWidth">
                     <el-cascader :options="options" :props="props" change-on-select @change="handleItemChange"></el-cascader>
                     <span>你当前的选择类型：<span style="color:red">{{lei}}</span></span>
@@ -44,7 +48,7 @@
             </el-table>
             <el-dialog title="添加修改SKU" :visible.sync="dialogFormProduct">
                 <el-form ref="Product" :model="Product" inline>
-                    <el-form-item label="类别" :label-width="lableWidth" prop="category">
+                    <el-form-item label="SKU名称" :label-width="lableWidth" prop="category">
                        <el-input v-model="Product.category" style="width:217px"></el-input>
                     </el-form-item> 
                     <el-form-item label="是否是专版" :label-width="lableWidth" prop="firm_id">
@@ -94,9 +98,23 @@
                        <el-input v-model="Product.material_quality" style="width:217px"></el-input>
                     </el-form-item>
                     <br>
+                    <el-form-item label="创意" :label-width="lableWidth">
+                        <el-radio v-model="Product.originality" label="0">厂家</el-radio>
+                        <el-radio v-model="Product.originality" label="1">原创</el-radio>
+                    </el-form-item>    
+                    <br>
+                    <el-form-item label="参与人员" :label-width="lableWidth">
+                        <el-select v-model="Product.user" filterable multiple  placeholder="请选择" style="width:200%">
+                            <el-option
+                            v-for="item in Useroptions"
+                            :key="item.user_id"
+                            :label="item.name"
+                            :value="item.user_id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
 
-
-
+                    <br>
                     <el-form-item label="上传图片" :label-width="lableWidth">
                       <el-upload class="avatar-uploader" 
                         :multiple="true"
@@ -181,7 +199,8 @@ export default {
             formProduct:{
                 name:'',
                 category:'',
-                content:''
+                content:'',
+                type:'',
             },
             options:[
                 {
@@ -226,7 +245,19 @@ export default {
                 size:'',
                 specifications:'',
                 material_quality:'',
+                user:[],
+                originality:'',
             },
+            Useroptions:[
+                {
+                    label:'dada',
+                    value:1,
+                },
+                {
+                    label:'erer',
+                    value:2,
+                },
+            ], // 人员
             optionSupplier:[
                 {
                     label:'太保',
@@ -290,6 +321,7 @@ export default {
                 let shuju = res.data;
                 this.formProduct.category = shuju.class_id;
                 this.formProduct.name = shuju.name;
+                this.formProduct.type = String(shuju.type);
                 this.lei = shuju.class_name;
                 this.class_id = shuju.class_id;
                 this.Product.product_id = shuju.id;
@@ -300,8 +332,12 @@ export default {
         },
         getData(){
             this.axios.get('/erp.Product/product_class_select').then(res => {
-             this.options = res.data.product_class;
+                this.options = res.data.product_class;
+                this.Useroptions = res.data.user;
             })
+        },
+        getUseroptions(){
+            
         },
         // 打开添加SKU弹窗
         add(){
@@ -321,6 +357,8 @@ export default {
             this.Product.size = '';
             this.Product.specifications = '';
             this.Product.material_quality = '';
+            this.Product.user = [];
+            this.Product.originality = '1'
         },
         // 新增是查询图片
         queryimg(){
@@ -354,6 +392,8 @@ export default {
                 specifications:this.Product.specifications,
                 material_quality:this.Product.material_quality,
                 img:this.Product.imageUrl,
+                user:this.Product.user,
+                originality:this.Product.originality
                 }).then(res => {
                     if(res.data.code == 2000){
                     this.$refs['Product'].resetFields(); 
@@ -410,6 +450,8 @@ export default {
             this.Product.size = a.size;
             this.Product.specifications = a.specifications;
             this.Product.material_quality = a.material_quality;
+            this.Product.user = a.user;
+            this.Product.originality = String(a.originality)
         },
         // 删除SKU
         editSKU(a){
@@ -519,6 +561,7 @@ export default {
                 id:this.$route.params.id,
                 content:this.msg,
                 name:this.formProduct.name,
+                type:this.formProduct.type,
                 class_id:this.class_id,
             }).then(res => {
                  if(res.data.code == 2000){

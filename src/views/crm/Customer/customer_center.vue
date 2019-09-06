@@ -1,7 +1,7 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
   <div class="box">
-    <div class="box_head">
+    <div>
       <label>筛选：</label>
       <el-select
         v-model="value"
@@ -445,12 +445,6 @@ export default {
 };
 </script>
 <style scoped lang="less">
-.box_head {
-  margin-top: 10px;
-  label {
-    margin-right: 5px;
-  }
-}
 .box_content {
   margin-top: 20px;
   table {

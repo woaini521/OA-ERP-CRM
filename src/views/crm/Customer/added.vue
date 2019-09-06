@@ -5,7 +5,6 @@
       ref="form"
       :model="form"
       label-width="80px"
-      style="margin-top:20px;"
       :rules="rules"
       inline
     >
@@ -22,9 +21,10 @@
 
       <el-form-item label="客户级别" prop="level">
         <el-select v-model="form.level" placeholder="选择客户级别" style="width:200px;">
-          <el-option label="一级" value="1"></el-option>
-          <el-option label="二级" value="2"></el-option>
-          <el-option label="三级" value="3"></el-option>
+          <el-option label="一般客户" value="1"></el-option>
+          <el-option label="意向客户" value="2"></el-option>
+          <el-option label="合作客户" value="3"></el-option>
+          <el-option label="不联系" value="9"></el-option>
         </el-select>
       </el-form-item>
 
@@ -88,19 +88,19 @@
          <el-input v-model="form.Email"  style="width:200px;"></el-input>
         </el-form-item>  
 
-        <el-form-item label="省" prop="sheng">
+        <el-form-item label="省">
           <el-select v-model="sheng" @change="choseProvince" placeholder="省级地区"  style="width:200px;">
             <el-option v-for="item in province" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
         </el-form-item>  
 
-        <el-form-item label="市" prop="shi">
+        <el-form-item label="市">
           <el-select v-model="shi" @change="choseCity" placeholder="市级地区"  style="width:200px;">
             <el-option v-for="item in shi1" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
         </el-form-item> 
 
-        <el-form-item label="地区" prop="qu">
+        <el-form-item label="地区">
           <el-select v-model="qu" @change="choseBlock" placeholder="区级地区"  style="width:200px;">
             <el-option v-for="item in qu1" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
@@ -369,7 +369,7 @@ export default {
         })
       },
       add(){
-        if(this.form.company == '' || this.form.name == ''|| this.form.sheng == '' || this.form.shi == '' || this.form.qu == ''){
+        if(this.form.company == '' || this.form.name == ''){
           this.open();
         }else{
           this.axios.post('/crm.Customer/customer_add',{

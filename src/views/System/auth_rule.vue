@@ -426,9 +426,6 @@
 </script>
 <style scoped lang="less">
   .box{
-    .headbox{
-      margin-top: 20px;
-    }
     .contentbox{
       margin-top: 10px;
       .contentboxInner{

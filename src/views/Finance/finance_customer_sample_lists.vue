@@ -6,6 +6,7 @@
             <el-button style="margin-left:20px">确认</el-button>
         </div>
         <el-table :data="tableData" style="margin-top:20px">
+            <el-table-column label="编号" prop="id"></el-table-column>
             <el-table-column label="寄送客户数" prop="customer_count"></el-table-column>
             <el-table-column label="寄送样品数" prop="product_sku_count"></el-table-column>
             <el-table-column label="寄出日期" prop="add_time" width="160"></el-table-column>
@@ -14,12 +15,15 @@
             <el-table-column label="状态" prop="status">
                 <template slot-scope="scope">
                     <span v-if="scope.row.status == 0">草稿</span>
-                    <span v-if="scope.row.status == 1">等待采购配货</span>
-                    <span v-if="scope.row.status == 10">等待财务审核</span>
-                    <span v-if="scope.row.status == 20">等待财务审核</span>
-                    <span v-if="scope.row.status == 30">等待发货</span>
+                    <span v-if="scope.row.status == 1">等待巴长审核</span>
+                    <span v-if="scope.row.status == 5">等待采购配货</span>
+                    <span v-if="scope.row.status == 10">采购设置完毕</span>
+                    <span v-if="scope.row.status == 15">等待财务审核</span>
+                    <span v-if="scope.row.status == 20">等待出纳付款</span>
+                    <span v-if="scope.row.status == 25">等待仓库拿货</span>
+                    <span v-if="scope.row.status == 30">等待厂家发货</span>
                     <span v-if="scope.row.status == 40">已经发货</span>
-                    <span v-if="scope.row.status == 50">已经收到货</span>
+                    <span v-if="scope.row.status == 50">已经签收</span>
                     <span v-if="scope.row.status == 90">结束</span>
                 </template>
             </el-table-column>

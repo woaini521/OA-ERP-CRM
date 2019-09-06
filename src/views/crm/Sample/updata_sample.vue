@@ -1,7 +1,7 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
   <div class="box">
-    <div class="beizhu" style="overflow: hidden;margin-top:20px;">
+    <div class="beizhu" style="overflow: hidden;">
             <span style="float: left;line-height: 40px;margin-right: 10px;">备注</span>
             <el-input style="float: left;width:95%" v-model="remarks"></el-input>
           </div>
@@ -64,6 +64,7 @@
             <el-table-column  prop="unit" label="单位"></el-table-column>
             <el-table-column  prop="cost_price" label="成本"></el-table-column>
             <el-table-column  prop="selling_price" label="售价"></el-table-column>
+            <el-table-column  prop="supplier_inventory_sum" label="库存"></el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
                 <el-button

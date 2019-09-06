@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <div class="head_box">
+        <div>
             <label>筛选</label>
             <el-input v-model="search" placeholder="请输入内容" style="width:217px;margin-left:10px"></el-input>
             <el-button style="margin-left:20px" type="primary" @click="seach">搜索</el-button>

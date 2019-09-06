@@ -1,5 +1,5 @@
 <template>
-    <div class="box" id="printTest" @click="show = true">
+    <div class="box" @click="show = true">
         <div class="head_box_man">
                 <h3>
                     <span>客户姓名：</span><span>{{name}}</span> 
@@ -25,13 +25,9 @@
                             <span>{{scope.row.selling_price * scope.row.number}}</span>
                         </template>
                     </el-table-column>
-                    <!-- <el-table-column label="操作">
-                        <template slot-scope="scope">
-                            <el-button @click="keep(scope.row)" type="primary" size="small">保存</el-button>
-                        </template>
-                    </el-table-column> -->
                 </el-table>
             </div>
+        <el-button v-show="tong == 1" @click="tongbu" style="margin-top:10px">一建同步</el-button>
         <div class="head_box_address">
                 <div class="generatedAddressInner" v-for="item in fixedAddress" :key="item.id">
                     <div class="generatedAddressInnerLeft">
@@ -50,7 +46,7 @@
                                 <span style="meflt:argin-10px;" v-for="pcu in item.product" :key="pcu.id">{{pcu.name}}{{pcu.sku_name}}---数量：{{pcu.number}}</span>
                             </p>
                             <p style="margin-top:10px">
-                                <span>付款方式:{{ item.payment == 1 ? '物流现付' : '物流到付'}}</span>
+                                <span>付款方式:{{ item.payment == 1 ? '到付' : '现付'}}</span>
                                 <span style="margin-left:20px;">物流方式:{{ state[item.delivery] }}</span>
                             </p>
                             <p style="margin-top:10px;">备注信息：{{ item.remarks }}</p>
@@ -82,9 +78,8 @@
                     </div>
                 </div>       
             </div>
-        <el-button style="margin-top:20px;margin-bottom:20px;" type="primary" @click="Confirm" v-show="show">确认提交</el-button>
-        <el-button style="margin-top:20px;margin-bottom:20px;" v-show="show" @click="show = false" type="primary" v-print="'#printTest'">打印</el-button>
-
+        <el-button style="margin-top:20px;margin-bottom:20px;" :disabled="this.fixedAddress.length == 0" type="primary" @click="Confirm" v-show="show">确认提交</el-button>
+       
         <!-- 采购设置form弹出 -->
         <el-dialog title="采购配货" :visible.sync="dialogFormProduct" width="70%">
             <el-form :model="Distribution" ref="Distribution" inline>
@@ -126,9 +121,10 @@
                             <el-input v-model="scope.row.cost_price" placeholder="成本" style="width:80%"></el-input>
                         </template>
                     </el-table-column> 
-                    <el-table-column label="运费">
+                    <el-table-column label="发货">
                         <template slot-scope="scope">
-                            <el-input v-model="scope.row.freight_price" placeholder="运费" style="width:80%"></el-input>                          
+                            <el-radio v-model="scope.row.delivery" label="1">厂发</el-radio>
+                            <el-radio v-model="scope.row.delivery" label="2">仓库发</el-radio>
                         </template>
                     </el-table-column>
                     <el-table-column label="供应商" width="250">
@@ -191,9 +187,10 @@
                             <el-input v-model="scope.row.purchase_price" placeholder="成本" style="width:80%"></el-input>
                         </template>
                     </el-table-column> 
-                    <el-table-column label="运费">
+                    <el-table-column label="发货">
                         <template slot-scope="scope">
-                            <el-input v-model="scope.row.freight_price" placeholder="运费" style="width:80%"></el-input>                          
+                            <el-radio v-model="scope.row.delivery" :label="huo.a">厂发</el-radio>
+                            <el-radio v-model="scope.row.delivery" :label="huo.b">仓库发</el-radio>
                         </template>
                     </el-table-column>
                     <el-table-column label="供应商">
@@ -232,29 +229,10 @@ export default {
             time:'',
             user:'',
             headBoxTable:[],// 数据表格
-            state:['','上门','上楼','自提'],     
+            state:['','到楼下','上楼','自提'],     
             // 地址配货信息
-            fixedAddress:[
-                {
-                    id:0,
-                    name:'GT',
-                    phone:'110',
-                    type:'送货上门',
-                    province:'湖南省',
-                    city:'长沙市',
-                    county:'芙蓉区',
-                    address:'2号',
-                    product:[
-                        {
-                           name:'笔', 
-                           pid:1,
-                           sku_name:'bai',
-                           number:'300',
-                        }
-                    ],
-                    remarks:'易燃易爆，小心'
-                }
-            ], 
+            tong:'', // 控制一键同步
+            fixedAddress:[], 
             dialogFormProduct:false, // 配货弹窗
             Distribution:{
                 id:'',
@@ -293,6 +271,10 @@ export default {
             piao:{
                 a:0,
                 b:1,
+            },
+            huo:{
+                a:1,
+                b:2,
             }
         }
     },
@@ -333,7 +315,23 @@ export default {
          getfixedAddress(){
             this.axios.get('/erp.Purchase/purchase_order_address_product_select?id='+this.$route.params.id).then(res => {
                 this.fixedAddress = res.data.address;
+                if(res.data.address[0].purchase.length == 0){
+                    this.tong = 0;
+                }else{
+                    this.tong = 1
+                }
             })
+        },
+        tongbu(){
+           this.axios.get('/erp.Purchase/purchase_order_address_product_one_click_sync?id='+this.$route.params.id).then(res => {
+               if(res.data.code == 2000){
+                    this.getfixedAddress();
+                    this.tong = 0  
+                }else{
+                    this.open(res.data.msg,'error');
+                }
+               
+            }) 
         },
         // 取消配货信息
         cancel(){
@@ -356,14 +354,14 @@ export default {
             }else{
                 for(let i = 0; i<this.multipleSelection.length;i++){
                     let P;
-                    if(this.multipleSelection[i].freight_price == undefined){
+                    if(this.multipleSelection[i].delivery == undefined){
                          P = {
                             customer_order_product_sku_id:this.multipleSelection[i].customer_order_product_sku_id,
                             invoice:this.multipleSelection[i].invoice,
                             number:this.multipleSelection[i].number,
                             supplier_id:this.multipleSelection[i].supplier_id,
                             purchase_price:this.multipleSelection[i].cost_price, 
-                            freight_price:0, 
+                            delivery:this.multipleSelection[i].delivery, 
                         };
                     }else{
                          P = {
@@ -372,7 +370,7 @@ export default {
                             number:this.multipleSelection[i].number,
                             supplier_id:this.multipleSelection[i].supplier_id,
                             purchase_price:this.multipleSelection[i].cost_price, 
-                            freight_price:this.multipleSelection[i].freight_price
+                            delivery:this.multipleSelection[i].delivery,
                         };
                     }
                     productArr.push(P);
@@ -416,13 +414,13 @@ export default {
                 let check;
                 let productArr = [];
                 if(res.data.transfer === 1){
-                check = true;
+                    check = true;
                 }else{
-                check = false; 
+                    check = false; 
                 };
                 this.headModify = true;
                 this.tableData =  res.data.product;
-                this.Distribution.freight_price = res.data.freight_price;
+                this.Distribution.delivery = String(res.data.delivery);
                 this.Distribution.remarks = res.data.remarks;
                 this.Distribution.transfer = check; 
                 this.Distribution.id = res.data.id;
@@ -452,7 +450,7 @@ export default {
                         supplier_id:shuju[i].supplier_id,
                         purchase_price:shuju[i].purchase_price,
                         id:shuju[i].id,
-                        freight_price:shuju[i].freight_price,
+                        delivery:shuju[i].delivery,
                     };
                     productArr.push(P);
                 };

@@ -70,11 +70,10 @@ export default {
         width: 200px;
         height: 50px;
         margin: auto;
-        margin-top: 20px;
         border:1px solid #CCC;
     }
     .head_er{
-        width: 2080px;
+        width: 2180px;
         margin: auto;
         margin-top: 20px;
         overflow: hidden;

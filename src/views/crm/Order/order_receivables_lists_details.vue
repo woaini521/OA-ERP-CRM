@@ -1,36 +1,67 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
   <div class="box">
-      <div class="box_content">
-        <el-table :data="tableData" style="width: 100%;">
-          <el-table-column prop="payment_time" label="汇款时间" ></el-table-column>
-          <el-table-column prop="source" label="渠道">
-              <template slot-scope="scope">
-                  <span>{{status[scope.row.source]}}</span>
-              </template>
-          </el-table-column>  
-          <el-table-column label="接收帐号" >
+        <div class="box_content">
+            <el-table :data="tableData" style="width: 100%;margin-bottom:20px">
+                <el-table-column prop="payment_time" label="汇款时间" ></el-table-column>
+                <el-table-column prop="source" label="渠道">
+                    <template slot-scope="scope">
+                        <span>{{status[scope.row.source]}}</span>
+                    </template>
+                </el-table-column>  
+                <el-table-column label="接收帐号" >
+                        <template slot-scope="scope">
+                            <span>{{scope.row.receiving_name}}:{{scope.row.receiving_account}}</span>
+                        </template>
+                </el-table-column>
+                <el-table-column prop="payment_amount" label="金额"></el-table-column>
+                <el-table-column prop="remarks" label="备注" ></el-table-column>
+                <el-table-column prop="user_name" label="录入人" ></el-table-column>
+            </el-table>
+            <label>认款记录</label>
+            <el-table :data="RK">
+                <el-table-column prop="customer_order_id" label="订单编号"  width="80px"></el-table-column>  
+                <el-table-column prop="customer_name" label="客户"></el-table-column>  
+                <el-table-column prop="money" label="已认款额"></el-table-column>
+                <el-table-column prop="add_time" label="认款时间"></el-table-column>
+                <el-table-column label="认领人" prop="user_name">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.dep_title }}/{{ scope.row.user_name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template slot-scope="scope">
+                        <el-button @click="deteles(scope.row)" size="mini" type="danger">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+        <label>认款信息</label>
+        <el-table :data="F_data" style="margin-top:20px">
+            <el-table-column label="客户" prop="customer_name"></el-table-column>
+            <el-table-column label="总销售额" prop="total_price"></el-table-column>
+            
+            <el-table-column label="已开发票金额" prop="invoice_amount"></el-table-column>
+            <el-table-column label="认款额">
                 <template slot-scope="scope">
-                    <span>{{scope.row.receiving_name}}:{{scope.row.receiving_account}}</span>
+                    <el-input type="Number" v-model="scope.row.receivables_amount" @change ="zhi(scope.row)"></el-input>
                 </template>
-          </el-table-column>
-          <el-table-column prop="payment_amount" label="金额"></el-table-column>
-          <el-table-column prop="remarks" label="备注" ></el-table-column>
-          <el-table-column prop="user_name" label="录入人" ></el-table-column>
+            </el-table-column>
+            <el-table-column label="销售员" prop="user_name">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.dep_title }}/{{ scope.row.user_name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="props">
+                    <el-button size="mini" @click="shanchu(props.row)">删除</el-button>
+                </template>
+            </el-table-column>
         </el-table>
-      </div>
-      <!-- <div class="box_piao">
-          <label>发票信息</label>
-          <el-table :data="tablePiao" ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="55" label="选择"></el-table-column>
-                <el-table-column prop="rise" label="抬头" ></el-table-column>  
-                <el-table-column prop="tax_number" label="票号" ></el-table-column>
-                <el-table-column prop="money" label="金额" ></el-table-column>  
-                <el-table-column prop="status" label="状态" ></el-table-column>
-          </el-table>
-      </div> -->
-      <label>产品信息</label> 
-      <div style="margin-top:20px;">
+        <el-button type="primary" @click="add" style="margin-top:20px;margin-bottom: 20px;">确认提交</el-button> 
+        <br> 
+        <label>认款订单</label> 
+        <div style="margin-top:20px;">
               <label>筛选：</label>
               <el-input v-model="name" clearable placeholder="客户名称" style="width:217px;margin-left:10px"></el-input>
               <el-input v-model="money" clearable placeholder="金额" style="width:217px;margin-left:10px"></el-input>
@@ -44,50 +75,48 @@
             </el-select>
             <el-button style="margin-left:10px" @click="seach">确定</el-button>
         </div> 
-      <div class="box_product">
-          <div class="product_inner" v-for="item in tableProduct" :key="item.id">
-                <p style="padding-bottom:10px;">
-                    <span>客户名称：{{item.customer_name}} </span>
-                </p>
-                <p style="padding-bottom:10px;">
-                    <span>总销售额：{{item.total_price}} </span>
-                    <span style="margin-left:10px">额外费用：{{item.extra_price}} </span>
-                    <span style="margin-left:10px">认款额：{{ Number(item.total_price) + Number(item.extra_price) }} </span>
-                </p>
-                <el-checkbox-group v-model="checkboxGroup">
-                    <el-checkbox :label="item">选择 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>已认款金额:{{ item.receivables_money }}</span></el-checkbox>
-                    <el-table :data="item.product_sku">
-                            <el-table-column type="expand">
-                                <template slot-scope="scope">
-                                    <el-form inline class="demo-table-expand"  v-if="scope.row.receivables != null">
-                                        <el-form-item  v-for="(items,index) in scope.row.receivables" :key="items.id" :label="index+1">
-                                            <span>{{ items.add_time }}已经认款{{ items.money }}元</span>
-                                        </el-form-item>
-                                    </el-form>
-                                    <el-form v-else>
-                                        <el-form-item label-position="left" inline class="demo-table-expand">
-                                        <span>暂无认款记录</span>
-                                        </el-form-item>
-                                    </el-form>
-                                </template>
-                            </el-table-column>
-                            <el-table-column  label="订单产品" >
-                                <template slot-scope="scope">
-                                    <span>{{scope.row.class_name}}{{scope.row.sku_name}}</span>
-                                </template> 
-                            </el-table-column>
-                            <el-table-column prop="total_price" label="销售金额"></el-table-column> 
-                            <el-table-column  label="认款金额" >
-                                <template slot-scope="scope">
-                                    <!-- <span>{{scope.row.total_price}}</span> -->
-                                    <el-input v-model="scope.row.money" :placeholder="scope.row.total_price"></el-input>
-                                </template>    
-                            </el-table-column>
-                    </el-table> 
-                </el-checkbox-group>
-           </div>
-           
-      </div>
+        <el-table :data="tableProduct">
+            <el-table-column type="expand">
+                <template slot-scope="props">
+                    <el-table :data="props.row.product_sku" style="margin-bottom:20px;">
+                        
+                        <el-table-column  label="订单产品" >
+                            <template slot-scope="scope">
+                                <span>{{scope.row.class_name}}{{scope.row.sku_name}}</span>
+                            </template> 
+                        </el-table-column>
+                        <el-table-column prop="total_price" label="销售金额"></el-table-column>  
+                    </el-table>
+                    <label>已认款信息</label>
+                    <el-table :data="props.row.receivables_customer_order">
+                        <el-table-column prop="customer_name" label="客户"></el-table-column>  
+                        <el-table-column prop="money" label="已认款额"></el-table-column>
+                        <el-table-column label="认领人" prop="user_name">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.dep_title }}/{{ scope.row.user_name }}</span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </template>
+            </el-table-column>
+            <el-table-column label="订单编号" prop="id" width="80px"></el-table-column>
+            <el-table-column label="客户" prop="customer_name"></el-table-column>
+            <el-table-column label="总销售额" prop="total_price"></el-table-column>
+            <el-table-column label="额外费用" prop="extra_price"></el-table-column>
+            <el-table-column label="已开发票金额" prop="invoice_amount"></el-table-column>   
+            <el-table-column label="认款额" prop="receivables_amount"></el-table-column>
+            <el-table-column label="销售员" prop="user_name">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.dep_title }}/{{ scope.row.user_name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button size="mini" @click="tianjia(scope.row)">认款</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+     
       <div class="block" style="margin-top: 10px;padding-bottom: 20px">
                 <el-pagination
                 @current-change="handleCurrentChange"
@@ -98,7 +127,6 @@
                 </el-pagination>
             </div>
 
-      <el-button type="primary" @click="add">确认提交</el-button>
   </div>
 </template>
 
@@ -108,7 +136,7 @@ import { mapActions } from "vuex";
   export default {
     data () {
       return {
-        status:['支付宝','微信','银行卡'],
+        status:['','微信','支付宝','银行卡'],
         tableData:[], // 客户信息
         //tablePiao:[], // 票 数据
         //multipleSelection:[], // 勾选发票
@@ -123,6 +151,8 @@ import { mapActions } from "vuex";
         name:'',
         money:'',
         company:'',
+        F_data:[],
+        RK:[],
       };
     },
     methods:{
@@ -144,92 +174,119 @@ import { mapActions } from "vuex";
                 this.per_page = res.data.order.per_page;
                 this.last_page = res.data.order.last_page;
                 this.option = res.data.company;
+                this.RK = res.data.receivables_customer_order
                 loading.close();
             })
         },
         seach(){
-            const loading = this.$loading({
-                lock: true,
-                text: '拼命加载中',
-                spinner: 'el-icon-loading',
-                background: 'rgba(0, 0, 0, 0.7)'
-            });
+            // const loading = this.$loading({
+            //     lock: true,
+            //     text: '拼命加载中',
+            //     spinner: 'el-icon-loading',
+            //     background: 'rgba(0, 0, 0, 0.7)'
+            // });
             this.axios.get('/crm.Order/order_receivables_add?id='+this.$route.params.id+'&name='+this.name+'&money='+this.money+'&supplier_id='+this.company).then(res => {
                 this.tableProduct =  res.data.order.data;
                 this.currentPage = Number(res.data.order.current_page);
                 this.total = Number(res.data.order.total);
                 this.per_page = Number(res.data.order.per_page);
                 this.last_page = Number(res.data.order.last_page);
-                loading.close();
+                //loading.close();
             })
         },
         handleCurrentChange(value){
-            const loading = this.$loading({
-                lock: true,
-                text: '拼命加载中',
-                spinner: 'el-icon-loading',
-                background: 'rgba(0, 0, 0, 0.7)'
-            });
+            // const loading = this.$loading({
+            //     lock: true,
+            //     text: '拼命加载中',
+            //     spinner: 'el-icon-loading',
+            //     background: 'rgba(0, 0, 0, 0.7)'
+            // });
             this.axios.get('/crm.Order/order_receivables_add?id='+this.$route.params.id+'&page='+value+'&name='+this.name+'&money='+this.money+'&supplier_id='+this.company).then(res => {
                 this.tableProduct = res.data.order.data;
                 this.currentPage = Number(res.data.order.current_page);
                 this.total = Number(res.data.order.total);
                 this.per_page = Number(res.data.order.per_page)
                 this.last_page = Number(res.data.order.last_page)
-                loading.close();
+                //loading.close();
             })
         },
         //提交 
         add(){
-            // let piao = [];
             let nihao = [];
-            // for(let z = 0;z<this.multipleSelection.length;z++){
-            //     let piao_id = {
-            //         id:this.multipleSelection[z].id
-            //     }
-            //     piao.push(piao_id);
-            // } 
-            if(this.checkboxGroup.length !== 0){
-                for(let z = 0;z<this.checkboxGroup.length;z++){
-                    let checkboxGroupSku = this.checkboxGroup[z];
-                    let checkboxGroupSkuProduct =  checkboxGroupSku.product_sku;
-                    let productShu =[];
-                    for(let y = 0; y < checkboxGroupSkuProduct.length; y++){
-                            let productSkuShu = {
-                                customer_order_product_sku_id:checkboxGroupSkuProduct[y].id,
-                                money:checkboxGroupSkuProduct[y].money
-                            }
-                            productShu.push(productSkuShu);
-                    } 
-                   // console.log(productShu);
+            if(this.F_data.length !== 0){
+                for(let z = 0;z<this.F_data.length;z++){
+                    let ID = this.F_data[z].id;
+                    let receivables_amount = this.F_data[z].receivables_amount;
                     let productShuju = {
-                        customer_order_id:checkboxGroupSku.id,
-                        product_sku:productShu,
+                        id:ID,
+                        receivables_amount:receivables_amount,
                     } 
                     nihao.push(productShuju);
                 }
-     
+                //console.log(nihao)
                 this.axios.post('/crm.Order/order_receivables_add',{
-                    id:this.tableData[0].id,
-                    // invoice:piao,
+                    id:this.$route.params.id,
                     order:nihao
                 }).then(res => {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
-                        this.triggerDeleteTabs(this.$route.path);
-                        this.$router.push({ path: "/crm/Order/order_receivables_lists" });
+                        this.F_data = [];
+                        //this.getshuju();
+                        // this.triggerDeleteTabs(this.$route.path);
+                        // this.$router.push({ path: "/crm/Order/order_receivables_lists" });
+                         this.axios.get('/crm.Order/order_receivables_add?id='+this.$route.params.id).then(res => {
+                            this.RK = res.data.receivables_customer_order
+                        })
                     }else{
                         this.open(res.data.msg,'error');
                     }
                 }) 
             }else{
-                this.open('勾选产品','error');
+                this.open('未选择认款','error');
             }
         },
-
+        deteles(a){
+            this.axios.post('/crm.Order/order_receivables_delete',{
+                    receivables_id:a.receivables_id,
+                    customer_order_id:a.customer_order_id,
+            }).then(res => {
+                    if(res.data.code == 2000){
+                        this.open(res.data.msg,'success');
+                        this.getshuju();
+                    }else{
+                        this.open(res.data.msg,'error');
+                    }
+            }) 
+        },
         // 
         handleSelectionChange(val) {
             this.multipleSelection = val;
+        },
+
+
+        tianjia(a){
+           this.F_data.push(a);
+           this.F_data = this.unique(this.F_data);
+        },
+        shanchu(a){
+            let index = 0;
+            for (let option of this.F_data) {
+                if (option.id === a.id) {
+                    break;
+                }
+                index++;
+            }
+            this.F_data.splice(index, 1);
+        },
+        zhi(val){
+            if(Number(val.receivables_amount)>Number(val.total_price)){
+                val.receivables_amount = val.total_price
+            }
+        },
+        
+        unique(arr) {
+            const res = new Map();
+            return arr.filter((arr) => !res.has(arr.id) && res.set(arr.id))
         },
         open(a,b){
             this.$message({
@@ -239,8 +296,11 @@ import { mapActions } from "vuex";
         },
     },
     activated(){
+        this.F_data = [];
+        this.RK = [];
         if(this.$route.params.id){
             this.getshuju();
+
         }
     },
     // watch:{

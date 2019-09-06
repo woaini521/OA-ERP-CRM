@@ -5,6 +5,10 @@
                 <el-form-item label="产品名称" :label-width="lableWidth">
                     <el-input v-model="formProduct.name" style="width:300px"></el-input>
                 </el-form-item>
+                <el-form-item label="产品类型" :label-width="lableWidth">
+                    <el-radio v-model="formProduct.type" label="1">礼品</el-radio>
+                    <el-radio v-model="formProduct.type" label="0">印刷</el-radio>
+                </el-form-item>
                 <el-form-item label="产品分类" :label-width="lableWidth">
                     <el-cascader :options="options" :props="props" change-on-select @change="handleItemChange"></el-cascader>
                     <span v-if="lei!=''">你当前的选择类型：<span style="color:red">{{lei}}</span></span>
@@ -44,7 +48,7 @@
             </el-table>
             <el-dialog title="添加修改SKU" :visible.sync="dialogFormProduct">
                 <el-form ref="Product" :model="Product" inline>
-                    <el-form-item label="类别" :label-width="lableWidth" prop="category">
+                    <el-form-item label="SKU名称" :label-width="lableWidth" prop="category">
                        <el-input v-model="Product.category" style="width:217px"></el-input>
                     </el-form-item> 
                     <el-form-item label="是否是专版" :label-width="lableWidth" prop="firm_id">
@@ -93,6 +97,23 @@
                     <el-form-item label="材质" :label-width="lableWidth" prop="Sell">
                        <el-input v-model="Product.material_quality" style="width:217px"></el-input>
                     </el-form-item>
+                    <br>
+                    <el-form-item label="创意" :label-width="lableWidth">
+                        <el-radio v-model="Product.originality" label="0">厂家</el-radio>
+                        <el-radio v-model="Product.originality" label="1">原创</el-radio>
+                    </el-form-item>    
+                    <br>
+                    <el-form-item label="参与人员" :label-width="lableWidth">
+                        <el-select v-model="Product.user" filterable multiple placeholder="请选择" style="width:200%">
+                            <el-option
+                            v-for="item in Useroptions"
+                            :key="item.user_id"
+                            :label="item.name"
+                            :value="item.user_id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
                     <br>
                     <el-form-item label="上传图片" :label-width="lableWidth">
                       <el-upload class="avatar-uploader" 
@@ -175,6 +196,7 @@ export default {
         msg:'',
         formProduct:{
             name:'',
+            type:'',
             category:'',
             content:''
         },
@@ -220,7 +242,19 @@ export default {
             material_quality:'',
             imageUrl:'',
             id:'',
+            user:[],
+            originality:'',
         },
+        Useroptions:[
+                {
+                    label:'dada',
+                    value:1,
+                },
+                {
+                    label:'erer',
+                    value:2,
+                },
+            ], // 人员
         optionSupplier:[
             {
                 label:'太保',
@@ -282,6 +316,7 @@ export default {
             });
             this.axios.get('/erp.Product/product_class_select').then(res => {
              this.options = res.data.product_class;
+             this.Useroptions = res.data.user;
              loading.close();  
             })
         },
@@ -292,7 +327,7 @@ export default {
         },
         add(){
            // this.queryimg();
-            if(this.formProduct.name == '' || this.formProduct.category == ''){
+            if(this.formProduct.name == '' || this.formProduct.category == ''|| this.formProduct.type == ''){
                 this.open('填写完整产品名称和分类','error');
             }else{
                 if(this.Product.product_id == ''){
@@ -300,12 +335,12 @@ export default {
                     class_id:this.formProduct.category, 
                     name:this.formProduct.name,
                     status:'',
-                    content:this.formProduct.content
+                    content:this.formProduct.content,
+                    type:this.formProduct.type
                     }).then(res => {
                         if(res.data.code == 2000){
                             this.Product.product_id = res.data.id;
                             this.dialogFormProduct = true;  
-                            
                         }
                     })
                 }else{
@@ -360,6 +395,8 @@ export default {
                 specifications:this.Product.specifications,
                 material_quality:this.Product.material_quality,
                 img:this.Product.imageUrl, 
+                user:this.Product.user,
+                originality:this.Product.originality
                 }).then(res => {
                     if(res.data.code == 2000){
                     this.$refs['Product'].resetFields(); 
@@ -388,6 +425,8 @@ export default {
                 material_quality:this.Product.material_quality,
                 img:this.Product.imageUrl, 
                 id:this.Product.id,
+                user:this.Product.user,
+                originality:this.Product.originality
                 }).then(res => {
                     if(res.data.code == 2000){
                     this.$refs['Product'].resetFields(); 
@@ -451,6 +490,8 @@ export default {
             this.Product.size = a.size;
             this.Product.specifications = a.specifications;
             this.Product.material_quality = a.material_quality;
+            this.Product.user = a.user;
+            this.Product.originality = String(a.originality)
         },
 
         // 添加供应商阶梯价 弹窗
@@ -568,6 +609,7 @@ export default {
                     id:this.Product.product_id,
                     class_id:this.formProduct.category,
                     name:this.formProduct.name, 
+                    type:this.formProduct.type,
                     content:this.msg,
                 }).then(res => {
                     if(res.data.code == 2000){

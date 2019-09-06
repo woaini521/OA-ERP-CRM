@@ -21,8 +21,8 @@
           <el-table-column label="成本" prop="cost_price"></el-table-column>
           <el-table-column label="付款" prop="payment">
               <template slot-scope="scope">
-                <span v-if="scope.row.payment == 0">不用付款</span>
-                <span v-if="scope.row.payment == 1">付款</span>
+                <span v-if="scope.row.payment == 0">仓库发</span>
+                <span v-if="scope.row.payment == 1">付款，供应商发</span>
               </template>
           </el-table-column>
           <el-table-column label="供应商" prop="supplier_name"></el-table-column>
@@ -41,11 +41,12 @@
           </el-table-column>
           <el-table-column label="状态">
             <template slot-scope="scope">
-                <span v-if="scope.row.status == 0">默认</span>
-                <span v-if="scope.row.status == 3">等待付款</span>
-                <span v-if="scope.row.status == 6">付款完成</span>
-                <span v-if="scope.row.status == 9">完成</span>
-              </template>
+              <template v-if="scope.row.payment == 1">
+                <span v-if="scope.row.status == 0">等待财务审核</span>
+                <span v-if="scope.row.status == 1">等待出纳审核</span>
+                <span v-if="scope.row.status > 1">审核通过</span>
+              </template>  
+            </template>
           </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
@@ -71,12 +72,12 @@
               </p>
               <p style="margin-top:10px">
                 <span>{{item.province}}</span>
-                <span style="margin-left:20px;">{{item.city}}</span>
-                <span style="margin-left:20px;">{{item.county}}</span>
-                <span style="margin-left:20px;">{{item.address}}</span>
+                <span style="margin-left:20px;">{{ item.city }}</span>
+                <span style="margin-left:20px;">{{ item.county }}</span>
+                <span style="margin-left:20px;">{{ item.address }}</span>
               </p>
               <p style="margin-top:10px">发货清单：
-                <span style="margin-left:10px;" v-for="pcu in item.product" :key="pcu.pid">{{pcu.name}}{{pcu.sku_name}}---数量：{{pcu.number}}</span>
+                <span style="margin-left:10px;" v-for="pcu in item.product" :key="pcu.pid">{{ pcu.name }}{{ pcu.sku_name }}---数量：{{pcu.number}}</span>
               </p>
             </div>
           </div>       
@@ -85,6 +86,7 @@
             <p style="font-size: 20px;color:#000">{{ gongyingshang }}</p>
             <p style="font-size: 20px;color:#000">{{ gongyingshangZH }}</p>
             <p style="font-size: 20px;color:#000;margin-top:5px;"><span>金额：</span><span>{{ qian }}￥</span></p>
+            <chuna @func="jiezi" :a="dddd"></chuna>
             <div class="contract">
                 <label>上传打款凭证</label>
                 <div class="contractInner">
@@ -118,8 +120,12 @@
 </template>
 
 <script>
+import chuna from "@/components/chuna";
 import {mapActions} from 'vuex';
   export default {
+    components:{
+       chuna, 
+    },
     data () {
       return {
         remarks:'',// 备注 
@@ -137,6 +143,8 @@ import {mapActions} from 'vuex';
         id:'',
         imageUrl:[],
         imageUrlstate:false,
+        zichuan:[],
+        dddd:'',
       };
     },
     methods:{
@@ -149,7 +157,7 @@ import {mapActions} from 'vuex';
             if(res.data.code == 2000){
               this.open(res.data.msg,'success')
               this.triggerDeleteTabs(this.$route.path);
-              this.$router.push({ path: "/erp/Purchase/finance_customer_sample_lists" });
+              this.$router.push({ path: "/Finance/finance_customer_sample_lists" });
             }else{
                 this.open(res.data.msg,'error');
             }
@@ -172,6 +180,7 @@ import {mapActions} from 'vuex';
       },
       confirmCN(a){
         this.id = a.id;
+        this.dddd = a.id;
         this.Cashierexamine = true;
         this.gongyingshang = a.supplier_name;
         this.gongyingshangZH = `${a.receiving_name}:${a.receiving_account}`;
@@ -228,19 +237,33 @@ import {mapActions} from 'vuex';
                 let P = this.imageUrl[i].src;
                 src.push(P);      
             };
-             this.axios.post('/Finance/finance_customer_sample_status',{
-                id:this.id,
-                src:src
-            }).then(res => {
-                if(res.data.code == 2000){
-                  this.open(res.data.msg,'success')
-                  this.Cashierexamine = false;
-                  this.triggerDeleteTabs(this.$route.path);
-                  this.$router.push({ path: "/erp/Purchase/finance_customer_sample_lists" });
-                }else{
-                    this.open(res.data.msg,'error');
-                }
-            })
+            if(this.zichuan.length == 0){
+               this.$message({
+                            message: '选择付款账号',
+                            type: 'error'
+                        });
+            }else{
+              this.axios.post('/Finance/finance_customer_sample_status',{
+                  id:this.id,
+                  src:src,
+                  paye:this.zichuan
+              }).then(res => {
+                  if(res.data.code == 2000){
+                    this.open(res.data.msg,'success')
+                    this.Cashierexamine = false;
+                    this.triggerDeleteTabs(this.$route.path);
+                    this.$router.push({ path: "/Finance/finance_customer_sample_lists" });
+                  }else{
+                      this.open(res.data.msg,'error');
+                  }
+              })
+            }
+             
+        },
+         // 接收值
+        jiezi(data){
+           this.zichuan = data;
+           console.log(data); 
         },
     },
     created(){

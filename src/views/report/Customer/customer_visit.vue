@@ -5,12 +5,12 @@
             <el-date-picker v-model="shijian"  type="daterange" range-separator="至" start-placeholder="开始日期" value-format="timestamp" end-placeholder="结束日期"></el-date-picker>
             <el-button style="margin-left:20px" @click="seach">确定</el-button>
         </div>
-        <el-table v-for="item in tableData" :key="item.dep_name" :data="item.count" border show-summary style="width: 100%;margin-top:20px;" class="elTableB">
-            <el-table-column :label="item.dep_name"  prop="name" width="180"></el-table-column>
-            <el-table-column prop="yiji" sortable label="一级机构"></el-table-column>
-            <el-table-column prop="erji" sortable label="二级机构"></el-table-column>
-            <el-table-column prop="sanji" sortable label="三级机构"></el-table-column>
-            <el-table-column prop="siji" sortable label="四级机构"></el-table-column>
+        <el-table v-for="item in tableData" :key="item.dep_name" :data="item.count" border show-summary style="width: 650px;margin-top:20px;" class="elTableB">
+            <el-table-column :label="item.dep_name"  prop="name"></el-table-column>
+            <el-table-column prop="yiji" sortable label="一级机构" width="110px"></el-table-column>
+            <el-table-column prop="erji" sortable label="二级机构" width="110px"></el-table-column>
+            <el-table-column prop="sanji" sortable label="三级机构" width="110px"></el-table-column>
+            <el-table-column prop="siji" sortable label="四级机构" width="110px"></el-table-column>
             <el-table-column prop="user_total" sortable label="合计"></el-table-column>
         </el-table>
     </div>
@@ -21,7 +21,7 @@ export default {
     data(){
         return{
             tableData: [], // 表格数据
-            shijian:[],
+            shijian:null,
         }
     },
     methods:{
@@ -31,7 +31,7 @@ export default {
             })
         },
         seach(){
-            if(this.shijian.length == 0){
+            if(this.shijian==null){
                 this.axios.post('/report.Customer/customer_visit',{
                     start_time:'',
                     end_time:''

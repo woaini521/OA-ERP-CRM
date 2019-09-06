@@ -47,8 +47,8 @@ export default {
         // 触发上传
         dao(){
           document.getElementById('upload').click();  
-          this.tableData = []
-          this.keys = []
+        //   this.tableData = []
+        //   this.keys = []
         },
         // 导入数据
         importfxx(obj) {

@@ -15,8 +15,9 @@
                 </el-table-column>
                 <el-table-column label="数量" prop="number"></el-table-column>
                 <el-table-column label="单价" prop="purchase_price"></el-table-column>
+                <el-table-column label="运费" prop="freight_price"></el-table-column>
                 <el-table-column label="金额" prop="money"></el-table-column>
-                <el-table-column label="供应商" prop="supplier_id"></el-table-column>
+                <el-table-column label="供应商" prop="supplier_name"></el-table-column>
                 <el-table-column label="业务员" prop="user_name"></el-table-column>
                 <el-table-column label="状态">
                     <template slot-scope="scope">
@@ -74,20 +75,7 @@
                 <span style="margin-left:30px;">收款账号：</span><span>{{ receiving_account }}</span>
             </p>
             <p style="font-size: 20px;color:#000;margin-top:5px;"><span>预付款金额：</span><span>{{ fee }}￥</span></p>
-            <!-- <el-table :data="examineData">
-                <el-table-column label="产品">
-                    <template slot-scope="scope">
-                        <span>{{scope.row.name}}{{scope.row.sku_name}}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="数量" prop="number"></el-table-column>
-                <el-table-column label="采购价" prop="purchase_price"></el-table-column>
-                <el-table-column label="总金额">
-                    <template slot-scope="scope">
-                        <span>{{ Number(scope.row.number) * Number(scope.row.purchase_price) }}￥</span>
-                    </template>
-                </el-table-column>
-            </el-table> -->
+            <chuna @func="jiezi" :a="dddd"></chuna>
             <div class="contract">
                 <label>上传打款凭证</label>
                 <div class="contractInner">
@@ -122,7 +110,11 @@
 </template>
 
 <script>
+import chuna from "@/components/chuna";
 export default {
+    components:{
+       chuna, 
+    },
     data(){
         return{
           seach:'', // 筛选
@@ -143,6 +135,9 @@ export default {
           // 合同图片存储
           imageUrl:[],
           imageUrlstate:false,
+
+          zichuan:[],
+          dddd:'',
         }  
     },
     methods:{
@@ -212,6 +207,7 @@ export default {
         CashierSee(a){
             this.Cashierexamine = true;
             this.id = a.id;
+            this.dddd = a.id;
             this.receiving_name = a.supplier_id;
             this.receiving_account = a.supplier_id;
             this.fee = a.money;
@@ -269,18 +265,29 @@ export default {
                 let P = this.imageUrl[i].src;
                 src.push(P);      
             };
-             this.axios.post('/Finance/finance_product_stockup_supplier_status',{
-                id:this.id,
-                src:src
-            }).then(res => {
-                if(res.data.code == 2000){
-                    this.gettabledata();
-                    this.open(res.data.msg,'success');
-                    this.Cashierexamine = false;
-                }else{
-                    this.open(res.data.msg,'error');
-                }
-            })
+            if(this.zichuan.length == 0){
+                this.open('选择付款账号','error');
+            }else{
+                this.axios.post('/Finance/finance_product_stockup_supplier_status',{
+                    id:this.id,
+                    src:src,
+                    paye:this.zichuan,
+                }).then(res => {
+                    if(res.data.code == 2000){
+                        this.gettabledata();
+                        this.open(res.data.msg,'success');
+                        this.Cashierexamine = false;
+                    }else{
+                        this.open(res.data.msg,'error');
+                    }
+                })
+            }
+            
+        },
+        // 接收值
+        jiezi(data){
+           this.zichuan = data;
+           console.log(data); 
         },
 
 

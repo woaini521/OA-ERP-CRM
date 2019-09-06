@@ -68,10 +68,11 @@
             <el-radio v-model="class_id" label="3" disabled>京东</el-radio>
           </div>
           <br>
+          <p>补开票费用:{{repair_invoice}} <span style="margin-left:30px">补运费费用:</span> {{repair_freight}}</p>
           <p>备注：{{ remarks }}</p>
           <br>
           <div class="danxuan2">
-            <h4>发票信息:<span>{{invoice_name}}{{invoice_tax}}{{invoice_type}}%</span></h4>
+            <h4>发票信息:<span>{{invoice_name}}{{invoice_type}}{{invoice_tax}}%</span></h4>
           </div>
         </div>  
         <div class="lirun">
@@ -202,9 +203,7 @@
                                 <el-button type="danger" v-if="item.status < 90" size="mini" @click="shouhou(scope.row)">售后</el-button>
                               </template>
                             </el-table-column>
-                      </el-table>
-                      
-                        
+                      </el-table>    
                       <div v-for="san in er.product" :key="san.id">
                         <template v-if="san.supplier_after_sales == null">
                           <h4>无售后信息</h4>
@@ -346,6 +345,8 @@ import { appendFileSync } from 'fs';
         endtime:'',
         radio:'',
         class_id:'',
+        repair_invoice:'',
+        repair_freight:'',
         // 发票信息  
         invoice_name: '',
         invoice_tax:  '' ,          
@@ -568,6 +569,8 @@ import { appendFileSync } from 'fs';
               this.class_id = String(res.data.class_id);
               this.radio = String(res.data.type_id);
               this.remarks = res.data.remarks;
+              this.repair_invoice =res.data.repair_invoice;
+              this.repair_freight =res.data.repair_freight;
 
               this.totalprice= res.data.total_price;
               this.totalcostprice= res.data.total_cost_price; 
@@ -599,7 +602,6 @@ import { appendFileSync } from 'fs';
 </script>
 <style scoped lang="less">
 .head_box{
-  margin-top: 20px;
   border: 1px solid #CCC;
   padding: 20px 10px;
   min-width: 1150px;

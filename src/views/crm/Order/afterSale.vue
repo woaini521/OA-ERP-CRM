@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <h3 style="color:red;margin-top10px;margin-bottom:10px;">
+        <h3 style="color:red;margin-bottom:10px;">
             整体订单需要额外增加售后成本,在此处填写如果是单独供应商发货补货售后请点击按钮选择对应的处理地址,填写售后
         </h3>
         <el-button type="primary" @click="s_sh">供应商售后</el-button>

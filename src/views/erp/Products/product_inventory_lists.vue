@@ -40,9 +40,10 @@
                 <span v-if="scope.row.logo == 0">否</span>
             </template>
         </el-table-column> 
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="190px">
             <template slot-scope="scope">
                 <el-button type="primary" size="mini" @click="capzuo(scope.row)">操作</el-button>
+                <el-button type="primary" size="mini" @click="cha(scope.row)">库存记录</el-button>
             </template>
         </el-table-column> 
       </el-table> 
@@ -84,6 +85,25 @@
           <el-button type="primary" @click="addKucun">确 定</el-button>
         </div>
     </el-dialog> 
+
+    <el-dialog title="库存记录" :visible.sync="dialogKC" width="50%">
+      <el-table :data="KC">
+           <el-table-column label="时间" width="155px" prop="add_time"></el-table-column>
+           <el-table-column label="类型" prop="content"></el-table-column>
+           <el-table-column label="供应商" prop="supplier_name"></el-table-column>
+           <el-table-column label="数量" prop="number"></el-table-column>
+           <el-table-column label="剩余库存" prop="number_new"></el-table-column>
+      </el-table>
+      <div class="block" style="margin-top: 10px;">
+      <el-pagination
+        @current-change="handleCurrentChange1"
+        :current-page="currentPage1"
+        :page-size="per_page1"
+        layout="total, prev, pager, next"
+        :total="total1">
+      </el-pagination>
+    </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -136,10 +156,18 @@ import { mapActions } from "vuex";
           value2:true,
         },
         //分页器
-        currentPage:'',//当前页
-        total:'',//总数
-        per_page:'',//每页多少条
-        last_page:''//总页数
+        currentPage:0,//当前页
+        total:0,//总数
+        per_page:0,//每页多少条
+        last_page:0,//总页数
+
+        dialogKC:false,
+        product_sku_id:'',
+        KC:[],
+        currentPage1:0,//当前页
+        total1:0,//总数
+        per_page1:0,//每页多少条
+        last_page1:0,//总页数
       };
     },
     methods:{
@@ -214,6 +242,31 @@ import { mapActions } from "vuex";
            this.open('填写备货数量','error');
         }
       },
+      cha(a){
+        this.dialogKC = true;
+        this.product_sku_id = a.product_sku_id,
+        this.axios.post('/erp.Product/product_inventory_log_lists',{
+            product_sku_id:a.product_sku_id,
+        }).then(res => {
+            this.currentPage1 = res.data.log.current_page;
+            this.total1 = res.data.log.total;
+            this.per_page1 = res.data.log.per_page;
+            this.last_page1 = res.data.log.last_page;
+            this.KC = res.data.log.data;
+        })
+      },
+      handleCurrentChange1(val){
+          this.axios.post('/erp.Product/product_inventory_log_lists',{
+            product_sku_id:this.product_sku_id,
+            page:val
+        }).then(res => {
+            this.currentPage1 = res.data.log.current_page;
+            this.total1 = res.data.log.total;
+            this.per_page1 = res.data.log.per_page;
+            this.last_page1 = res.data.log.last_page;
+            this.KC = res.data.log.data;
+        })
+      },
       open(a,b){
           this.$message({
               message: a,
@@ -236,12 +289,6 @@ import { mapActions } from "vuex";
   }
 </script>
 <style lang="less">
-  .box{
-    min-width: 890px;
-    .head_box{
-      margin-top:20px;
-    }
-  }
   .demo-table-expand {
     font-size: 0;
   }

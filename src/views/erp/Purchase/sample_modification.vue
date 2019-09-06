@@ -21,8 +21,8 @@
           <el-table-column label="成本" prop="cost_price"></el-table-column>
           <el-table-column label="付款" prop="payment">
               <template slot-scope="scope">
-                <span v-if="scope.row.payment == 0">不用付款</span>
-                <span v-if="scope.row.payment == 1">付款</span>
+                <span v-if="scope.row.payment == 0">仓库发</span>
+                <span v-if="scope.row.payment == 1">付款,供应商发</span>
               </template>
           </el-table-column>
           <el-table-column label="供应商">
@@ -48,15 +48,16 @@
           </el-table-column>
           <el-table-column label="状态">
             <template slot-scope="scope">
-                <span v-if="scope.row.status == 0">默认</span>
-                <span v-if="scope.row.status == 3">等待付款</span>
-                <span v-if="scope.row.status == 6">付款完成</span>
-                <span v-if="scope.row.status == 9">完成</span>
+                <template v-if="scope.row.payment == 1">
+                  <span v-if="scope.row.status == 0">等待财务审核</span>
+                  <span v-if="scope.row.status == 1">等待出纳审核</span>
+                  <span v-if="scope.row.status > 1">审核通过</span>
+                </template>
               </template>
           </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button type="warning" size="mini" v-show="status <= 10" @click="Editors(scope.row)">编辑</el-button>
+              <el-button type="warning" size="mini" v-show="(scope.row.payment == 1 && status <= 20) || (scope.row.payment == 0 && status <= 40)" @click="Editors(scope.row)">编辑</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -67,8 +68,8 @@
                   <el-input v-model="dialogEditForm.cost_price" style="width:217px"></el-input>
               </el-form-item>
               <el-form-item label="付款" label-width="90px">
-                  <el-radio v-model="dialogEditForm.payment" label="0">不用付款</el-radio>
-                  <el-radio v-model="dialogEditForm.payment" label="1">付款</el-radio>
+                  <el-radio v-model="dialogEditForm.payment" label="0">仓库发</el-radio>
+                  <el-radio v-model="dialogEditForm.payment" label="1">付款供应商</el-radio>
               </el-form-item>
               <el-form-item label="供应商" label-width="90px">
                   <el-select v-model="dialogEditForm.supplier_id" @change="HQsupplierPayee" placeholder="请选择">
@@ -91,8 +92,6 @@
           </el-form>
       </el-dialog>
 
-
-
       <div class="generatedAddress">
         <label>地址配货信息</label>
         <hr>
@@ -100,7 +99,7 @@
             <div class="generatedAddressInnerLeft">
               <p>
                 <span>收货人：{{item.name}}</span>
-                <span style="margin-left:20px;">收货电话：{{item.phone}}</span> 
+                <span style="margin-left:20px;">收货电话：{{ item.phone }}</span> 
                 <span style="margin-left:60px;">付款方式:{{ item.payment == 1 ? '到付' : '现付'}}</span>
                 <span v-if="item.delivery==1" style="margin-left:20px;">物流方式:上门</span> 
                 <span v-if="item.delivery==2" style="margin-left:20px;">物流方式:上楼</span> 
@@ -171,6 +170,7 @@ import {mapActions} from 'vuex';
       tijiao(){
           this.axios.post('/erp.Purchase/purchase_sample_product_sku_update',{
             id:this.dialogEditForm.id,
+            customer_sample_id:this.$route.params.id,
             payment:this.dialogEditForm.payment,
             cost_price:  this.dialogEditForm.cost_price,
             supplier_id: this.dialogEditForm.supplier_id,

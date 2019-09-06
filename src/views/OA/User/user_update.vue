@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <el-tabs style="margin-top: 20px;" v-model="activeName">
+        <el-tabs v-model="activeName">
             <el-tab-pane label="基本资料" name="1">
                 <el-form :model="formData1" style="margin-top:10px;">
                     <el-form-item label="姓名" label-width="100px">
@@ -10,7 +10,7 @@
                         <el-cascader v-model="formData1.bumen" :options="options" :props="props" change-on-select></el-cascader>
                     </el-form-item>
                     <el-form-item label="负责公司" label-width="100px">
-                        <el-select v-model="formData1.company" multiple placeholder="选择所在企业" filterable  style="width:217px;">
+                        <el-select v-model="formData1.company" multiple placeholder="选择所在企业" filterable  style="width:50%;">
                             <el-option v-for="item in Customercompany" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
@@ -103,7 +103,9 @@
                     <el-form-item label="父母现住址" label-width="100px">
                         <el-input v-model="formData2.parent_address" style="width:217px" placeholder="请输入"></el-input>
                     </el-form-item>
-                    
+                    <el-form-item label="紧急联系人" label-width="100px">
+                        <el-input v-model="formData2.urgency" style="width:217px" placeholder="请输入"></el-input>
+                    </el-form-item>
                     <el-form-item label="" label-width="100px">
                         <el-button @click="add1" type="primary">提交</el-button>
                     </el-form-item>
@@ -184,6 +186,7 @@ export default {
                 parent_address :'',
                 salary:'',
                 jixiao:'',
+                urgency:'',
             },
 
             dialogTianjia:false, // 弹窗
@@ -199,6 +202,12 @@ export default {
         ...mapActions("Tabs", ['triggerDeleteTabs']),
         // 获取数据
         getData(){
+            const loading = this.$loading({
+                lock: true,
+                text: '拼命加载中',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.7)'
+            });    
             this.axios.get('/oa.User/user_update?user_id='+this.$route.params.id).then(res => {
                 this.options1 = res.data.role_list;
                 let Customercompany = res.data.company;
@@ -252,7 +261,11 @@ export default {
                 this.formData1.name = res.data.name;
                 this.formData1.phone = res.data.phone;
                 this.formData1.Gphone = res.data.work_phone;
-                this.formData1.proson = res.data.group_id.split(',').map(Number);                
+                if(res.data.group_id == null){
+                    this.formData1.proson = []
+                }else{
+                    this.formData1.proson = res.data.group_id.split(',').map(Number);          
+                }  
                 this.formData1.sex = String(res.data.gender);
                 this.formData1.status = String(res.data.status);
                 this.formData1.pwd = '';
@@ -317,7 +330,7 @@ export default {
                 this.formData2.mom_name = res.data.mom_name; 
                 this.formData2.dad_name = res.data.dad_name; 
                 this.formData2.parent_address = res.data.parent_address; 
-
+                this.formData2.urgency = res.data.urgency;
                 // 判断 公司部门
                 if(res.data.company_id == "0"){
                     this.formData1.company  = [];
@@ -345,11 +358,18 @@ export default {
                     }
                  
                 }
+                loading.close();
    
             })
         },
         // 新增数据
         getData1(){
+            const loading = this.$loading({
+                lock: true,
+                text: '拼命加载中',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.7)'
+            });
             this.axios.get('/oa.User/user_update').then(res => {
                 this.options1 = res.data.role_list;
                 let Customercompany = res.data.company;
@@ -424,7 +444,7 @@ export default {
                 this.formData2.jixiao = ''; 
                 // 判断 公司部门
                 this.options = res.data.user_dep[0].child;
-
+                loading.close();
                 
    
             })
@@ -461,6 +481,7 @@ export default {
                     parent_address :this.formData2.parent_address, 
                     salary :this.formData2.salary, 
                     jixiao :this.formData2.jixiao, 
+                    urgency :this.formData2.urgency, 
                 }).then(res => {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
@@ -502,6 +523,7 @@ export default {
                     parent_address :this.formData2.parent_address, 
                     salary :this.formData2.salary, 
                     jixiao :this.formData2.jixiao,
+                    urgency :this.formData2.urgency,
                 }).then(res => {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
@@ -516,7 +538,7 @@ export default {
         // 获取个人历程数据
         getcourseData(){
             this.axios.get('/oa.User/user_story_select?user_id='+this.$route.params.id).then(res => {
-
+                    this.courseData = res.data
             })
         },
         // 添加个人历程
@@ -527,7 +549,7 @@ export default {
         },
         // 提交个人历程
         send(){
-
+            
         },
         open(a,b){
             this.$message({
@@ -552,9 +574,7 @@ export default {
             }else{
                 this.activeName = '1';
                 if(this.$route.params.id == 0){
-                
                     this.getData1();
-                    
                 }else{
                     this.getData();
                     this.getcourseData()
@@ -584,7 +604,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.box{
 
-}
 </style>

@@ -5,7 +5,7 @@
        <el-select
           v-model="state4"
           filterable
-          :disabled="status == 10?true:false"
+          :disabled="status > 10?true:false"
           placeholder="请输入公司关键词"
           @change="kehuName">
           <el-option
@@ -16,7 +16,7 @@
           </el-option>
         </el-select>
 
-        <el-select v-model="kehuValue" :disabled="status == 10?true:false"  @change="xzaddress" filterable placeholder="请选择客户名称" style="margin-left:10px;">
+        <el-select v-model="kehuValue" :disabled="status > 10?true:false"  @change="xzaddress" filterable placeholder="请选择客户名称" style="margin-left:10px;">
         <el-option
           v-for="item in listKuhuName"
           :key="item.id"
@@ -41,7 +41,7 @@
           <div class="fahuo">
             <span>收货日期</span>
             <el-date-picker
-             :disabled="status == 10?true:false"
+             :disabled="status > 10?true:false"
               v-model="endtime"
               type="date"
               placeholder="选择日期"
@@ -54,23 +54,25 @@
         </div>
         <div class="danxuan">
           <div class="danxuan1" style="float: left;">
-            <el-radio v-model="radio" :disabled="status == 10?true:false" label="1">商品</el-radio>
-            <el-radio v-model="radio" :disabled="status == 10?true:false" label="2">农产品</el-radio>
-            <el-radio v-model="radio" :disabled="status == 10?true:false" label="3">服务</el-radio>
+            <el-radio v-model="radio" :disabled="status > 10?true:false" label="1">商品</el-radio>
+            <el-radio v-model="radio" :disabled="status > 10?true:false" label="2">农产品</el-radio>
+            <el-radio v-model="radio" :disabled="status > 10?true:false" label="3">服务</el-radio>
           </div>
           <div class="danxuan1" style="margin-left: 100px;float: left;">
-            <el-radio v-model="class_id" label="1" :disabled="status == 10?true:false">传统</el-radio>
-            <el-radio v-model="class_id" label="2" :disabled="status == 10?true:false">线上</el-radio>
-            <el-radio v-model="class_id" label="3" :disabled="status == 10?true:false">京东</el-radio>
+            <el-radio v-model="class_id" label="1" :disabled="status > 10?true:false">传统</el-radio>
+            <el-radio v-model="class_id" label="2" :disabled="status > 10?true:false">线上</el-radio>
+            <el-radio v-model="class_id" label="3" :disabled="status > 10?true:false">京东</el-radio>
           </div>
           <br>
           <div class="beizhu" style="overflow: hidden;margin-top:20px;">
-            <span style="float: left;line-height: 40px;margin-right: 10px;">备注</span><el-input style="float: left;width:90%" v-model="remarks"></el-input>
+            <label>补开票费用:</label><el-input v-model="repair_invoice" :disabled="status > 10?true:false" style="width:217px;margin-right:30px"></el-input>
+            <label>补运费费用:</label><el-input v-model="repair_freight" :disabled="status > 10?true:false" style="width:217px;"></el-input><br>
+            <span style="float: left;line-height: 40px;margin-right: 10px;margin-top:10px">备注</span><el-input style="float: left;width:90%;margin-top:10px" v-model="remarks"></el-input>
           </div>
           <br>
           <div class="danxuan2">
            <h4>发票信息</h4>
-            <el-radio :disabled="status == 10?true:false"  v-model="piao" v-for="(item,index) in InvoiceType[Number(radio)-1]" :key="index" :label="item.id">{{item.name}}{{item.type}}{{item.percentile}}</el-radio>
+            <el-radio :disabled="status > 10?true:false"  v-model="piao" v-for="(item,index) in InvoiceType[Number(radio)-1]" :key="index" :label="item.id">{{item.name}}{{item.type}}{{item.percentile}}</el-radio>
           </div>
         </div>  
           
@@ -78,7 +80,7 @@
       </div>
 
       <div class="content_box_product">
-        <el-button @click="addOrder" :disabled="status == 10?true:false">添加产品</el-button>
+        <el-button @click="addOrder" :disabled="status > 10?true:false">添加产品</el-button>
         <el-table :data="tableData" show-summary style="width: 100%;margin-top:20px" v-loading="loading">
            <el-table-column  label="图片" width="100">
               <template slot-scope="scope">
@@ -121,12 +123,11 @@
                     <el-table-column property="ratio" label="提成系数"></el-table-column>
                     <el-table-column label="修改"  width='150'>
                       <template slot-scope="scopes">
-                        <el-button :disabled="status == 10?true:false" type="danger" @click.native="editRoyalty(scopes.row)" size="mini">修改</el-button>
-                        <el-button :disabled="status == 10?true:false" type="warning" @click.native="deleteRoyalty(scopes.row)" size="mini">删除</el-button>
+                        <el-button :disabled="status > 10?true:false" type="warning" @click.native="deleteRoyalty(scopes.row)" size="mini">删除</el-button>
                       </template>
                     </el-table-column>
                   </el-table>
-                  <el-button :disabled="status == 10?true:false" slot="reference" type="text" size="mini">查看</el-button>
+                  <el-button :disabled="status > 10?true:false" slot="reference" type="text" size="mini">查看</el-button>
                 </el-popover>
                 <el-button  v-show="edit[scope.$index] == true " type="primary" size="mini" style="margin-left:5px;" @click="addRoyalty(scope.row)">添加</el-button>
                 <span v-show="edit[scope.$index] == false">{{scope.row.commission_price}}</span>
@@ -145,9 +146,9 @@
           </el-table-column>
           <el-table-column label="操作" width="160">
             <template slot-scope="scope">
-              <el-button :disabled="status == 10?true:false" type="warning" v-show="edit[scope.$index] == false" size="mini" @click="Editors(scope.$index)">编辑</el-button>
-              <el-button :disabled="status == 10?true:false" type="success" v-show="edit[scope.$index] == true" size="mini" @click="updata(scope.row,scope.$index)">完成</el-button>
-              <el-button type="danger" :disabled="status == 10?true:false" size="mini" @click="deletep(scope.row)">删除</el-button>
+              <el-button :disabled="status > 10?true:false" type="warning" v-show="edit[scope.$index] == false" size="mini" @click="Editors(scope.$index)">编辑</el-button>
+              <el-button :disabled="status > 10?true:false" type="success" v-show="edit[scope.$index] == true" size="mini" @click="updata(scope.row,scope.$index)">完成</el-button>
+              <el-button type="danger" :disabled="status > 10?true:false" size="mini" @click="deletep(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -170,6 +171,7 @@
             <el-table-column  prop="unit" label="单位"></el-table-column>
             <el-table-column  prop="cost_price" label="成本"></el-table-column>
             <el-table-column  prop="selling_price" label="售价"></el-table-column>
+            <el-table-column  prop="supplier_inventory_sum" label="库存"></el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
                 <el-button
@@ -248,7 +250,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-select v-model="formAddress.delivery" placeholder="物流方式" style="width:140px;">
-                        <el-option label="上门" value="1">
+                        <el-option label="到楼下" value="1">
                         </el-option>
                         <el-option label="上楼" value="2">
                         </el-option>
@@ -322,7 +324,7 @@
                 <span>收货人：{{item.name}}</span>
                 <span style="margin-left:20px;">收货电话：{{item.phone}}</span> 
                 <span style="margin-left:60px;">付款方式:{{ item.payment == 1 ? '到付' : '现付'}}</span>
-                <span v-if="item.delivery==1" style="margin-left:20px;">物流方式:上门</span> 
+                <span v-if="item.delivery==1" style="margin-left:20px;">物流方式:到楼下</span> 
                 <span v-if="item.delivery==2" style="margin-left:20px;">物流方式:上楼</span> 
                 <span v-if="item.delivery==3" style="margin-left:20px;">物流方式:自提</span> 
               </p>
@@ -387,7 +389,7 @@
           <div class="contractInner">
             <div class="contractInnerLeft">
               <el-upload
-              :disabled="status == 10?true:false"
+              :disabled="status> 10?true:false"
                 class="avatar-uploader"
                 accept="image/jpeg,image/gif,image/png,image/bmp"
                 action="/file/customer_order_img"
@@ -400,7 +402,7 @@
             <div class="img" v-show="imageUrlstate">
               <div class="imginner" v-for="item in imageUrl" :key="item.src">
                 <img :src="item.src" class="avatar">
-                <div class="avatars">
+                <div class="avatars" v-show="status > 10?true:false">
                   <i @click="deleteimg(item.src)" style="font-size: 30px;margin-top: 75px;margin-left: 75px;color:#FFF;" class="el-icon-delete" ></i>
                 </div>
               </div>
@@ -410,7 +412,7 @@
       </div>
       
       <!-- 提交数据 页面清空 -->
-      <el-button type="primary" :disabled="status == 10?true:false" style="margin-bottom:20px;" @click="confirm">确认提交</el-button>
+      <el-button type="primary" :disabled="status > 10?true:false" style="margin-bottom:20px;" @click="confirm">确认提交</el-button>
       <!-- 文件上传 -->
       <el-dialog title="文件" :visible.sync="dialogExcel" width="1000px">
         <excel :distributeProduct="distributeProduct" :customer_order_id="customer_order_id" v-on:chuan="getchildmsg"></excel>
@@ -583,6 +585,8 @@ import {mapActions} from 'vuex';
         radio:'',
         piao:'',
         class_id:'',
+        repair_invoice:'',
+        repair_freight:'',
         remarks:'',
 
         // 产品数据
@@ -670,6 +674,9 @@ import {mapActions} from 'vuex';
         imageUrlstate:false,
 
         dialogExcel:false,//文件弹窗
+
+
+        ID:'',
       };
     },
     filters:{
@@ -769,9 +776,13 @@ import {mapActions} from 'vuex';
         });
         this.axios.post('/erp.product/product_sku_select',{
             page:val,
+            name:this.tableProductValue
           }).then(res => {
           this.tableProduct = res.data.product.data;
           this.currentPage = res.data.product.current_page;
+           this.total = res.data.product.total;
+           this.per_page = res.data.product.per_page;
+           this.last_page = res.data.product.last_page;
           loading.close();
         })  
       },
@@ -825,6 +836,13 @@ import {mapActions} from 'vuex';
       gettableData(a){
         this.axios.get('/crm.Order/customer_order_product_sku_select?customer_order_id='+a).then(res => {
           this.tableData = res.data.product_sku;
+          if(this.ID != ''){
+            res.data.product_sku.filter(item => {
+              if(item.id == this.ID){
+                  this.xianRoyalty = item.commission;
+              }
+            })
+          }
         })
       },
       gettableData1(a){
@@ -883,6 +901,7 @@ import {mapActions} from 'vuex';
          this.formRoyalty.id='';
          this.formRoyalty.product_sku_id = a.id;
          this.xianRoyalty = a.commission;
+         this.ID = a.id;
          this.Royalty = true;
        },
 
@@ -891,6 +910,7 @@ import {mapActions} from 'vuex';
          this.formRoyalty.name= a.user_id;
          this.formRoyalty.xishu=a.ratio;
          this.formRoyalty.id=a.id;
+         this.formRoyalty.product_sku_id = a.customer_order_product_id
          this.Royalty = true;
        },
       // 提成删除按钮
@@ -901,7 +921,6 @@ import {mapActions} from 'vuex';
             if(res.data.code == 2000){
               this.open(res.data.msg,'success');
               this.gettableData(this.customer_order_id);
-               this.Royalty = false;
             }else{
                 this.open(res.data.msg,'error');
             }
@@ -925,7 +944,6 @@ import {mapActions} from 'vuex';
       
       // 提交 提成
       pushRoyalty(){
-        if(this.formRoyalty.id==''){
           this.axios.post('/crm.Order/customer_order_commission_add',{
             customer_order_product_id:this.formRoyalty.product_sku_id,
             user_id:this.formRoyalty.name,
@@ -933,31 +951,15 @@ import {mapActions} from 'vuex';
             profit:'',
             customer_order_id:this.customer_order_id,
           }).then(res => {
+            this.gettableData(this.customer_order_id);
             if(res.data.code == 2000){
               this.open(res.data.msg,'success');
-              this.gettableData(this.customer_order_id)
-              this.Royalty = false;
+              this.formRoyalty.name = '';
+              this.formRoyalty.xishu = '';
             }else{
                 this.open(res.data.msg,'error');
             }
           })
-        }else{
-          this.axios.post('/crm.Order/customer_order_commission_update',{
-            id:this.formRoyalty.id,
-            user_id:this.formRoyalty.name,
-            ratio:this.formRoyalty.xishu,
-            profit:'',
-            customer_order_id:this.customer_order_id,
-          }).then(res => {
-            if(res.data.code == 2000){
-              this.open(res.data.msg,'success');
-              this.gettableData(this.customer_order_id)
-              this.Royalty = false;
-            }else{
-                this.open(res.data.msg,'error');
-            }
-          })
-        }
       },
 
       // 获取客户收货地址
@@ -1213,10 +1215,14 @@ import {mapActions} from 'vuex';
       
       
       // 合同上传
-      handleAvatarSuccess() {
+      handleAvatarSuccess(response, file, fileList) {
         //let url = res.src;
         //this.imageUrl.push(url);
-        this.getimgUrl(this.customer_order_id);
+       if(response.code == 2000){
+          this.getimgUrl(this.customer_order_id);
+        }else{
+          this.open(response.msg,'error')
+        }
       },
 
       beforeAvatarUpload(file) {
@@ -1288,10 +1294,14 @@ import {mapActions} from 'vuex';
           invoice_type:shu.type,
           invoice_tax:shu.percentile.substring(0,shu.percentile.length-1),
           remarks:this.remarks,
+          repair_invoice:this.repair_invoice,
+          repair_freight:this.repair_freight,
         }).then(res => {
           if(res.data.code == 2000){
             this.open(res.data.msg,'success')
             this.state4 = '';
+            this.repair_invoice= '';
+            this.repair_freight= '';
             this.listKuhuName = '';
             this.kehuValue = '';
             this.starttime = '';
@@ -1362,6 +1372,8 @@ import {mapActions} from 'vuex';
             })
             this.piao = shu.id;
             this.optionsSalesman = res.data.user;
+            this.repair_invoice =res.data.repair_invoice;
+            this.repair_freight =res.data.repair_freight;
           }
          // loading.close();
         })
@@ -1409,7 +1421,6 @@ import {mapActions} from 'vuex';
 </script>
 <style scoped lang="less">
 .head_box{
-  margin-top: 20px;
   border: 1px solid #CCC;
   padding: 20px 10px;
   min-width: 1150px;

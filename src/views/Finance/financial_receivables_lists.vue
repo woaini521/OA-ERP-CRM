@@ -2,43 +2,39 @@
     <div class="box">
          <div class="head_box">
             <label>筛选：</label>
-             <el-select v-model="channel" placeholder="请选择渠道">
+            <el-date-picker v-model="time1" type="daterange" range-separator="至" start-placeholder="开始日期" value-format="timestamp" end-placeholder="结束日期">
+            </el-date-picker>
+            
+            <el-select v-model="status" placeholder="请选择状态" style="margin-left:15px;">
                 <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.lable"
-                :value="item.value">
+                v-for="item in optionsStatus"
+                :key="item.id"
+                :label="item.status_txt"
+                :value="item.status">
                 </el-option>
             </el-select>
-            <el-select v-model="company" placeholder="请选择公司" style="margin-left:15px;">
-                <el-option
-                v-for="item in options1"
-                :key="item.value"
-                :label="item.lable"
-                :value="item.value">
-                </el-option>
-            </el-select>
-             <el-date-picker
-                v-model="time1"
-                type="date"
-                format="yyyy-MM-dd"
-                value-format="yyyy-MM-dd"
-                placeholder="开始时间"
-                style="margin-left:15px;">
-            </el-date-picker>
-            <el-date-picker
-                v-model="time2"
-                type="date"
-                format="yyyy-MM-dd"
-                value-format="yyyy-MM-dd"
-                placeholder="结束时间"
-                style="margin-left:15px;">
-            </el-date-picker>
-            <el-button type="primary" @click="seach"  style="margin-left:20px;">搜索</el-button>
+            <el-button @click="seach"  style="margin-left:20px;">搜索</el-button>
             <el-button type="primary" @click="add"  style="margin-left:20px;">增加</el-button>
         </div>
         <div class="content_box">
             <el-table :data="tableData">
+                <el-table-column type="expand">
+                    <template slot-scope="props">
+                        <el-table :data="props.row.receivables_customer_order">
+                            <el-table-column label="订单编号" prop="customer_order_id"></el-table-column>
+                            <el-table-column label="认款时间" prop="add_time"></el-table-column>
+                            <el-table-column label="客户" prop="customer_name"></el-table-column>
+                            <el-table-column label="认款金额" prop="money"></el-table-column>
+                            <el-table-column label="销售金额" prop="total_price"></el-table-column>
+                            <el-table-column label="已认款金额" prop="receivables_amount"></el-table-column>
+                            <el-table-column label="销售员" prop="customer_name">
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.dep_title}}/{{scope.row.user_name}}</span>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </template>
+                </el-table-column>
                 <el-table-column label="汇款时间" prop="payment_time" width="100px">
                     <template slot-scope="scope">
                         {{ scope.row.payment_time.substr(0,10) }}
@@ -50,29 +46,32 @@
                     </template>
                 </el-table-column>
                 <el-table-column label="汇款公司" prop="company_name"></el-table-column>
-                <el-table-column label="业务员" prop="confirm_user_name"></el-table-column>
+                <el-table-column label="业务员" prop="confirm_user_name">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.dep_title}}/{{scope.row.confirm_user_name}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="金额" prop="payment_amount"></el-table-column>
                 <el-table-column label="备注" prop="remarks"></el-table-column>
                 <el-table-column label="录入人" prop="user_name"></el-table-column>
+                <el-table-column label="状态" prop="status">
+                    <template slot-scope="scope">
+                          <span v-if="scope.row.status == 0">待认款</span>  
+                          <span v-if="scope.row.status == 3">认款中</span>  
+                          <span v-if="scope.row.status == 5">认款完</span>  
+                          <span v-if="scope.row.status == 9">完成</span>  
+                    </template>
+                </el-table-column>
                 <el-table-column label="操作" width="150px">
                     <template slot-scope="scope">
-                        <el-button type="primary" v-if="scope.row.status == 0" size="mini" @click="edit(scope.row)">修改</el-button>
+                        <el-button type="primary" v-if="scope.row.status <= 3" size="mini" @click="edit(scope.row)">修改</el-button>
                         <el-button type="warning" v-if="scope.row.status == 0" size="mini" @click="deteles(scope.row)">删除</el-button>
-                        <span v-if="scope.row.status !== 0">不可操作</span>
+                        <el-button type="danger" v-if="scope.row.status == 5 || scope.row.status == 3" size="mini" @click="xiaoK(scope.row)">消款</el-button>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <div class="block" style="margin-top: 10px;">
-            <el-pagination
-                @current-change="handleCurrentChange"
-                :current-page="currentPage"
-                :page-size="per_page"
-                layout="total, prev, pager, next"
-                :total="total">
-            </el-pagination>
-        </div>
-
+        
         <el-dialog title="录入款项信息" :visible.sync="dialogInfo">
             <el-form :model="InfoForm" ref="InfoForm" inline>
                 <el-form-item label="公司" label-width="90px" prop="company">
@@ -155,9 +154,9 @@ export default {
     data(){
         return{
             channel:'',
-            company:'',
-            time1:'',
-            time2:'',
+            status:'',
+            time1:null,
+            starttime:'',
             options:[
                 {
                     value:'1',
@@ -204,17 +203,30 @@ export default {
                 payment_amount : '',
                 id:'',
             },// 弹窗表单   
-            currentPage:0,//当前页
-            total:0,//总数
-            per_page:0,//每页多少条
-            last_page:0,//总页数
-           
+            optionsStatus:[],
         }
     },
     methods:{
         // 搜索按钮
         seach(){
-
+            let a,b;
+            if(this.time1 == null){
+                a='';
+                b='';
+            }else{
+                a=this.time1[0]/1000;
+                b=this.time1[1]/1000; 
+            }
+            this.axios.post('/Finance/finance_receivables_lists',{
+                start_time:a,
+                end_time:b,
+                status:this.status,
+            }).then(res => {
+                this.optionsCompany = res.data.company;
+                this.optionsK = res.data.payee;
+                this.user = res.data.user;
+                this.tableData = res.data.receivables
+            })
         },
         change(t){
                 if(t<10){
@@ -320,35 +332,18 @@ export default {
         },
         // 获取列表数据
         gettable(){
-            this.axios.get('/Finance/finance_receivables_lists').then(res => {
+            this.axios.post('/Finance/finance_receivables_lists',{
+                start_time:this.starttime,
+                end_time:this.starttime,
+            }).then(res => {
                 this.optionsCompany = res.data.company;
                 this.optionsK = res.data.payee;
                 this.user = res.data.user;
-                this.tableData = res.data.receivables.data;
-                this.currentPage = res.data.receivables.current_page;
-                this.total = res.data.receivables.total;
-                this.per_page = res.data.receivables.per_page;
-                this.last_page = res.data.receivables.last_page;
+                this.tableData = res.data.receivables
+                this.optionsStatus = res.data.receivables_status
             })
         },
 
-        // 分页切换
-        handleCurrentChange(val) {
-            const loading = this.$loading({
-                lock: true,
-                text: '拼命加载中',
-                spinner: 'el-icon-loading',
-                background: 'rgba(0, 0, 0, 0.7)'
-            });
-            this.axios.post('/Finance/finance_receivables_lists',{
-                page:val,
-            }).then(res => {
-                this.tableData = res.data.receivables.data;
-                this.currentPage = res.data.receivables.current_page;
-                loading.close();
-            })  
-        },
-       
         // 上传图片
         handleAvatarSuccess(res, file) {
             this.InfoForm.imageUrl = res.src;
@@ -365,6 +360,19 @@ export default {
             }
             return isJPG && isLt2M;
         },
+        // 消款
+        xiaoK(a){
+            this.axios.post('/Finance/finance_receivables_status',{
+             id:a.id
+            }).then(res => {
+                 if(res.data.code == 2000){
+                    this.gettable();
+                    this.open(res.data.msg,'success');
+                }else{
+                    this.open(res.data.msg,'error');
+                }
+            })   
+        },
         // 弹窗
         open(a,b){
             this.$message({
@@ -372,9 +380,27 @@ export default {
                 message: a,
                 type: b
             });
-        }
+        },
+         // 默认时间
+        change(t){
+            if(t<10){
+                return "0"+t;
+            }else{
+                return t;
+            }
+        },
+        getTimestamp (mytime){
+            let dateTmp = mytime.replace(/-/g,'/')
+            return Date.parse(dateTmp)
+        },
     },
     created(){
+        let d=new Date();
+        let year=d.getFullYear();
+        let month=this.change(d.getMonth()+1);
+        let day=this.change(d.getDate());
+        let starttime1 = year+'-'+month+'-'+day;
+        this.starttime = this.getTimestamp(starttime1)/1000
         this.gettable();
     },
     watch:{

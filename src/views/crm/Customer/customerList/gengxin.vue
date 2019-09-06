@@ -5,7 +5,6 @@
       ref="form"
       :model="form"
       label-width="80px"
-      style="margin-top:20px;"
       :rules="rules"
       inline
     >
@@ -88,19 +87,19 @@
          <el-input v-model="form.Email"  style="width:200px;"></el-input>
         </el-form-item>  
 
-        <el-form-item label="省" prop="sheng">
+        <el-form-item label="省">
           <el-select v-model="sheng" @change="choseProvince" placeholder="省级地区"  style="width:200px;">
             <el-option v-for="item in province" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
         </el-form-item>  
 
-        <el-form-item label="市" prop="shi">
+        <el-form-item label="市">
           <el-select v-model="shi" @change="choseCity" placeholder="市级地区"  style="width:200px;">
             <el-option v-for="item in shi1" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
         </el-form-item> 
 
-        <el-form-item label="地区" prop="qu">
+        <el-form-item label="地区">
           <el-select v-model="qu" @change="choseBlock" placeholder="区级地区"  style="width:200px;">
             <el-option v-for="item in qu1" :key="item.id" :label="item.value" :value="item.id"></el-option>
           </el-select>
@@ -276,8 +275,7 @@ export default {
             this.qu1 = this.city[index3].children;
             this.qu = this.city[index3].children[0].value;
             this.E = this.qu1[0].id;
-            this.form.shi = this.city[index3].value;;
-            //console.log(this.form.shi)
+            this.form.shi = this.city[index3].value;
           }
         }
       },
@@ -344,7 +342,7 @@ export default {
         })
       },
       add(){
-        if(this.form.company == '' || this.form.name == ''|| this.form.sheng == '' || this.form.shi == '' || this.form.qu == ''){
+        if(this.form.company == '' || this.form.name == ''){
           this.open();
         }else{
           this.axios.post('/crm.Customer/customer_update',{
@@ -408,7 +406,7 @@ export default {
           this.form.name = res.data.name;
           this.form.Bumen = res.data.department;
           this.form.Zhiwei = res.data.position;
-          this.form.sex = res.data.gender;
+          this.form.sex = String(res.data.gender);
           this.form.level = res.data.level;
           this.form.imageUrl = res.data.headimg;
           this.form.card = res.data.idcard;
@@ -416,6 +414,7 @@ export default {
           this.form.Homephone = res.data.family_phone;
           this.form.Zphone = res.data.telephone;
           this.form.Email = res.data.email;
+          this.form.brith = res.data.birthday;
           this.form.wx = res.data.wechatid;
           this.form.sheng = res.data.province;
           this.form.shi = res.data.city;
@@ -425,33 +424,25 @@ export default {
           this.shi = res.data.city;
           this.qu = res.data.county;
           this.imageUrl = res.data.headimg;
-          console.log(this.imageUrl);
          })
       }
     },
-    created(){
-      this.getCityData();
-      this.getCustomer();
-      this.getDate();
-    //  console.log(this.Id);
-    },
-    mounted(){
-     // console.log(this.$route.params); 
-    },
-    watch: {
-		  $route(to) {
-        if(!this.$route.params.id){
-
+    activated(){
+      if(!this.$route.params.id){
+          this.getCityData();
+          this.getCustomer();
         }else{
           this.getDate(); // 这是我ajax获取用户信息的方法
+          this.getCityData();
+          this.getCustomer();
         }
-		  }
-	  }
+    }
+        
+		  
 }
 </script>
 <style scoped lang="less">
 .box {
-  margin-top: 10px;
   min-width: 900px;
   max-width: 1380px;
 }

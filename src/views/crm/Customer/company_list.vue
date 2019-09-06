@@ -1,7 +1,7 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
   <div class="box">
-    <div class="head_box">
+    <div>
       <label>筛选</label>
       <el-input v-model="search" placeholder="请输入内容" style="width:217px;margin-left:10px"></el-input>
       <el-button style="margin-left:100px" type="primary" @click="addCompany">添加企业</el-button> 
@@ -54,27 +54,6 @@
     </el-dialog>
 
     <div class="content_box">
-      <!-- <el-table :data="qiye.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))" row-key="id"  style="width: 100%" :row-style="toggleDisplayTr" stripe class="init_table">
-        <el-table-column label="公司名称" show-overflow-tooltip align="left" width="380px">
-            <template slot-scope="scope">
-              <p :style="`margin-left: ${scope.row.__level * 20}px;margin-top:0;margin-bottom:0`">
-                <i @click="toggleFoldingStatus(scope.row)"  class="permission_toggleFold" :class="toggleFoldingClass(scope.row)"></i>
-                {{scope.row.name}}</p>
-            </template>
-        </el-table-column>
-        <el-table-column align="center" prop="province" label="省">
-        </el-table-column>  
-        <el-table-column align="center" prop="city" label="市">
-        </el-table-column> 
-        <el-table-column align="center" prop="county" label="区">
-        </el-table-column> 
-        <el-table-column label="操作">
-          <template slot-scope="scope" align="left"> 
-            <el-button type="primary" @click="updata(scope.row)" size="small">修改</el-button>
-            <el-button type="danger" @click="edit(scope.row)" size="small">删除</el-button>
-          </template>
-        </el-table-column>  
-      </el-table> -->
       <el-table :data="qiye.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))" ref="multipleTable" style="width: 100%;margin-bottom: 20px;" row-key="id"  :tree-props="{children: 'child'}" @selection-change="handleSelectionChange">
         <el-table-column prop="name" label="公司名称" width="420"></el-table-column>
         <el-table-column align="center" prop="province" label="省"></el-table-column>  
@@ -131,40 +110,6 @@ import Vue from 'vue'
       }
     },
     methods:{
-        // toggleFoldingStatus (params) {
-        //   //console.log(params.child);
-        //   this.foldList.includes(params.__identity) ? this.foldList.splice(this.foldList.indexOf(params.__identity), 1) : this.foldList.push(params.__identity)
-        // },
-        // toggleDisplayTr ({row, index}) {
-        //   for (let i = 0; i < this.foldList.length; i++) {
-        //     let item = this.foldList[i]
-        //     // 如果foldList中元素存在于 row.__family中，则该行隐藏。  如果该行的自身标识等于隐藏元素，则代表该元素就是折叠点
-        //     if (row.__family.includes(item) && row.__identity !== item) return 'display:none;'
-        //   }
-        //   return '';
-        // },
-        // toggleFoldingClass (params) {
-        //   return params.child == undefined ? 'permission_placeholder' : (this.foldList.indexOf(params.__identity) === -1 ? 'el-icon-plus' : 'el-icon-minus')
-        // },
-        // formatConversion (parent, child, index = 0, family = [], elderIdentity = 'x') {
-        //   // children如果长度等于0，则代表已经到了最低层
-        //   // let page = (this.startPage - 1) * 10
-        //   console.log(parent)
-        //   if (child.length > 0) {
-        //     child.map((x, i) => {
-        //       // 设置 __level 标志位 用于展示区分层级
-        //       Vue.set(x, '__level', index)
-        //       // 设置 __family 为家族关系 为所有父级，包含本身在内
-        //       Vue.set(x, '__family', [...family, elderIdentity + '_' + i])
-        //       // 本身的唯一标识  可以理解为个人的身份证咯 一定唯一。
-        //       //Vue.set(x, '__identity', elderIdentity + '_' + i)
-        //       parent.push(x);
-        //       // 如果仍有子集，则进行递归
-        //       if (x.child.length > 0) this.formatConversion(parent, x.child, index + 1, [...family, elderIdentity + '_' + i], elderIdentity + '_' + i)
-        //     })
-
-        //   } return parent
-        // },
         // 获取数据
          getData(){
           const loading = this.$loading({
@@ -434,10 +379,6 @@ import Vue from 'vue'
 </script>
 <style lang="less" scoped>
 .box{
-  min-width: 890px;
-  .head_box{
-    margin-top: 20px;
-  }
   .addqiyeContent{
     overflow: hidden;
     .addqiyeLeft{

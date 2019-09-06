@@ -297,7 +297,6 @@
 </script>
 <style scoped lang="less">
 .box{
-  margin-top:10px;
   overflow: hidden;
   min-width: 900px;
 }

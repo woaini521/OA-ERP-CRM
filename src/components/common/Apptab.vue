@@ -1,92 +1,95 @@
 <template>
   <div class="app">
-    <div class="app-header">
-      <div class="title">
-        <img src="@/assets/kovi_logo.png">
-      </div>
-      <i style="margin-left:10px;" class="el-icon-refresh" @click="shuaxin"></i>
-      <i style="margin-left:15px;" class="el-icon-goods"></i>
-      <div class="info_geren">
-        <i class="el-icon-s-custom" style="float: left;font-size: 30px;margin-top: 13px;"></i>
-        <el-dropdown trigger="click">
-          <span class="el-dropdown-link">
-            {{name}}
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>消息中心</el-dropdown-item>
-            <el-dropdown-item @click.native="personal">设置</el-dropdown-item>
-            <el-dropdown-item @click.native="tuichu" divided>退出</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      </div>
-    </div>
-    <div class="app-content">
-      <div class="app-nav" :style="{height:this.menuHeight +'px'}">
-        <app-nav></app-nav>
-      </div>
-      <div class="app-wrap">
-        <!-- 此处放置el-tabs代码 -->
-        <div class="template-tabs">
-          <el-tabs
-            v-model="activeIndex"
-            type="card"
-            closable
-            @tab-click="tabClick"
-            v-if="options.length"
-            @tab-remove="tabRemove"
-          >
-            <el-tab-pane
-              :key="item.name"
-              v-for="item in options"
-              :label="item.name"
-              :name="item.route"
-            >
-            </el-tab-pane>
-          </el-tabs>
+      <el-container>
+        <el-header class="headeer" @touchmove.prevent>
+          <img style="width: 180px;margin-top:10px;float: left;" src="@/assets/kovi_logo.png">
+          <i style="margin-left:10px;float: left;line-height:60px;color:#FFF;" class="el-icon-refresh" @click="shuaxin"></i>
+          <i style="margin-left:5px;float: left;line-height:60px;color:#FFF;" class="el-icon-goods"></i>
+          <div class="info_geren">
+            <i class="el-icon-s-custom" style="float: left;font-size: 30px;margin-top: 13px;color:#FFF;"></i>
+            <el-dropdown trigger="click">
+              <span class="el-dropdown-link">
+                {{name}}
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>消息中心</el-dropdown-item>
+                <el-dropdown-item @click.native="personal">设置</el-dropdown-item>
+                <el-dropdown-item @click.native="tuichu" divided>退出</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
+        </el-header>
+        <el-container>
+          <el-aside width='200' @touchmove.prevent>
+            <AppNav :style="{height:this.menuHeight +'px'}"></AppNav>
+          </el-aside>
+          <el-container>
+            <el-header class="head_tab">
+                <div class="template-tabs" style="width:100%;">
+                  <el-tabs
+                    v-model="activeIndex"
+                    type="card"
+                    closable
+                    @tab-click="tabClick"
+                    v-if="options.length"
+                    @tab-remove="tabRemove"
+                  >
+                    <el-tab-pane
+                      :key="item.name"
+                      v-for="item in options"
+                      :label="item.name"
+                      :name="item.route"
+                    >
+                    </el-tab-pane>
+                  </el-tabs>
+                </div>
+            </el-header>
+            <el-main style="padding-top:0px;">
+                <div class="content-wrap" :style="{height:this.fullHeight-60+'px'}">
+                  <transition name="fade-transform" mode="out-in">
+                    <keep-alive>
+                      <router-view/>
+                    </keep-alive>
+                  </transition>
+                </div>
+            </el-main>
+            <!-- <el-footer>Footer</el-footer> -->
+          </el-container>
+        </el-container>
+      </el-container>
+      <el-dialog title="设置" :visible.sync="dialogPersonal" width="850px">
+        <el-form :model="dialogPersonalForm" style="float: left;">
+            <el-form-item label="姓名" label-width="100px">
+              <el-input v-model="dialogPersonalForm.name" :disabled="true" style="width:217px;"></el-input>
+            </el-form-item>
+            <el-form-item label="手机" label-width="100px">
+              <el-input v-model="dialogPersonalForm.phone" :disabled="true" style="width:217px;"></el-input>
+            </el-form-item>
+            <el-form-item label="工作手机" label-width="100px">
+              <el-input v-model="dialogPersonalForm.Gphone" :disabled="true" style="width:217px;"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" label-width="100px">
+              <el-input v-model="dialogPersonalForm.pwd" style="width:217px;"></el-input>
+            </el-form-item>
+            <el-form-item label="绑定二维码" label-width="100px">
+              <erweima :link="link"></erweima>
+            </el-form-item> 
+            <el-form-item label=" " label-width="100px">
+                <el-button type="primary" @click="addInfo">保存</el-button>
+            </el-form-item>
+        </el-form>
+        
+        <div style="float: left;margin-left:30px;">
+          <el-table :data="tabledata" > 
+            <el-table-column label="已经绑定微信号" prop="openid" width="300px"></el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                  <el-button type="danger" size="mini" @click="dele(scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+          </el-table>
         </div>
-        <div class="content-wrap" :style="{height:this.fullHeight +'px'}">
-          <transition name="fade-transform" mode="out-in">
-            <keep-alive>
-              <router-view/>
-            </keep-alive>
-          </transition>
-        </div>
-      </div>
-    </div>
-
-    <el-dialog title="设置" :visible.sync="dialogPersonal" width="850px">
-      <el-form :model="dialogPersonalForm" style="float: left;">
-          <el-form-item label="姓名" label-width="100px">
-            <el-input v-model="dialogPersonalForm.name" :disabled="true" style="width:217px;"></el-input>
-          </el-form-item>
-          <el-form-item label="手机" label-width="100px">
-            <el-input v-model="dialogPersonalForm.phone" :disabled="true" style="width:217px;"></el-input>
-          </el-form-item>
-          <el-form-item label="工作手机" label-width="100px">
-            <el-input v-model="dialogPersonalForm.Gphone" :disabled="true" style="width:217px;"></el-input>
-          </el-form-item>
-          <el-form-item label="密码" label-width="100px">
-            <el-input v-model="dialogPersonalForm.pwd" style="width:217px;"></el-input>
-          </el-form-item>
-          <el-form-item label="绑定二维码" label-width="100px">
-            <erweima :link="link"></erweima>
-          </el-form-item> 
-          <el-form-item label=" " label-width="100px">
-              <el-button type="primary" @click="addInfo">保存</el-button>
-          </el-form-item>
-      </el-form>
-      
-      <div style="float: left;margin-left:30px;">
-        <el-table :data="tabledata" > 
-          <el-table-column label="已经绑定微信号" prop="openid" width="300px"></el-table-column>
-          <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button type="danger" size="mini" @click="dele(scope.row)">删除</el-button>
-              </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </el-dialog>
+      </el-dialog>
   </div>
 </template>
 
@@ -94,7 +97,7 @@
 import AppNav from "@/components/common/AppNav";
 import erweima from "@/components/erweima";
 import {mapGetters,mapActions} from 'vuex';
-import { error } from 'util';
+
 
 export default {
   components: {
@@ -103,7 +106,7 @@ export default {
   data(){
     return{
       fullHeight:document.documentElement.clientHeight-120,
-      menuHeight:document.documentElement.clientHeight-65,
+      menuHeight:document.documentElement.clientHeight-60,
       name:'',
       link:'',
       dialogPersonal:false,
@@ -139,7 +142,7 @@ export default {
     ...mapActions("Tabs", ['triggerAddTabs', 'triggerSetActiveIndex','triggerDeleteTabs',]),
     // tab切换时，动态的切换路由
     tabClick() {
-       let path = this.activeIndex;
+      let path = this.activeIndex;
       //用户详情页的时候，对应了二级路由，需要拼接添加第二级路由
       if (this.activeIndex === this.UserInfo) {
         path = this.activeIndex + "/" + this.options.id;
@@ -187,23 +190,31 @@ export default {
       })  
     },
     addInfo(){
-      this.axios.post('/oa.User/user_set',{
-        user_id:this.dialogPersonalForm.user_id,
-        pwd:this.dialogPersonalForm.pwd,
-      }).then(res => {
-        if(res.data.code == 2000){
-           this.$message({
-                message: res.data.msg,
-                type: 'success'
-            });
-            this.personal();
-        }else{
-          this.$message({
-                message: res.data.msg,
-                type: 'error'
-            });
-        }
-      })
+      if(this.dialogPersonalForm.pwd == ''){
+        this.$message({
+            message:'请输入你的新密码',
+            type: 'error'
+        });
+      }else{
+        this.axios.post('/oa.User/user_set',{
+          user_id:this.dialogPersonalForm.user_id,
+          pwd:this.dialogPersonalForm.pwd,
+        }).then(res => {
+          if(res.data.code == 2000){
+            this.$message({
+                  message: res.data.msg,
+                  type: 'success'
+              });
+              this.personal();
+          }else{
+            this.$message({
+                  message: res.data.msg,
+                  type: 'error'
+              });
+          }
+        })
+      }
+      
     },
     // 删除已绑定微信
     dele(a){
@@ -223,11 +234,9 @@ export default {
                 message: res.data.msg,
                 type: 'error'
             });
-        }
-          
+        } 
       })
     }
-
   },
   computed: {
     ...mapGetters("Tabs",{
@@ -275,9 +284,9 @@ export default {
           route:to.path,
           name: to.name
         }
-         let ins1 =to.path;
-         this.triggerAddTabs(ins);
-         this.triggerSetActiveIndex(ins1);
+        let ins1 =to.path;
+        this.triggerAddTabs(ins);
+        this.triggerSetActiveIndex(ins1);
       }
     },
     fullHeight (val) {
@@ -295,112 +304,91 @@ export default {
 </script>
 
 <style lang="less">
-html,
-body {
-  height: 100%;
+ html,
+ body {
+   height: 100%;
   margin: 0;
   padding: 0;
 }
-.app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  height: 100%;
-  // display: flex;
-  // flex-flow: column;
-  overflow: hidden;
-  .app-header {
-    color: #fff;
-    // flex: 0 0 60px;
-    background: #324057;
-    height: 60px;
-    line-height: 60px;
-    overflow: hidden;
-    .title {
-      font-size: 24px;
-      float: left;
-      text-align: center;
-      img{
-        width: 160px;
-        margin-top: 15px;
-        margin-left: 10px;
-      }
-    }
-    .info_geren {
-      float: right;
+.app{
+      font-family: "Avenir", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      height: 100%;
+      // display: flex;
+      // flex-flow: column;
       overflow: hidden;
-      margin-right: 5px;
+      .headeer{
+        background-color: #324057;
+        line-height: 60px;
+        padding-left: 10px;
+        padding-right: 10px;
+          .info_geren {
+              float: right;
+              overflow: hidden;
+              .el-dropdown-link {
+                cursor: pointer;
+              }
+              div {
+                float: left;
+                color: #fff;
+              }
+            }
+      }
       
-      .el-dropdown-link {
-        cursor: pointer;
-      }
-      div {
-        float: left;
-        color: #fff;
-      }
-    }
-  }
-  .app-content {
-    // flex: 1;
-    // display: flex;
-    flex-flow: row;
-    .app-nav {
-      // flex: 0 0 0;
-      float: left;
-      background-color: #324057;
-    }
-    .app-wrap {
-      // flex: 1;
-      padding: 5px 5px;
-      overflow: auto;
-      .content-wrap {
-        
-        border: 1px solid #d1dbe5;
-        overflow-y: scroll;
-        border-top: none;
-        padding: 0 20px;
-        .template-wrap {
-          
-          text-align: center;
+      .el-aside {
+        background-color: #324057;
+        color: #333;
+        overflow: hidden;
+        .el-menu-vertical-demo:not(.el-menu--collapse) {
+          width: 200px;
+          min-height: 400px;
         }
       }
-      .el-tabs--border-card > .el-tabs__content {
-        padding: 0px;
+      .head_tab{
+        padding: 0;
+        margin-top: 5px;
+        padding-left: 5px;
+        height: 40px;
+
       }
-      .el-tabs__header {
-        margin-bottom: 0px;
+      .el-main {
+        background-color: #FFF;
+        color: #333;
+        padding: 0;
+        padding: 10px;
       }
-    }
-  }
-}
-.el-dialog{
-  overflow: hidden;
-}
+      
+      body > .el-container {
+        margin-bottom: 40px;
+      }
+      .el-dialog{
+        overflow: hidden;
+      }
+      .fade-enter-active,
+      .fade-leave-active {
+        transition: opacity 0.28s;
+      }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.28s;
-}
+      .fade-enter,
+      .fade-leave-active {
+        opacity: 0;
+      }
 
-.fade-enter,
-.fade-leave-active {
-  opacity: 0;
-}
+      /* fade-transform */
+      .fade-transform-leave-active,
+      .fade-transform-enter-active {
+        transition: all .5s;
+      }
 
-/* fade-transform */
-.fade-transform-leave-active,
-.fade-transform-enter-active {
-  transition: all .5s;
-}
+      .fade-transform-enter {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
 
-.fade-transform-enter {
-  opacity: 0;
-  transform: translateX(-30px);
+      .fade-transform-leave-to {
+        opacity: 0;
+        transform: translateX(30px);
+      }
 }
-
-.fade-transform-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
 </style>

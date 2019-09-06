@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <div class="box_head">
+        <div>
             <label>筛选：</label>
             <el-input v-model="seach" style="width:217px"></el-input>
             <el-button type="primary" style="margin-left:40px;">搜索</el-button>
@@ -51,10 +51,10 @@ export default {
             seach:'', // 搜索
             tableData:[], // table 数据
              //分页器
-            currentPage:'',//当前页
-            total:'',//总数
-            per_page:'',//每页多少条
-            last_page:''//总页数
+            currentPage:0,//当前页
+            total:0,//总数
+            per_page:0,//每页多少条
+            last_page:0//总页数
         }
     },
     methods:{
@@ -131,9 +131,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.box{
-    .box_head{
-        margin-top: 20px;
-    }
-}
+
 </style>

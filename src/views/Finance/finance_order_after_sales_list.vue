@@ -93,6 +93,7 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <chuna @func="jiezi" :a="dddd"></chuna>
             <div class="contract">
                 <label>上传打款凭证</label>
                 <div class="contractInner">
@@ -127,7 +128,11 @@
 </template>
 
 <script>
+import chuna from "@/components/chuna";
 export default {
+    components:{
+       chuna, 
+    },
     data(){
         return{
           seach:'', // 筛选
@@ -148,6 +153,8 @@ export default {
           // 合同图片存储
           imageUrl:[],
           imageUrlstate:false,
+          zichuan:[],
+          dddd:'',
         }  
     },
     methods:{
@@ -213,10 +220,15 @@ export default {
                 }
             })
         },
+        jiezi(data){
+           this.zichuan = data;
+           console.log(data); 
+        },
         // 出纳审核按钮
         CashierSee(a){
             this.Cashierexamine = true;
             this.id = a.id;
+            this.dddd = a.id;
             this.receiving_name = a.customer_order_id;
             this.receiving_account = a.type;
             this.fee = a.fee;
@@ -270,18 +282,24 @@ export default {
                 let P = this.imageUrl[i].src;
                 src.push(P);      
             };
-             this.axios.post('/Finance/finance_order_after_sales_status',{
-                id:this.id,
-                src:src
-            }).then(res => {
-                if(res.data.code == 2000){
-                    this.gettabledata();
-                    this.open(res.data.msg,'success');
-                    this.Cashierexamine = false;
-                }else{
-                    this.open(res.data.msg,'error');
-                }
-            })
+            if(this.zichuan.length == 0){
+                this.open('选择付款账号','error');
+            }else{
+                this.axios.post('/Finance/finance_order_after_sales_status',{
+                    id:this.id,
+                    src:src,
+                    page:this.zichuan,
+                }).then(res => {
+                    if(res.data.code == 2000){
+                        this.gettabledata();
+                        this.open(res.data.msg,'success');
+                        this.Cashierexamine = false;
+                    }else{
+                        this.open(res.data.msg,'error');
+                    }
+                })
+            }
+             
         },
 
 

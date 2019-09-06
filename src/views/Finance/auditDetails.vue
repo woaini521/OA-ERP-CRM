@@ -69,7 +69,8 @@
           </div>
           <div class="danxuan2" style="margin-top:20px;">
             <p>备注：{{ remarks }}</p>
-            <h4 style="margin-top:10px;">发票信息:<span>{{invoice_name}}{{invoice_tax}}{{invoice_type}}%</span></h4>
+            <p style="margin-top:10px;font-size:bold"> <span>补开票费用:{{repair_invoice}}</span>  <span style="margin-left:30px">补运费费用: {{repair_freight}}</span></p>
+            <h4 style="margin-top:10px;">发票信息:<span>{{invoice_name}}{{invoice_type}}{{invoice_tax}}%</span></h4>
           </div>
         </div>  
         <div class="lirun">
@@ -78,7 +79,7 @@
           <span style="margin-left:30px;">总提成:{{user_price}}</span>  
           <span style="margin-left:30px;">物流费用:{{logistics_price}}</span>   
           <span style="margin-left:30px;">额外费用:{{extra_price}}</span>
-          <span style="margin-left:30px;">利润:{{ Number(total_price) - Number(total_cost_price) - Number(user_price) - Number(logistics_price) -Number(extra_price) }}</span> 
+          <span style="margin-left:30px;">利润:{{ (Number(total_price) - Number(total_cost_price) - Number(user_price) - Number(logistics_price) -Number(extra_price)).toFixed(3) }}</span> 
         </div>  
           
     </div>
@@ -117,12 +118,12 @@
           </el-table-column>
           <el-table-column prop="user_price" label="总提成">
             <template slot-scope="scope">
-              <span>￥{{ Number(scope.row.total_price) - Number(scope.row.total_cost_price) }}</span>
+              <span>￥{{ (Number(scope.row.total_price) - Number(scope.row.total_cost_price)).toFixed(3) }}</span>
             </template>
           </el-table-column>
           <el-table-column label="预计利润">
             <template slot-scope="scope">
-                <span>{{ Number(scope.row.total_price) - Number(scope.row.total_cost_price) - Number(scope.row.user_price) }}</span>
+                <span>{{ (Number(scope.row.total_price) - Number(scope.row.total_cost_price) - Number(scope.row.user_price).toFixed(4)) }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="remarks"  label="备注"></el-table-column>
@@ -132,11 +133,16 @@
       <div class="generatedAddress">
         <label>地址配货信息</label>
         <hr>
+        <template v-if="fixedAddress.length>0">
           <div class="generatedAddressInner" v-for="item in fixedAddress" :key="item.id">
             <div class="generatedAddressInnerLeft">
               <p>
                 <span>收货人：{{item.name}}</span>
                 <span style="margin-left:20px;">收货电话：{{item.phone}}</span> <span style="margin-left:60px;">{{item.type}}</span>
+                <span style="margin-left:60px;">付款方式:{{ item.payment == 1 ? '到付' : '现付'}}</span>
+                <span v-if="item.delivery==1" style="margin-left:20px;">物流方式:到楼下</span> 
+                <span v-if="item.delivery==2" style="margin-left:20px;">物流方式:上楼</span> 
+                <span v-if="item.delivery==3" style="margin-left:20px;">物流方式:自提</span>
               </p>
               <p style="margin-top:10px">
                 <span>{{item.province}}</span>
@@ -147,9 +153,10 @@
               <p style="margin-top:10px">发货清单：
                 <span style="margin-left:10px;" v-for="pcu in item.product" :key="pcu.pid">{{pcu.name}}{{pcu.sku_name}}---数量：{{pcu.number}}</span>
               </p>
+              <deliver :shuju="item.purchase_product" :tableDataWuliu="item.order_express" :tableDataFeiyong="item.order_express_cost" xian='0'></deliver>
             </div>
-              
-          </div>       
+          </div>   
+        </template>    
       </div>
 
 
@@ -183,6 +190,46 @@
       <!-- 审核 -->
       <el-button v-show="statusa == 1" type="primary" style="margin-bottom:20px;" @click="confirm">审核通过</el-button>
       <el-button v-show="statusa == 1" type="danger" style="margin-bottom:20px;" @click="refuse">审核拒绝</el-button>
+      <el-button v-show="statusa > 1" type="primary" style="margin-bottom:20px;" @click="dayin">打印信息</el-button>
+      <el-button v-show="statusa >= 15" type="text">已打印信息</el-button>
+
+      <el-dialog title="打印订单信息" :visible.sync="dialogPrinting" class="dayin">
+            <div id="printTest1">
+                <div class="dayin" style="width:100%"  v-for="(item,index) in P_data" :key="index">
+                    <p style="text-align:center;font-size:20px;">发货明细</p>
+                    <p style="margin-top:10px">客户编号: <span style="margin-right:20px">{{item.customer_id}}</span>客户姓名: <span style="margin-right:20px">{{item.customer_name}}</span>客户电话: <span style="margin-right:20px">{{item.customer_working_phone}}</span>票据类型: <span>{{item.invoice_name}}{{item.invoice_type}}</span></p>
+                    <template v-if="item.address.length>0">
+                      <p v-if="item.address.length>0">收货人：<span style="margin-right:20px">{{item.address[0].name}}</span> 收货人号码：{{item.address[0].phone}}</p>
+                      <p  v-if="item.address.length>0">收货地址: <span style="margin-right:20px">{{item.address[0].province}}{{item.address[0].city}}{{item.address[0].county}}{{item.address[0].address}}</span></p><p>物流方式: <span>
+                      <span v-if="item.address[0].delivery == 1">到楼下</span><span v-if="item.address[0].delivery == 2">上楼</span><span v-if="item.address[0].delivery == 3">自提</span></span> <span style="margin-left:20px">地址个数：{{item.address.length}}</span> <span style="margin-left:20px">运费：{{item.repair_freight}}</span></p>
+                    </template>
+                    <el-table width="100%" :data="item.product_sku" class="dada" :header-cell-style="{color:'#000'}">
+                        <el-table-column label="订单编号" prop="customer_order_id" width="80px"></el-table-column>
+                        <el-table-column label="产品名称" prop="name"></el-table-column>
+                        <el-table-column label="单位" prop="unit"></el-table-column>
+                        <el-table-column label="数量" prop="number"></el-table-column>
+                        <el-table-column label="价格" prop="selling_price"></el-table-column>
+                        <el-table-column label="参与人">
+                          <template slot-scope="scope">
+                            <span v-for="items in scope.row.commission" :key="items.id"> {{items.user_name}} 提成{{items.profit}}</span>
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="仓库" prop="supplier_name"></el-table-column>
+                    </el-table>
+                    <p style="margin-top:10px">总销售额:{{item.total_price}}</p>
+                    <p style="margin-top:10px">销售日期:{{item.sales_time}}</p>
+                    <p>打印日期:{{time}}</p>
+                    <el-divider></el-divider>
+                    <p>{{item.remarks}}</p>
+                    <p style="text-align:right;margin-right:30%">销售：{{item.user_name}}  制单：{{ren}}</p>
+                </div>
+                
+            </div>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogPrinting = false">取 消</el-button>
+                <el-button type="primary" @click="dadan" v-print="'#printTest1'">确 定</el-button>
+            </div>
+      </el-dialog>
 
     </div>
 </template>
@@ -190,7 +237,11 @@
 <script>
 import { appendFileSync } from 'fs';
 import {mapActions} from 'vuex';
+import deliver from "@/views/erp/Delivery/deliver";
   export default {
+    components:{
+      deliver,
+    },
     data () {
       return {
         // 客户公司数据
@@ -203,6 +254,8 @@ import {mapActions} from 'vuex';
         radio:'',
         piao:'',
         class_id:'',  
+        repair_invoice:'',
+        repair_freight:'',
         // 发票信息  
         invoice_name: '',
         invoice_tax:  '' ,          
@@ -239,7 +292,13 @@ import {mapActions} from 'vuex';
         dialogRefuse:false, //审核拒绝弹窗
         dialogRefuseForm:{
           remark:''
-        }// 拒绝备注
+        },// 拒绝备注
+
+        // 打印
+        dialogPrinting:false, 
+        time:'',
+        P_data:[],
+        ren:'',
       };
     },
     methods:{
@@ -275,20 +334,6 @@ import {mapActions} from 'vuex';
           //console.log(self.listKuhuName);
         })
       },
-
-     
-      // gettableData(a){
-      //   this.axios.get('/crm.Order/customer_order_product_sku_select?customer_order_id='+a).then(res => {
-          
-      //   })
-      // },
-
-      // 已经生成的地址和配货信息操作
-      // getfixedAddress(a){
-      //   this.axios.get('/crm.Order/customer_order_address_select?customer_order_id='+a).then(res => {
-          
-      //   })
-      // },
         
       // 获取合同图片
       getimgUrl(a){
@@ -305,6 +350,7 @@ import {mapActions} from 'vuex';
       
      
       getcaogao(){
+        this.P_data = [];
         this.axios.get('/Finance/finance_order_audit_find?id='+this.$route.params.id).then(res => {
           if(res.data != null){
             // this.gettableData(res.data.id);
@@ -317,6 +363,8 @@ import {mapActions} from 'vuex';
             this.piao = String(res.data.invoice_type);
             this.radio = String(res.data.type_id);
             this.class_id = String(res.data.class_id);
+            this.repair_invoice =res.data.repair_invoice;
+            this.repair_freight =res.data.repair_freight;
             this.remarks = res.data.remarks;
             this.statusa = res.data.status;
             this.total_price= res.data.total_price;
@@ -333,7 +381,15 @@ import {mapActions} from 'vuex';
             this.tableData = res.data.product_sku;
             // 已经生成的地址和配货信息操作
             this.fixedAddress = res.data.address;
+
+            this.P_data.push(res.data);
           }
+        })
+      },
+      dadan(){
+        this.axios.post('/Finance/finance_order_audit_dadan',{
+          id:this.$route.params.id,
+          status:this.statusa,
         })
       },
       big(a){
@@ -381,6 +437,27 @@ import {mapActions} from 'vuex';
         }
         
       },
+      // 默认时间
+        change(t){
+            if(t<10){
+                return "0"+t;
+            }else{
+                return t;
+            }
+        },
+      dayin(){
+            this.ren = JSON.parse(localStorage.getItem('name'));
+            let d=new Date();
+            let year=d.getFullYear();
+            let month=this.change(d.getMonth()+1);
+            let day=this.change(d.getDate());
+            let hour=this.change(d.getHours());
+            let minute=this.change(d.getMinutes());
+            let second=this.change(d.getSeconds());
+            this.time = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;
+            this.dialogPrinting = true;
+            
+      },
       open(a,b){
         this.$message({
           message: a,
@@ -406,7 +483,6 @@ import {mapActions} from 'vuex';
 </script>
 <style scoped lang="less">
 .head_box{
-  margin-top: 20px;
   border: 1px solid #CCC;
   padding: 20px 10px;
   min-width: 1150px;
@@ -527,14 +603,6 @@ import {mapActions} from 'vuex';
     margin-top: 20px;
     padding-bottom: 20px;
     border-bottom: 1px dashed #CCC;
-    .generatedAddressInnerLeft{
-      float: left;
-      width: 65%;
-    }
-    .generatedAddressInnerRight{
-      float: left;
-      width: 30%;
-    }
   }
 }
 .contract{
@@ -578,5 +646,16 @@ import {mapActions} from 'vuex';
     }
     .imginner:hover .avatars{display:block;cursor: pointer;}  
   }
+
+.dayin{
+  color: #000 !important;
+  .dada{
+    color: #000 !important;
+    th>.cell{
+      color: #000 !important;
+    }
+  }
+}
+
   
 </style>

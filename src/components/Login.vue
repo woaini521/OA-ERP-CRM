@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <el-row type="flex" justify="center">
-      <el-form :model="reForm" label-width="60px">
+  <div class="box">
+    <!-- <el-row type="flex" justify="center"> -->
+      <el-form :model="reForm" label-width="60px" class="from">
         <label>KOVI后台系统</label>
         <el-form-item label="账号">
           <el-input v-model="reForm.input1" clearable></el-input>
@@ -11,7 +11,7 @@
         </el-form-item>
         <el-button class="dl" type="primary" icon="el-icon-upload" @click="handleLogin">登录</el-button>
       </el-form>
-    </el-row>
+    <!-- </el-row> -->
   </div>
 </template>
 
@@ -36,13 +36,15 @@ export default {
       } else {
        this.axios.post("/Index/checklogin",{
          phone:this.reForm.input1,
-         pwd:this.reForm.input2}).then(res => {
+         pwd:this.reForm.input2
+        }).then(res => {
           if(res.data.code == "2000"){
             this.$cookies.set("token", "11");
             this.$router.push({ path: "/" });
             this.menus = res.data.menu;
             localStorage.setItem('Arr',JSON.stringify(res.data.menu))
             localStorage.setItem('name',JSON.stringify(res.data.name))
+            localStorage.setItem('Group',JSON.stringify(res.data.group_id))
             this.open1();
           } else {
             this.open(res.data.msg);
@@ -86,8 +88,13 @@ export default {
 };
 </script>
 <style scoped>
-.el-form {
-  margin-top: 150px;
+.box{
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.from {
   padding: 10px 10px 100px 10px;
   text-align: center;
 }

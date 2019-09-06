@@ -1,6 +1,6 @@
 <template>
     <div class="box">
-        <div class="head_box">
+        <div>
             <label>筛选：</label>
             <el-input v-model="seach" style="width:217px"></el-input>
             <el-button style="margin-left:20px">确认</el-button>
@@ -14,20 +14,24 @@
             <el-table-column label="状态" prop="status">
                 <template slot-scope="scope">
                     <span v-if="scope.row.status == 0">草稿</span>
-                    <span v-if="scope.row.status == 1">等待采购配货</span>
-                    <span v-if="scope.row.status == 10">等待财务审核</span>
-                    <span v-if="scope.row.status == 20">等待财务审核</span>
-                    <span v-if="scope.row.status == 30">等待发货</span>
+                    <span v-if="scope.row.status == 1">等待巴长审核</span>
+                    <span v-if="scope.row.status == 5">等待采购配货</span>
+                    <span v-if="scope.row.status == 10">采购设置完毕</span>
+                    <span v-if="scope.row.status == 15">等待财务审核</span>
+                    <span v-if="scope.row.status == 20">等待出纳付款</span>
+                    <span v-if="scope.row.status == 25">等待仓库拿货</span>
+                    <span v-if="scope.row.status == 30">等待厂家发货</span>
                     <span v-if="scope.row.status == 40">已经发货</span>
-                    <span v-if="scope.row.status == 50">已经收到货</span>
+                    <span v-if="scope.row.status == 50">已经签收</span>
                     <span v-if="scope.row.status == 90">结束</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="210">
+            <el-table-column label="操作" width="280">
                 <template slot-scope="scope">
-                    <el-button type="primary" size="mini" v-show="scope.row.status < 10" @click="updata(scope.row)">修改</el-button>
-                    <el-button type="info" v-show="scope.row.status != 0" size="mini" @click="see(scope.row)">查看</el-button>
-                    <el-button type="danger" size="mini" v-show="scope.row.status < 10" @click="deletes(scope.row)">删除</el-button>
+                    <el-button type="success" v-if="scope.row.status == 1" size="mini" @click="shenhe(scope.row)">审核</el-button>
+                    <el-button type="primary" size="mini" v-if="scope.row.status <= 1" @click="updata(scope.row)">修改</el-button>
+                    <el-button type="info" v-if="scope.row.status != 0" size="mini" @click="see(scope.row)">查看</el-button>
+                    <el-button type="danger" size="mini" v-if="scope.row.status <= 25" @click="deletes(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -120,6 +124,18 @@ export default {
                     this.open(res.data.msg,'error')
                 }
             })
+        },
+        shenhe(a){
+           this.axios.post('/crm.Sample/sample_status',{
+                id:a.id
+            }).then(res => {
+                if(res.data.code == 2000){
+                    this.gettableData();
+                    this.open(res.data.msg,'success')
+                }else{
+                    this.open(res.data.msg,'error')
+                }
+            }) 
         },
         see(a){
             this.triggerReplaceId(a.id);

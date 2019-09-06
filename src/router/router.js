@@ -11,17 +11,24 @@ import user_lists from "@/views/OA/User/user_lists";
 import user_update from "@/views/OA/User/user_update";
 import dep_select from "@/views/OA/User/dep_select";
 import firm_select from "@/views/OA/User/firm_select";
+import wage_calculation from "@/views/OA/User/wage_calculation";
 
 // 日常管理----view/
 import leave_select from "@/views/OA/Days/leave_select";
 import add from "@/views/OA/Days/add";
 import task_select from "@/views/OA/Days/task_select";
-import task_add from "@/views/OA/Days//task_add";
+import task_add from "@/views/OA/Days/task_add";
+import task_count from "@/views/OA/Days/task_count";
+import company_rule_select from "@/views/OA/Days/company_rule_select";
+import rule_edit from "@/views/OA/Days/rule_edit";
+import work_plan_select from "@/views/OA/Days/work_plan";
+import stuff_select from "@/views/OA/Days/stuff_select";
 
 // CRM管理----view/crm
 // 客户管理----view/
 import customer_center from "@/views/crm/Customer/customer_center";
 import customer_list from "@/views/crm/Customer/customer_list";
+import customer_record from "@/views/crm/Customer/customer_record";
 // 用户列表详情页
 import lianxi from "@/views/crm/Customer/customerList/lianxi";
 import gengxin from "@/views/crm/Customer/customerList/gengxin";
@@ -58,8 +65,13 @@ import product_update from "@/views/erp/Products/product_update";
 import product_class_list from "@/views/erp/Products/product_class_list";
 import product_product_stock_lists from "@/views/erp/Products/product_product_stock_lists";
 import product_inventory_lists from "@/views/erp/Products/product_inventory_lists";
+
+
 // 供应商管理----view/
 import supplier_list from "@/views/erp/supplier/supplier_list";
+import supplier_money_lists from "@/views/erp/supplier/supplier_money_lists";
+import express_list from "@/views/erp/supplier/express_list";
+import supplier_product_money_lists from "@/views/erp/supplier/supplier_product_money_lists";
 
 // 采购管理
 import purchase_order_list from "@/views/erp/Purchase/purchase_order_list";
@@ -70,11 +82,13 @@ import purchase_order_after_sales_lists from "@/views/erp/Purchase/purchase_orde
 import afterSales_details from "@/views/erp/Purchase/afterSales_details";
 import purchase_sample_lists from "@/views/erp/Purchase/purchase_sample_lists";
 import sample_modification from "@/views/erp/Purchase/sample_modification";
+import purchase_product_lists from "@/views/erp/Purchase/purchase_product_lists";
+import stuff_purchase_select from "@/views/erp/Purchase/stuff_purchase_select";
 
 // 物流
 import delivery_order_list from "@/views/erp/Delivery/delivery_order_list";
-import deliver from "@/views/erp/Delivery/deliver";
-import Track from "@/views/erp/Delivery/Track";
+import see_deliver from "@/views/erp/Delivery/see_deliver";
+
 // 财务管理----view/
 import finance_order_audit_list from "@/views/Finance/finance_order_audit_list";
 import auditDetails from "@/views/Finance/auditDetails";
@@ -91,12 +105,29 @@ import finance_customer_sample_lists from "@/views/Finance/finance_customer_samp
 import finance_customer_sample_lists_details from "@/views/Finance/finance_customer_sample_lists_details";
 import cost_lists from "@/views/Finance/cost_lists";
 import finance_supplier_after_sales_list from "@/views/Finance/finance_supplier_after_sales_list";
+import finance_supplier_money_lists from "@/views/Finance/finance_supplier_money_lists";
+import stuff_finance_select from "@/views/Finance/stuff_finance_select";
+
+
 
 // 统计报表
+//user
 import sales_rank from "@/views/report/User/sales_rank";
 import order_count from "@/views/report/User/order_count";
+import leave_count from "@/views/report/User/leave_count";
+
+//Customer
 import customer_visit from "@/views/report/Customer/customer_visit";
 import customer_increments from "@/views/report/Customer/customer_increments";
+
+//Purchase
+import product_sales from "@/views/report/Purchase/product_sales";
+import purchase_product_sum from "@/views/report/Purchase/purchase_product_sum";
+
+//Finance
+import order_product_cost from "@/views/report/Finance/order_product_cost";
+import order_cost from "@/views/report/Finance/order_cost";
+import payee_diary from "@/views/report/Finance/payee_diary";
 
 
 //权限管理
@@ -169,6 +200,15 @@ export default new Router({
             title: "firm_select"
           }
         },
+        {
+          path: "/oa/User/wage_calculation",
+          name: "工资计算",
+          component: wage_calculation,
+          meta: {
+            requireAuth: true,
+            title: "wage_calculation"
+          }
+        },
         // 日常管理
         {
           path: "/oa/Days/leave_select",
@@ -197,7 +237,6 @@ export default new Router({
             title: "task_select"
           }
         },
-        
         {
           path: "/oa/Days/task_add/:id",
           name: "任务发起/修改",
@@ -205,6 +244,52 @@ export default new Router({
           meta: {
             requireAuth: true,
             title: "task_add"
+          }
+        },
+        {
+          path: "/oa/Days/task_count",
+          name: "任务统计",
+          component: task_count,
+          meta: {
+            requireAuth: true,
+            title: "task_count"
+          }
+        },
+        {
+          path: "/oa/Days/company_rule_select",
+          name: "公司制度",
+          component: company_rule_select,
+          meta: {
+            requireAuth: true,
+            title: "company_rule_select"
+          }
+        },
+        
+        {
+          path: "/oa/Days/rule_edit/:id",
+          name: "制度编辑",
+          component: rule_edit,
+          meta: {
+            requireAuth: true,
+            title: "rule_edit"
+          }
+        },
+        {
+          path: "/oa/Days/work_plan_select",
+          name: "工作计划",
+          component: work_plan_select,
+          meta: {
+            requireAuth: true,
+            title: "work_plan_select"
+          }
+        },
+        {
+          path: "/oa/Days/stuff_select",
+          name: "物料采购列表",
+          component: stuff_select,
+          meta: {
+            requireAuth: true,
+            title: "stuff_select"
           }
         },
         // 客户管理
@@ -224,6 +309,16 @@ export default new Router({
           meta: {
             requireAuth: true,
             title: "customer_list"
+          }
+        },
+        
+        {
+          path: "/CRM/Customer/customer_record",
+          name: "联系记录列表",
+          component: customer_record,
+          meta: {
+            requireAuth: true,
+            title: "customer_record"
           }
         },
         {
@@ -492,6 +587,25 @@ export default new Router({
             title: "afterSales_details"
           }
         },
+        
+        {
+          path: "/erp/Purchase/stuff_purchase_select",
+          name: "采购物料列表",
+          component: stuff_purchase_select,
+          meta: {
+            requireAuth: true,
+            title: "stuff_purchase_select"
+          }
+        },
+        {
+          path: "/erp/Purchase/purchase_product_lists",
+          name: "采购产品明细",
+          component: purchase_product_lists,
+          meta: {
+            requireAuth: true,
+            title: "purchase_product_lists"
+          }
+        },
         // 产品管理
         {
           path: "/erp/Product/product_list",
@@ -556,6 +670,7 @@ export default new Router({
             title: "product_inventory_lists"
           }
         },
+        
         // 供应商管理
         {
           path: "/erp/supplier/supplier_list",
@@ -564,6 +679,33 @@ export default new Router({
           meta: {
             requireAuth: true,
             title: "supplier_list"
+          }
+        },
+        {
+          path: "/erp/supplier/supplier_product_money_lists",
+          name: "供应商采购明细",
+          component: supplier_product_money_lists,
+          meta: {
+            requireAuth: true,
+            title: "supplier_product_money_lists"
+          }
+        },
+        {
+          path: "/erp/supplier/express_list",
+          name: "物流列表",
+          component: express_list,
+          meta: {
+            requireAuth: true,
+            title: "express_list"
+          }
+        },
+        {
+          path: "/erp/supplier/supplier_money_lists",
+          name: "供应商结算列表",
+          component: supplier_money_lists,
+          meta: {
+            requireAuth: true,
+            title: "supplier_money_lists"
           }
         },
         // 物流
@@ -577,23 +719,15 @@ export default new Router({
           }
         },
         {
-          path: "/erp/Delivery/deliver/:supplier_id/:customer_order_id/:customer_order_purchase_id",
-          name: "发货",
-          component: deliver,
+          path: "/erp/Delivery/see_deliver/:id",
+          name: "发货信息",
+          component: see_deliver,
           meta: {
             requireAuth: true,
-            title: "deliver"
+            title: "see_deliver"
           }
         },
-        {
-          path: "/erp/Delivery/Track/:supplier_id/:customer_order_id/:customer_order_purchase_id",
-          name: "订单跟踪",
-          component: Track,
-          meta: {
-            requireAuth: true,
-            title: "Track"
-          }
-        },
+        
         // 财务管理
         {
           path: "/Finance/cost_lists",
@@ -624,7 +758,7 @@ export default new Router({
         },
         {
           path: "/Finance/finance_order_advance_charge_list",
-          name: "采购预付款",
+          name: "采购付款",
           component: finance_order_advance_charge_list,
           meta: {
             requireAuth: true,
@@ -660,7 +794,7 @@ export default new Router({
         },
         {
           path: "/Finance/finance_receivables_lists",
-          name: "财务收入账款",
+          name: "财务销售账款",
           component: financial_receivables_lists,
           meta: {
             requireAuth: true,
@@ -731,6 +865,25 @@ export default new Router({
             title: "finance_supplier_after_sales_list"
           }
         },
+        {
+          path: "/Finance/finance_supplier_money_lists",
+          name: "供应商结算审核",
+          component: finance_supplier_money_lists,
+          meta: {
+            requireAuth: true,
+            title: "finance_supplier_money_lists"
+          }
+        },
+        {
+          path: "/Finance/stuff_finance_select",
+          name: "采购物料审核",
+          component: stuff_finance_select,
+          meta: {
+            requireAuth: true,
+            title: "stuff_finance_select"
+          }
+        },
+        
         // 统计报表 
         {
           path: "/report/User/sales_rank",
@@ -751,6 +904,15 @@ export default new Router({
           }
         },
         {
+          path: "/report/User/leave_count",
+          name: "考勤统计",
+          component: leave_count,
+          meta: {
+            requireAuth: true,
+            title: "leave_count"
+          }
+        },
+        {
           path: "/report/Customer/customer_visit",
           name: "拜访量统计",
           component: customer_visit,
@@ -766,6 +928,51 @@ export default new Router({
           meta: {
             requireAuth: true,
             title: "customer_increments"
+          }
+        },
+        {
+          path: "/report/Purchase/product_sales",
+          name: "产品销售",
+          component: product_sales,
+          meta: {
+            requireAuth: true,
+            title: "product_sales"
+          }
+        },
+        {
+          path: "/report/Purchase/purchase_product_sum",
+          name: "采购产品汇总",
+          component: purchase_product_sum,
+          meta: {
+            requireAuth: true,
+            title: "purchase_product_sum"
+          }
+        },
+        {
+          path: "/report/Finance/order_product_cost",
+          name: "订单产品成本",
+          component: order_product_cost,
+          meta: {
+            requireAuth: true,
+            title: "order_product_cost"
+          }
+        },
+        {
+          path: "/report/Finance/order_cost",
+          name: "订单成本",
+          component: order_cost,
+          meta: {
+            requireAuth: true,
+            title: "order_cost"
+          }
+        },
+        {
+          path: "/report/Finance/payee_diary",
+          name: "账户日志记账",
+          component: payee_diary,
+          meta: {
+            requireAuth: true,
+            title: "payee_diary"
           }
         },
         // 权限

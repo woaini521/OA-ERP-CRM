@@ -2,7 +2,7 @@
     <div class="box">
         <div v-for="(item,index) in Account" :key="index" style="margin-top:10px;">
             <i class="el-icon-plus" @click="push"></i>
-            <el-select v-model="item.id" filterable placeholder="请选择" @change="aa">
+            <el-select v-model="item.id" filterable clearable placeholder="请选择" @change="aa">
                 <el-option
                     v-for="items in options"
                     :key="items.id"
@@ -61,7 +61,6 @@ export default {
     },
     watch:{
         a(newValue, oldValue){
-            
             this.getoptions();
         } 
     }

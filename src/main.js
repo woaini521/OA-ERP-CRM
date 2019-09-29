@@ -8,6 +8,10 @@ import VueCookies from "vue-cookies";
 import Print from "vue-print-nb";
 import axios from "axios";
 import filters from "./filter";
+// import Vue from 'vue';
+// import ElementUI from 'element-ui';
+// import 'element-ui/lib/theme-chalk/index.css';
+// import App from './App.vue';
 //import routeMap from './router/components.js';
 // import App from './App.vue';
 

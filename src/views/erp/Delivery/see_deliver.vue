@@ -130,7 +130,7 @@
             <div class="generatedAddressInnerLeft">
               <p>
                 <span>收货人：{{item.name}}</span>
-                <span style="margin-left:20px;">收货电话：{{item.phone}}</span> 
+                <span style="margin-left:20px;" v-if="!Group">收货电话：{{item.phone}}</span> 
                 <span style="margin-left:60px;">付款方式:{{ item.payment == 1 ? '到付' : '现付'}}</span>
                 <span v-if="item.delivery==1" style="margin-left:20px;">物流方式:上门</span> 
                 <span v-if="item.delivery==2" style="margin-left:20px;">物流方式:上楼</span> 
@@ -304,7 +304,8 @@ import deliver from "@/views/erp/Delivery/deliver";
           customer_order_purchase_product_id:'',
           supplier_id:'',
           product_sku_id:'',
-        }
+        },
+        Group:false,
       };
     },
     methods:{
@@ -508,6 +509,8 @@ import deliver from "@/views/erp/Delivery/deliver";
       }
     }, 
     activated(){
+        let Group = JSON.parse(localStorage.getItem('Group'));
+        this.Group = Group.includes(3);
         this.getcaogao();
     },
     // watch:{

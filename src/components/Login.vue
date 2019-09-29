@@ -30,9 +30,9 @@ export default {
   methods: {
     handleLogin() {
       if (this.reForm.input1 == "") {
-        this.open("用户名不为空");
+        this.open("用户名不为空","error");
       } else if (this.reForm.input2 == "") {
-        this.open("密码为空");
+        this.open("密码为空","error");
       } else {
        this.axios.post("/Index/checklogin",{
          phone:this.reForm.input1,
@@ -45,24 +45,17 @@ export default {
             localStorage.setItem('Arr',JSON.stringify(res.data.menu))
             localStorage.setItem('name',JSON.stringify(res.data.name))
             localStorage.setItem('Group',JSON.stringify(res.data.group_id))
-            this.open1();
+            this.open(res.data.msg,"success");
           } else {
-            this.open(res.data.msg);
+            this.open(res.data.msg,"error");
           }      
         })
       }
     },
-    open(a) {
+    open(a,b) {
       this.$message({
         message: a,
-        type: "error",
-        center: true
-      });
-    },
-    open1() {
-      this.$message({
-        message: "成功登陆",
-        type: "success",
+        type: b,
         center: true
       });
     },

@@ -176,6 +176,9 @@ export default {
           name: [
             { required: true, message: '请输入姓名', trigger: 'blur' },
           ],
+          phone: [
+            { required: true, trigger: 'blur', validator: Phone }//这里需要用到全局变量
+          ],
           company: [
             { required: true, message: '请选择公司', trigger: 'blur' }
           ],

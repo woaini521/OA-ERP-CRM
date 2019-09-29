@@ -1,13 +1,14 @@
 <template>
     <div class="box">
         <el-date-picker v-model="time" type="daterange" value-format="timestamp" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
-        <el-button @click="seach" style="margin-left:20px">搜索</el-button>
+        <el-input v-model="name" placeholder="产品名称" style="width:217px;margin-left:10px"></el-input>
+        <el-button @click="seach"  style="margin-left:20px">搜索</el-button>
         <el-table :data="data" show-summary>
             <el-table-column label="产品" prop="name" width="400px"></el-table-column>
             <el-table-column label="单位" prop="unit"></el-table-column>
-            <el-table-column label="总销售量" prop="number" sortable></el-table-column>
-            <el-table-column label="总销售额" prop="purchase_price" sortable></el-table-column>
-            <el-table-column label="平均单价">
+            <el-table-column label="总采购量" prop="number" sortable></el-table-column>
+            <el-table-column label="总采购额" prop="purchase_price" sortable></el-table-column>
+            <el-table-column label="平均采购价">
                 <template slot-scope="scope">
                     <span>{{ (Number(scope.row.purchase_price) / Number(scope.row.number)).toFixed(2)}}</span>
                 </template>
@@ -23,6 +24,7 @@ export default {
             data:[],
             time:null,
             starttime:'',
+            name:'',
         }
     },
     methods:{
@@ -39,6 +41,7 @@ export default {
                  this.axios.post('/report.Purchase/product_sales',{
                      start_time:this.time[0]/1000,
                      end_time:this.time[1]/1000,
+                     name:this.name,
                  }).then(res => {
                      this.data = res.data
                  })
@@ -46,6 +49,7 @@ export default {
                 this.axios.post('/report.Purchase/product_sales',{
                      start_time:'',
                      end_time:'',
+                     name:this.name,
                  }).then(res => {
                      this.data = res.data
                  })

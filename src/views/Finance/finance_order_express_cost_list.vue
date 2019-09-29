@@ -1,39 +1,145 @@
 <template>
     <div class="box">
         <div class="head_box">
-            <label>筛选：</label>
-            <el-date-picker v-model="time" type="daterange" value-format="timestamp" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
-            <el-input placeholder="名称" v-model="seach" style="width:217px;margin-left:10px"></el-input>
+            <el-select v-model="kuan" style="width:105px;">
+                <el-option label="下单时间" value="1"></el-option>
+                <el-option label="审核时间" value="2"></el-option>
+            </el-select>
+            <el-date-picker v-model="time" type="daterange" value-format="timestamp" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" style="margin-left:10px"></el-date-picker>
+            <el-input placeholder="订单编号" v-model="seach_order" style="width:120px;margin-left:10px"></el-input>
+            <el-input placeholder="客户姓名" v-model="seach_name" style="width:120px;margin-left:10px"></el-input>
+            <el-input placeholder="快递名称" v-model="seach" style="width:120px;margin-left:10px"></el-input>
             <el-button type="primary" @click="seachName"  style="margin-left:20px;">搜索</el-button>
             <el-button type="primary" @click="hebing" v-if="Group == true" style="margin-left:20px;">合并支付</el-button>
+            <br>
+            <el-select v-model="type_" clearable placeholder="类型"  style="width:130px;margin-top:10px;">
+                <el-option label="等待财务审核" value="0"></el-option>
+                <el-option label="等待财务付款" value="1"></el-option>
+                <el-option label="审核通过" value="2"></el-option>
+            </el-select>
+            <el-select v-model="action_user_name" clearable placeholder="审核人"  style="width:130px;margin-left:10px;">
+                <el-option v-for="item in auditor_group" :key="item.add_time" :label="item.user_name" :value="item.user_name"></el-option>
+            </el-select>
+            
         </div>
 
         <div class="content_box">
-            <el-table :data="tabledata" ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange">
-                <el-table-column label="时间" prop="add_time" width="160px"></el-table-column>
-                <el-table-column label="物流公司" prop="express_name" width="130px"></el-table-column>
-                <el-table-column label="结算方式" width="80px">
+            <el-table :data="tabledata" ref="multipleTable" show-summary tooltip-effect="dark" @selection-change="handleSelectionChange">
+                <el-table-column type="expand">
+                    <template slot-scope="scope">
+                        <el-table :data="scope.row.advance_charge">
+                            <el-table-column label="提交时间" width="160px">
+                                <template slot-scope="scope">
+                                    <span>{{ scope.row.order_dep_title}}/{{ scope.row.order_user_name}}</span><br>
+                                    <span>{{ scope.row.add_time}}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="编号" width="70px">
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.customer_order_id}}</span>
+                                </template>
+                            </el-table-column> 
+                            <el-table-column label="类型" width="50px">
+                                <template slot-scope="scope">
+                                    <span v-if="scope.row.class == 0">订单</span>
+                                    <span v-if="scope.row.class == 1">运费</span>
+                                    <span v-if="scope.row.class == 2">版费</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="供应商">
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.supplier_name}}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="结算方式" width="80px">
+                                <template slot-scope="scope">
+                                    <span>{{ scope.row.settlement == 0 ? '现结' : '月结'}}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="金额" prop="prepayment"></el-table-column>
+                            
+                            <el-table-column label="税" prop="invoice"  width="70px">
+                                <template slot-scope="scope">
+                                    <span v-if="scope.row.invoice == 0">不含税</span>
+                                    <span v-if="scope.row.invoice == 1">含税</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="采购" prop="user_name" width="80px"></el-table-column>
+                            <el-table-column label="状态" width="120px">
+                                <template slot-scope="scope">
+                                    <span>{{ stata[scope.row.status] }}</span><br>
+                                    <el-popover
+                                    placement="right"
+                                    trigger="click">
+                                    <el-table :data="scope.row.auditor">
+                                        <el-table-column width="160" property="add_time" label="日期"></el-table-column>
+                                        <el-table-column width="160" property="remarks" label="状态"></el-table-column>
+                                        <el-table-column width="100" property="user_name" label="审核人"></el-table-column>
+                                    </el-table>
+                                    <el-button slot="reference" type="text">查看</el-button>
+                                    </el-popover>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="备注">
+                                <template slot-scope="scope">
+                                    <span>{{scope.row.remarks}}</span>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </template>
+                </el-table-column>
+                <el-table-column label="编号"  width="70">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.customer_order_id }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="时间" prop="sales_time" width="100"></el-table-column>
+                <el-table-column label="客户" prop="customer_name" width="70"></el-table-column>
+                <el-table-column label="物流公司" width="130">
+                     <template slot-scope="scope">
+                        <span>{{ scope.row.express_name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="结算" width="60">
                      <template slot-scope="scope">
                         <span>{{status2[scope.row.type]}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="付款方式" width="80px">
+                <el-table-column label="付款" width="60">
                     <template slot-scope="scope">
                         <span>{{status1[scope.row.payment_method]}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="收款账户" prop="payment_account"></el-table-column>
-                <el-table-column label="金额" prop="prepayment"  width="80px"></el-table-column>
-                <el-table-column label="业务员" prop="user_name"></el-table-column>
-                <el-table-column label="状态">
+                <el-table-column label="收款账户">
                     <template slot-scope="scope">
-                        <span>{{ stata[scope.row.status] }}</span>
+                        <span>{{ scope.row.payment_account }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="备注" prop="remarks"></el-table-column>
+                <el-table-column label="金额" prop="prepayment"  width="80"></el-table-column>
+                <el-table-column label="业务员" prop="user_name" width="70"></el-table-column>
+                <el-table-column label="状态" width="105">
+                   <template slot-scope="scope">
+                        <span>{{ stata[scope.row.status] }}</span><br>
+                        <el-popover
+                        placement="right"
+                        trigger="click">
+                        <el-table :data="scope.row.auditor">
+                            <el-table-column width="160" property="add_time" label="日期"></el-table-column>
+                            <el-table-column width="160" property="remarks" label="状态"></el-table-column>
+                            <el-table-column width="100" property="user_name" label="审核人"></el-table-column>
+                        </el-table>
+                        <el-button slot="reference" type="text">查看</el-button>
+                        </el-popover>
+                    </template>
+                </el-table-column>
+                <el-table-column label="备注">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.remarks }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column width="50" align="right" label="合并" v-if="Group == true"></el-table-column>
                 <el-table-column type="selection" width="55"  label="合并" align="left" v-if="Group == true"></el-table-column>
-                <el-table-column label="操作" width="170px">
+                <el-table-column label="操作" width="170">
                     <template slot-scope="scope">
                         <el-button v-if="scope.row.status == 0" type="primary" size="small" @click="FinanceSee(scope.row)">查看</el-button>
                         <el-button v-else-if="scope.row.status == 1" type="primary" size="small" @click="CashierSee(scope.row)">查看</el-button>
@@ -50,6 +156,14 @@
                 <span style="margin-left:30px;">收款账号：</span><span>{{ receiving_account }}</span>
             </p>
             <p style="font-size: 20px;color:#000;margin-top:5px;"><span>预付款金额：</span><span>{{ prepayment }}￥</span></p>
+            <p v-if="file.length > 0">有{{ file.length }}张图，点击查看</p>
+            <div class="demo-image__preview" v-if="file.length > 0">
+                <el-image 
+                    style="width: 100px; height: 100px"
+                    :src="file[0]" 
+                    :preview-src-list="file">
+                </el-image>
+            </div>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="examine = false">取 消</el-button>
                 <el-button type="primary" @click="Submission">审核通过</el-button>
@@ -148,11 +262,17 @@ export default {
     data(){
         return{
           seach:'', // 筛选
+          seach_order:'',
+          seach_name:'',
+          type_:'',
           time:null,
           starttime:'',
+          action_user_name:'',
+          kuan:'1',
           stata:['等待财务审核','等待出纳审核','审核通过'],  
           status1:['无','微信','支付宝','银行卡'],
           status2:['自费','整体结算','月结'],
+          auditor_group:[],
           tabledata:[], // 预付款数据  
           
           examine:false, // 财务审核弹窗
@@ -161,6 +281,7 @@ export default {
           receiving_name:'', //收款人   
           receiving_account:'', // 收款账号
           prepayment:'', // 金额
+          file:[],
           // 合同图片存储
           imageUrl:[],
           imageUrlstate:false,
@@ -187,9 +308,14 @@ export default {
                 b=this.time[1]/1000;
             }
             this.axios.post('/Finance/finance_order_express_cost_list',{
+                action_time:this.kuan,
                 supplier_name:this.seach,
+                customer_order_id:this.seach_order,
+                customer_name:this.seach_name,
                 start_time:a,
                 end_time:b,
+                status:this.type_,
+                action_user_name:this.action_user_name,
             }).then(res => {
                 this.tabledata = res.data.express_cost;
             })
@@ -211,8 +337,10 @@ export default {
             this.axios.post('/Finance/finance_order_express_cost_list',{
                 start_time:this.starttime,
                 end_time:this.starttime,
+                action_time:this.kuan,
             }).then(res => {
                 this.tabledata = res.data.express_cost;
+                this.auditor_group = res.data.auditor_group;
             })
         },
         
@@ -223,7 +351,12 @@ export default {
             this.id = a.id;
             this.receiving_name = a.express_name;
             this.receiving_account = a.payment_account;
-            this.prepayment = a.prepayment;    
+            this.prepayment = a.prepayment;
+            let img = [];
+            for (let i = 0; i < a.file.length; i++) {
+                img.push(a.file[i].src);
+            }
+            this.file = img;
         },
         // 财务审核提交
         Submission(){
@@ -251,6 +384,11 @@ export default {
             this.receiving_name = a.express_name;
             this.receiving_account = a.payment_account;
             this.prepayment = a.prepayment; 
+            let img = [];
+            for (let i = 0; i < a.file.length; i++) {
+                img.push(a.file[i].src);
+            }
+            this.file = img;
             this.getimgUrl(a.id);
         },
         // 合同上传

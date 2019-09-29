@@ -2,8 +2,8 @@
     <div class="box">
         <div>
             <label>筛选：</label>
-            <el-input v-model="seach" style="width:217px"></el-input>
-            <el-button style="margin-left:20px">确认</el-button>
+            <el-input v-model="seach" placeholder="业务员" style="width:217px"></el-input>
+            <el-button style="margin-left:20px" @click="comfile">确认</el-button>
         </div>
         <el-table :data="tableData" style="margin-top:20px">
             <el-table-column label="寄送客户数" prop="customer_count"></el-table-column>
@@ -74,6 +74,18 @@ export default {
                 this.last_page = res.data.sample.last_page;
             })
         },
+        comfile(){
+            this.axios.post('/crm.Sample/sample_lists',{
+               user_name:this.seach,
+            }).then(res => {
+                this.tableData = res.data.sample.data;
+                this.currentPage = res.data.sample.current_page;
+                this.total = res.data.sample.total;
+                this.per_page = res.data.sample.per_page;
+                this.last_page = res.data.sample.last_page;
+            })   
+        },
+
         // 分页 
         handleCurrentChange(val) {
             const loading = this.$loading({
@@ -84,9 +96,9 @@ export default {
             });
             this.axios.post('/crm.Sample/sample_lists',{
                 page:val,
-                company_id:this.value,
-                user_name:this.value1,
-                customer_name:this.value2,
+
+                user_name:this.seach,
+
             }).then(res => {
                 this.tableData = res.data.sample.data;
                 this.currentPage = res.data.sample.current_page;

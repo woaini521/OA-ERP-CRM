@@ -6,8 +6,13 @@
             <el-input placeholder="抬头" v-model="seach" style="width:100px;margin-left:10px"></el-input>
             <el-input placeholder="业务员" v-model="user" style="width:100px;margin-left:10px"></el-input>
             <el-input placeholder="部门" v-model="dep" style="width:100px;margin-left:10px"></el-input>
-            <el-input placeholder="开票单位" v-model="dan" style="width:160px;margin-left:10px"></el-input>
+            <!-- <el-input placeholder="开票单位" v-model="dan" style="width:160px;margin-left:10px"></el-input> -->
             <el-input placeholder="发票编号" v-model="bian" style="width:160px;margin-left:10px"></el-input>
+            <el-select v-model="sta" clearable placeholder="状态" style="margin-left: 10px;width:105px;">
+                <el-option label="待开票" value="0"></el-option>
+                <el-option label="已开票" value="3"></el-option>
+                <el-option label="已作废" value="99"></el-option>
+            </el-select>
             
             <el-button type="primary" @click="seachName"  style="margin-left:20px;">搜索</el-button>
         </div>
@@ -150,6 +155,7 @@ export default {
             dep:'',
             dan:'',
             bian:'',
+            sta:'',
             time:null,
             starttime:'',
             tableData:[], // 发票信息
@@ -188,6 +194,7 @@ export default {
                 dep_title:this.dep,
                 invoice_enterprise:this.dan,
                 invoice_number:this.bian,
+                status:this.sta,
             }).then(res => {
                 this.tableData = res.data.invoice;
             })

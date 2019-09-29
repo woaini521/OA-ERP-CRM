@@ -63,8 +63,8 @@
         <label>认款订单</label> 
         <div style="margin-top:20px;">
               <label>筛选：</label>
-              <el-input v-model="name" clearable placeholder="客户名称" style="width:217px;margin-left:10px"></el-input>
-              <el-input v-model="money" clearable placeholder="金额" style="width:217px;margin-left:10px"></el-input>
+              <el-input v-model="name" clearable placeholder="客户名称" style="width:130px;margin-left:10px"></el-input>
+              <el-input v-model="money" clearable placeholder="金额" style="width:130px;margin-left:10px"></el-input>
               <el-select v-model="company" style="margin-left:10px" clearable placeholder="请选择公司">
                 <el-option
                 v-for="item in option"
@@ -79,7 +79,6 @@
             <el-table-column type="expand">
                 <template slot-scope="props">
                     <el-table :data="props.row.product_sku" style="margin-bottom:20px;">
-                        
                         <el-table-column  label="订单产品" >
                             <template slot-scope="scope">
                                 <span>{{scope.row.class_name}}{{scope.row.sku_name}}</span>
@@ -99,7 +98,8 @@
                     </el-table>
                 </template>
             </el-table-column>
-            <el-table-column label="订单编号" prop="id" width="80px"></el-table-column>
+            <el-table-column label="订单编号" prop="id" width="80"></el-table-column>
+            <el-table-column label="订单日期" prop="sales_time" width="120"></el-table-column>
             <el-table-column label="客户" prop="customer_name"></el-table-column>
             <el-table-column label="总销售额" prop="total_price"></el-table-column>
             <el-table-column label="额外费用" prop="extra_price"></el-table-column>
@@ -110,7 +110,7 @@
                     <span>{{ scope.row.dep_title }}/{{ scope.row.user_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="80">
                 <template slot-scope="scope">
                     <el-button size="mini" @click="tianjia(scope.row)">认款</el-button>
                 </template>

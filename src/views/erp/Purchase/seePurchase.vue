@@ -3,10 +3,10 @@
         <div class="head_box_man">
                 <h3>
                     <span>客户姓名：</span><span>{{name}}</span> 
-                    <span style="margin-left: 40px;">客户电话：</span><span>{{phone}}</span> 
                     <span style="margin-left: 40px;">销售日期：</span><span>{{time}}</span>
                     <span style="margin-left: 40px;">销售员：</span><span>{{user}}</span> 
                 </h3>
+                <h3 style="margin-top:10px">备注:{{beizhu}}</h3>
             </div>
         <div class="head_box_table">
                 <el-table :data="headBoxTable">
@@ -76,9 +76,9 @@
         <div class="head_box_payment">
             <label>费用支出</label>
             <el-form ref="formpayment" :model="formpayment" inline style="margin-top:10px;">
-                <el-form-item label="仓库">
-                    <el-radio v-model="formpayment.type" label="1">本地仓库</el-radio>
-                    <el-radio v-model="formpayment.type" label="2">供应商</el-radio>
+                <el-form-item label="税">
+                    <el-radio v-model="formpayment.invoice" label="1">含税</el-radio>
+                    <el-radio v-model="formpayment.invoice" label="0">不含税</el-radio>
                 </el-form-item>
                 <el-form-item label="结算方式" style="margin-left: 80px;">
                     <el-radio v-model="formpayment.settlement" label="0">现结</el-radio>
@@ -172,9 +172,9 @@
             <!-- 货款支出修改 -->
         <el-dialog title="货款支出修改" :visible.sync="paymentModify">
             <el-form :model="formpaymentedit">
-                <el-form-item label="仓库" label-width="90px">
-                    <el-radio v-model="formpaymentedit.type" label="1">本地仓库</el-radio>
-                    <el-radio v-model="formpaymentedit.type" label="2">供应商</el-radio>
+                <el-form-item label="税" label-width="90px">
+                    <el-radio v-model="formpaymentedit.invoice" label="1">含税</el-radio>
+                    <el-radio v-model="formpaymentedit.invoice" label="0">不含税</el-radio>
                 </el-form-item>
                 <el-form-item label="结算方式" label-width="90px">
                     <el-radio v-model="formpaymentedit.settlement" label="0">现结</el-radio>
@@ -208,11 +208,11 @@
         </el-dialog>
 
         <el-dialog title="打印订单信息" :visible.sync="dialogPrinting" class="dayin" width="65%">
-            <div v-for="(item,index) in Dayin" :key="index" :id="`printTest${index}`" @click="da=true">
+            <div v-for="(item,index) in Dayin" :key="index" :id="`printTest${index}`" @click="DDDDD">
                 <div class="dayin" style="width:100%">
                     <p style="text-align:center;font-size:20px;margin-bottom:10px">采购订单</p>
-                    <p>订单编号:{{item.advance_charge[0].customer_order_id}} <span style="margin-left:50px">订单日期:{{item.advance_charge[0].add_time}}</span><span style="margin-left:50px">打印日期:{{time}}</span></p>
-                    <p>供应商编号：12131321 <span style="margin-left:50px">供应商名称：{{item.supplier_name}}</span></p>
+                    <p>订单编号:{{item.advance_charge[0].customer_order_id}} <span style="margin-left:50px">订单日期:{{item.advance_charge[0].add_time}}</span><span style="margin-left:50px">打印日期:{{times}}</span></p>
+                    <p><span>供应商名称：{{item.supplier_name}}</span></p>
                     <p>联系人：{{item.supplier_user_name}} <span style="margin-left:30px">联系电话：{{item.supplier_user_phone}}</span><span style="margin-left:30px">供应商地址：{{item.province}}{{item.city}}{{item.county}}{{item.address}} </span></p>
 
                     <el-table :data="item.advance_charge" class="dada" :header-cell-style="{color:'#000'}" show-summary>
@@ -231,16 +231,16 @@
                                 <span>{{scope.row.dy_unit}}</span>
                             </template>
                         </el-table-column>
-                        <!-- <el-table-column label="采购单价" >
+                        <el-table-column label="采购单价" >
                             <template slot-scope="scope">
-                                <span>{{ (Number(scope.row.prepayment) / Number(scope.row.dy_number)).toFixed(4) }}</span>
+                                <span>{{ (Number(scope.row.dy_purchase_price) / Number(scope.row.dy_number)).toFixed(4) }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="数量" >
                             <template slot-scope="scope">
                                 <span>{{scope.row.dy_number}}</span>
                             </template>
-                        </el-table-column> -->
+                        </el-table-column>
                         <el-table-column label="采购总价" prop="prepayment"></el-table-column>
                         <el-table-column label="采购" prop="user_name" width="80px"></el-table-column>
                         <el-table-column label="备注">
@@ -254,7 +254,7 @@
                     <div style="margin-top:20px">
                         <p>开户行：{{item.opening_bank}} <span style="margin-left:10px">收款人：</span> {{item.receiving_name}}<span style="margin-left:10px">收款账号：</span>{{item.receiving_account}} </p>
                     </div>
-                    <el-table :data="headBoxTable"  class="dada" style="margin-top:10px">
+                    <el-table :data="qu(item.advance_charge)"  class="dada" style="margin-top:10px">
                         <el-table-column prop="id" label="产品编号" ></el-table-column>
                         <el-table-column label="产品名称" width="300px">
                             <template slot-scope="scope">
@@ -266,13 +266,11 @@
                         <el-table-column prop="number" label="数量" ></el-table-column>
                         <el-table-column label="销售总价"  prop="total_price"></el-table-column>
                     </el-table>
-
                     <p style="margin-top:10px"><span>采购主管：</span><span style="margin-left:25%">部门经理：</span><span style="margin-left:25%">财务：</span></p>
                 </div>
                 <el-button type="primary" v-show="da" @click="da = false" v-print="`#printTest${index}`" style="float: right;margin-top:20px;margin-bottom:20px">确 定</el-button>
                 <div style="clear:both"></div>
             </div>
-         
       </el-dialog>
     </div>
 </template>
@@ -289,13 +287,14 @@ export default {
             phone:'',
             time:'',
             user:'',
+            beizhu:'',
             headBoxTable:[],// 数据表格
             state:['','上门','上楼','自提'],     
             // 地址配货信息
             fixedAddress:[
                 {
                     id:0,
-                    name:'GT',
+                    name:'走人',
                     phone:'110',
                     type:'送货上门',
                     province:'湖南省',
@@ -357,7 +356,7 @@ export default {
                 value:'',
                 settlement:'',
                 class:'',
-                type:'',
+                invoice:'',
                 qian:'',
                 remark:'',
             },
@@ -367,18 +366,16 @@ export default {
                 class:'',
                 remark:'',
                 settlement:'',
-                type:'',
+                invoice:'',
                 id:'',
-            },
-            
+            },  
             Supplierformpayment:[], // 预付款供应商
             tablePayment:[], // 预付款列表
             paymentModify:false,
-
             // 打印
             Dayin:[],
             dialogPrinting:false, 
-            time:'',
+            times:'',
             P_data:[],
             ren:'',
         }
@@ -400,28 +397,22 @@ export default {
                 this.phone = res.data.customer_working_phone;
                 this.time = res.data.sales_time;
                 this.user = res.data.user_name;
+                this.beizhu = res.data.remarks;
+                
             })
         },
-
         // 获取地址
          getfixedAddress(){
             this.axios.get('/erp.Purchase/purchase_order_address_product_select?id='+this.$route.params.id).then(res => {
                 this.fixedAddress = res.data.address;
             })
         },
-       
-        
-
-
-
         // 获取预付款供应商
         getSupplierformpayment(){
             this.axios.get('/erp.purchase/purchase_order_supplier_payee_select?id='+this.$route.params.id).then(res => {
                 this.Supplierformpayment = res.data;
             })
         },
-
-        
         // 获取供应商预付款列表
         gettablePayment(){
             this.axios.get('/erp.Purchase/purchase_order_supplier_advance_select?id='+this.$route.params.id).then(res => {
@@ -429,10 +420,8 @@ export default {
                 this.Dayin = res.data.supplier;
             })
         },
-      
-
-         Addpayment(){
-            if(this.formpayment.value == "" || this.formpayment.value == null || this.formpayment.qian == "" || this.formpayment.type == "" || this.formpayment.settlement == "" || this.formpayment.class == ""){
+        Addpayment(){
+            if(this.formpayment.value == "" || this.formpayment.value == null || this.formpayment.qian == "" || this.formpayment.invoice == "" || this.formpayment.settlement == "" || this.formpayment.class == ""){
                 this.open('填写完整，在进行申请','error');
             }else{
                 this.axios.post('/erp.Purchase/purchase_order_advance_charge_add',{
@@ -440,13 +429,13 @@ export default {
                     customer_order_product_sku_id:this.formpayment.value,
                     prepayment:this.formpayment.qian,
                     remarks:this.formpayment.remark,
-                    type:this.formpayment.type,
+                    invoice:this.formpayment.invoice,
                     settlement:this.formpayment.settlement,
                     class:this.formpayment.class,
                 }).then(res => {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
-                        this.formpayment.type = '';
+                        this.formpayment.invoice = '';
                         this.formpayment.settlement = '';
                         this.formpayment.class = '';
                         this.$refs['formpayment'].resetFields(); 
@@ -464,7 +453,7 @@ export default {
             this.formpaymentedit.qian = a.prepayment;
             this.formpaymentedit.remark = a.remarks;
             this.formpaymentedit.id = a.id;
-            this.formpaymentedit.type = String(a.type);
+            this.formpaymentedit.invoice = String(a.invoice);
             this.formpaymentedit.settlement = String(a.settlement);
             this.formpaymentedit.class = String(a.class);
         },
@@ -476,14 +465,14 @@ export default {
                 prepayment:this.formpaymentedit.qian,
                 remarks:this.formpaymentedit.remark, 
                 id:this.formpaymentedit.id,
-                type:this.formpaymentedit.type,
+                invoice:this.formpaymentedit.invoice,
                 settlement:this.formpaymentedit.settlement,
                 class:this.formpaymentedit.class,
             }).then(res => {
                 if(res.data.code == 2000){
                     this.open(res.data.msg,'success');
                     this.gettablePayment();
-                    this.formpaymentedit.type = '';
+                    this.formpaymentedit.invoice = '';
                     this.formpaymentedit.settlement = '';
                     this.formpaymentedit.class = '';
                     this.paymentModify = false;
@@ -520,7 +509,31 @@ export default {
                 }  
             })
         },
-
+        // 查重显示
+        qu(a){
+            // console.log(a);
+            // console.log(this.headBoxTable);
+            let arr =[];
+            for(let i=0 ;i<a.length;i++){
+                this.headBoxTable.filter(item => {
+                    if(a[i].product_sku_id == item.product_sku_id){
+                        arr.push(item)
+                    }
+                })
+            }
+            const res = new Map();
+            // 返回去重后的数组
+            return arr.filter((arr) => !res.has(arr.id) && res.set(arr.id, 1))
+            //console.log(arr);
+        },
+        // 默认时间
+        change(t){
+            if(t<10){
+                return "0"+t;
+            }else{
+                return t;
+            }
+        },
         // 公用弹窗
         open(a,b){
             this.$message({
@@ -528,31 +541,33 @@ export default {
                 type: b
             });
         },
-        danimei(){
-            this.dialogPrinting = true; 
-            this.ren = JSON.parse(localStorage.getItem('name'));
+        DDDDD(){
+            this.da = true;
+            this.dialogPrinting = false;
         },
-      
+        danimei(){
+            let d=new Date();
+            let year=d.getFullYear();
+            let month=this.change(d.getMonth()+1);
+            let day=this.change(d.getDate());
+            let hour=this.change(d.getHours());
+            let minute=this.change(d.getMinutes());
+            let second=this.change(d.getSeconds());
+            this.times = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;
+            this.ren = JSON.parse(localStorage.getItem('name'));
+            this.dialogPrinting = true; 
+        },
     },
-    // created(){
-    //         this.getheadBoxTable();
-    //         // this.getkehu();
-    //         this.getfixedAddress();
-    //         this.gettablePayment();
-    //         this.getSupplierformpayment(); 
-    // },
     activated(){
-       
-            if(!this.$route.params.id){
+        if(!this.$route.params.id){
             
-            }else{
-                this.getheadBoxTable();
-                this.getkehu();
-                this.getfixedAddress();
-                this.gettablePayment();
-                this.getSupplierformpayment();                     
-            }   
-        
+        }else{
+            this.getheadBoxTable();
+            this.getkehu();
+            this.getfixedAddress();
+            this.gettablePayment();
+            this.getSupplierformpayment();                     
+        }   
     } 
 }
 </script>

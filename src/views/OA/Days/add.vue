@@ -77,6 +77,14 @@ export default {
         {
           lable: "外出",
           value: "3"
+        },
+        {
+          lable: "年假",
+          value: "4"
+        },
+        {
+          lable: "调休",
+          value: "5"
         }
       ],
       show: false,

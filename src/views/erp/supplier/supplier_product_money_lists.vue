@@ -6,6 +6,7 @@
             </el-date-picker>
             <el-input v-model="name" placeholder="供应商名称" style="width:217px;margin-left:20px"></el-input>
             <el-button @click="seach" style="margin-left:20px">搜索</el-button>
+            <el-button @click="daoshuju" style="margin-left:30px">导出数据</el-button>
         </div>
         <el-table :data="tableData" class="gys" show-summary>
             <el-table-column type="expand">
@@ -65,9 +66,13 @@
                 </template>
                 </el-table-column>
             <el-table-column label="供应商名称" prop="name" width="400px"></el-table-column>
-            <el-table-column label="采购金额" prop="purchase_money"></el-table-column>
-            <el-table-column label="现付金额" prop="purchase_product_money"></el-table-column>
-            <el-table-column label="月结金额" prop="purchase_product_month_money"></el-table-column>
+            <el-table-column label="采购金额">
+                <template slot-scope="scope">
+                    <span>{{ Number(scope.row.purchase_wf_money) + Number(scope.row.purchase_sf_money) }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="实付金额" prop="purchase_sf_money"></el-table-column>
+            <el-table-column label="余额" prop="purchase_wf_money"></el-table-column>
             <el-table-column label="采购日期" prop="purchase_add_time"></el-table-column>
             <el-table-column label="供应商联系人">
                 <template slot-scope="scope">
@@ -148,6 +153,23 @@ export default {
         getTimestamp (mytime){
             let dateTmp = mytime.replace(/-/g,'/')
             return Date.parse(dateTmp)
+        },
+
+        daoshuju(){
+            require.ensure([], () => {
+                const {export_json_to_excel} = require('@/assets/vendor/Export2Excel');
+                let tHeader = ['供应商名称','采购金额','实付金额','余额','采购日期','供应商联系人','联系电话','采购员'];
+                let filterVal = ['name','lei','purchase_sf_money','purchase_wf_money', 'purchase_add_time','supplier_user_name','supplier_user_phone','purchase_user_name'];
+                for(let i =0;i<this.tableData.length;i++){
+                    this.tableData[i]['lei'] = (Number(this.tableData[i].purchase_wf_money) + Number(this.tableData[i].purchase_sf_money)).toFixed(4);
+                }
+                const list = this.tableData;
+                const data = this.formatJson(filterVal, list);
+                export_json_to_excel(tHeader, data, '数据');
+            })
+        },
+        formatJson(filterVal, jsonData) {
+            return jsonData.map(v => filterVal.map(j => v[j]))
         },
     },
     created(){

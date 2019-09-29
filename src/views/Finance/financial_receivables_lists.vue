@@ -17,7 +17,7 @@
             <el-button type="primary" @click="add"  style="margin-left:20px;">增加</el-button>
         </div>
         <div class="content_box">
-            <el-table :data="tableData">
+            <el-table :data="tableData" show-summary>
                 <el-table-column type="expand">
                     <template slot-scope="props">
                         <el-table :data="props.row.receivables_customer_order">
@@ -35,6 +35,7 @@
                         </el-table>
                     </template>
                 </el-table-column>
+                <el-table-column type="index" width="55"></el-table-column>
                 <el-table-column label="汇款时间" prop="payment_time" width="100px">
                     <template slot-scope="scope">
                         {{ scope.row.payment_time.substr(0,10) }}
@@ -45,16 +46,20 @@
                         <span>{{scope.row.receiving_name}}:{{scope.row.receiving_account}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="汇款公司" prop="company_name"></el-table-column>
-                <el-table-column label="业务员" prop="confirm_user_name">
+                <el-table-column label="汇款公司">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.company_name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="业务员">
                     <template slot-scope="scope">
                         <span>{{scope.row.dep_title}}/{{scope.row.confirm_user_name}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="金额" prop="payment_amount"></el-table-column>
+                <el-table-column label="金额" prop="payment_amount" sortable></el-table-column>
                 <el-table-column label="备注" prop="remarks"></el-table-column>
                 <el-table-column label="录入人" prop="user_name"></el-table-column>
-                <el-table-column label="状态" prop="status">
+                <el-table-column label="状态">
                     <template slot-scope="scope">
                           <span v-if="scope.row.status == 0">待认款</span>  
                           <span v-if="scope.row.status == 3">认款中</span>  
@@ -144,6 +149,36 @@
                 <el-button type="primary" @click="addSend">提 交</el-button>
             </div>
         </el-dialog>
+
+        <el-dialog title="消款" :visible.sync="dialogXiaoK">
+            <el-dialog
+            width="30%"
+            title="二次消款"
+            :visible.sync="dialogXiaoKEr"
+            append-to-body>
+                <el-form :model="dialogXiaoKErForm">
+                    <el-form-item label="订单编号" label-width="90px">
+                        <el-input v-model="dialogXiaoKErForm.bian"></el-input>
+                    </el-form-item>
+                    <el-form-item label="备注" label-width="90px">
+                        <el-input type="textarea" v-model="dialogXiaoKErForm.remarks"></el-input>
+                    </el-form-item>
+                    <el-form-item label=" " label-width="90px">
+                        <el-button @click="XiaoKEr">确认</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-dialog>
+            <p>汇款时间：{{ dialogXiaoKInfo.payment_time }}</p>
+            <p>接收账号：{{dialogXiaoKInfo.receiving_name}}:{{dialogXiaoKInfo.receiving_account}}</p>
+            <p>汇款公司：{{dialogXiaoKInfo.company_name}}</p>
+            <p>汇款金额：{{dialogXiaoKInfo.payment_amount}}</p>
+            <p>业务员： {{dialogXiaoKInfo.dep_title}}/{{dialogXiaoKInfo.confirm_user_name}}</p>
+            <p>备注：{{dialogXiaoKInfo.remarks}}</p>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="XiaoKyi">确认消款</el-button>
+                <el-button type="primary" @click="dialogXiaoKEr = true">二次消款</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -204,6 +239,15 @@ export default {
                 id:'',
             },// 弹窗表单   
             optionsStatus:[],
+            // 消款
+            dialogXiaoKId:'',
+            dialogXiaoK:false,
+            dialogXiaoKInfo:'',
+            dialogXiaoKEr:false,
+            dialogXiaoKErForm:{
+                bian:'',
+                remarks:'',
+            }
         }
     },
     methods:{
@@ -362,21 +406,48 @@ export default {
         },
         // 消款
         xiaoK(a){
+            this.dialogXiaoKInfo = a;
+            this.dialogXiaoKId = a.id;
+            this.dialogXiaoK = true;
+        },
+        XiaoKyi(){
             this.axios.post('/Finance/finance_receivables_status',{
-             id:a.id
+             id:this.dialogXiaoKId
             }).then(res => {
                  if(res.data.code == 2000){
                     this.gettable();
                     this.open(res.data.msg,'success');
+                    this.dialogXiaoK = false;
                 }else{
                     this.open(res.data.msg,'error');
                 }
-            })   
+            })  
+        },
+        XiaoKEr(){
+            if(this.dialogXiaoKErForm.bian == ''){
+                this.open('填写订单编号','error')
+            }else{
+                this.axios.post('/Finance/finance_receivables_status',{
+                    id:this.dialogXiaoKId,
+                    customer_order_id:this.dialogXiaoKErForm.bian,
+                    remarks:this.dialogXiaoKErForm.remarks
+                }).then(res => {
+                    if(res.data.code == 2000){
+                        this.gettable();
+                        this.open(res.data.msg,'success');
+                        this.dialogXiaoKEr = false;
+                        this.dialogXiaoK = false;
+                        this.dialogXiaoKErForm.bian = '';   
+                        this.dialogXiaoKErForm.remarks = '';  
+                    }else{
+                        this.open(res.data.msg,'error');
+                    }
+                })
+            } 
         },
         // 弹窗
         open(a,b){
             this.$message({
-                showClose: true,
                 message: a,
                 type: b
             });

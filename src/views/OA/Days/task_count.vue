@@ -43,8 +43,8 @@ export default {
         seach(a){
             if(this.time.length > 0){
                 this.axios.post('/oa.Days/task_count',{
-                    start_time:this.time[0],
-                    end_time:this.time[1],
+                    start_time:this.time[0]/1000,
+                    end_time:this.time[1]/1000,
                 }).then(res => {
                     this.tableData = res.data 
                 })

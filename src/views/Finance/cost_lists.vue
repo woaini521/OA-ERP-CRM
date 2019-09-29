@@ -12,21 +12,21 @@
         <el-button @click="seach" style="margin-left:20px">搜索</el-button>
 
         <el-table :data="tableData" show-summary>
-            <el-table-column label="时间" prop="add_time" width="160px"></el-table-column>
-            <el-table-column label="类型">
+            <el-table-column label="时间" prop="add_time" width="160"></el-table-column>
+            <el-table-column label="类型" width="80">
                 <template slot-scope="scope">
                     <span>{{scope.row.type == 1 ? '入账' : '出账'}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="入账金额" prop="r_money"></el-table-column>
-            <el-table-column label="出账金额" prop="c_money"></el-table-column>
+            <el-table-column label="入账金额" prop="r_money"  width="80"></el-table-column>
+            <el-table-column label="出账金额" prop="c_money"  width="80"></el-table-column>
             <el-table-column label="内容" prop="remarks"></el-table-column>
-            <el-table-column label="申请人" prop="dep_title">
+            <el-table-column label="申请人" width="150">
                 <template slot-scope="scope">
                     <span>{{scope.row.dep_title}}/{{scope.row.user_name}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="状态">
+            <el-table-column label="状态" width="120">
                 <template slot-scope="scope">
                     <template v-if="scope.row.status_txt == null">
                         <span v-if="scope.row.status == -3">等待财务审核</span>
@@ -42,14 +42,11 @@
                     
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="210px">
+            <el-table-column label="操作" width="220">
                 <template slot-scope="scope">
-          
                         <el-button size="mini"  v-if="scope.row.status < -2" type="primary" @click="update(scope.row)">修改</el-button>
                         <el-button size="mini" v-if="scope.row.status < -1" type="danger" @click="deletes(scope.row)">删除</el-button>
                         <el-button size="mini" v-if="scope.row.status < 2" type="success" @click="examine(scope.row)">审核</el-button>
-                   
-                    
                 </template> 
             </el-table-column>
         </el-table>

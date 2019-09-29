@@ -6,7 +6,7 @@
                <el-table-column label="数量" prop="number"></el-table-column>
                <el-table-column label="收货人" prop="address_name"></el-table-column>
                <el-table-column label="收货人号码" prop="address_phone"></el-table-column>
-               <el-table-column label="供应商" prop="supplier_name" width="300px"></el-table-column>
+               <el-table-column label="供应商" prop="supplier_name" width="300px" v-if="!Group1"></el-table-column>
                <el-table-column label="采购" prop="purchase_user_name"></el-table-column>
                <el-table-column label="操作"  v-if="this.xian == 1">
                    <template slot-scope="scope">
@@ -115,6 +115,36 @@
                 <el-form-item label="备注" label-width="90px">
                     <el-input type="textarea" v-model="dialogFeiyongForm.remark" style="width:317px;"></el-input>
                 </el-form-item>
+                <el-form-item label="上传图片" label-width="90px">
+                    <div class="contract">
+                    <div class="contractInner">
+                        <div class="contractInnerLeft">
+                        <el-upload
+                            class="avatar-uploader"
+                            accept="image/jpeg, image/gif, image/png, image/bmp"
+                            action="111"
+                            :show-file-list="false"
+                            :http-request="upLoad"
+                            :before-upload="beforeAvatarUpload"
+                        >
+                            <i class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                        </div>
+                        <div class="img" v-show="imageUrlstate">
+                        <div class="imginner" v-for="(item,index) in imageUrl" :key="item.src">
+                            <img :src="item.src" class="avatar" />
+                            <div class="avatars">
+                                <i
+                                    @click="deletesImg(item.src,index)"
+                                    style="font-size: 30px;margin-top: 75px;margin-left: 75px;color:#FFF;"
+                                    class="el-icon-delete"
+                                ></i>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFeiyong = false">取 消</el-button>
@@ -173,6 +203,9 @@ export default {
             a:'',
             b:'',
             c:'',
+            Group1:false,
+            imageUrl:[],
+            imageUrlstate:false,
         }
     },
     props:['shuju','options','tableDataWuliu','tableDataFeiyong','xian'],
@@ -247,7 +280,8 @@ export default {
             this.dialogFeiyongForm.type = '';
             this.dialogFeiyongForm.express_id = a.id;
             this.dialogFeiyongForm.customer_order_id = a.customer_order_id;
-            this.dialogFeiyongForm.supplier_id = a.supplier_id
+            this.dialogFeiyongForm.supplier_id = a.supplier_id;
+            this.getimageUrl();
         },
         // 物流 修改按钮
         edit(a){
@@ -276,6 +310,10 @@ export default {
         },
         // 费用提交
         addFeiyong(){
+            let img = [];
+            for (let i = 0; i < this.imageUrl.length; i++) {
+                img.push(this.imageUrl[i].src);
+            }
             if(this.dialogFeiyongForm.id == ''){
                 this.axios.post('/erp.Delivery/delivery_order_express_cost_add',{
                 customer_order_id:this.dialogFeiyongForm.customer_order_id,
@@ -286,10 +324,13 @@ export default {
                 prepayment:this.dialogFeiyongForm.money,
                 remarks:this.dialogFeiyongForm.remark,
                 supplier_id:this.dialogFeiyongForm.supplier_id,
+                src:img
                 }).then(res => {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
                         this.$emit('func','1')
+                        this.imageUrlstate = false;
+                        this.imageUrl = [];
                         this.dialogFeiyong = false;
                     }else{
                         this.open(res.data.msg,'error'); 
@@ -303,10 +344,13 @@ export default {
                 type:this.dialogFeiyongForm.type,
                 prepayment:this.dialogFeiyongForm.money,
                 remarks:this.dialogFeiyongForm.remark,
+                src:img
                 }).then(res => {
                     if(res.data.code == 2000){
                         this.open(res.data.msg,'success');
                         this.$emit('func','1')
+                        this.imageUrlstate = false;
+                        this.imageUrl = [];
                         this.dialogFeiyong = false;
                     }else{
                         this.open(res.data.msg,'error'); 
@@ -326,6 +370,7 @@ export default {
             this.dialogFeiyongForm.type = String(a.type);
             this.dialogFeiyongForm.express_id = '';
             this.dialogFeiyongForm.customer_order_id = '';
+            this.getimageUrl();
         },
         // 费用删除
         deletesFeiyong(a){
@@ -344,6 +389,65 @@ export default {
             this.dialogWuliuXx = true;
             this.a = a.id;
         },
+        // 图片上传
+        // 图片删除
+        deletesImg(b) {
+           this.axios.post('/File/file_delete',{
+               src:b,
+               class:'customer_order'
+            }).then(res => {
+                if(res.data.code == 2000){
+                    this.open(res.data.msg,'success');
+                    this.getimageUrl()
+                }else{
+                    this.open(res.data.msg,'error'); 
+                }
+            })
+        },
+        beforeAvatarUpload(file) {
+            const isJPG = file.type === "image/jpeg" || file.type === "image/png";
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isJPG) {
+                this.$message.error("上传图片必须是JPG/PNG格式!");
+            }
+            if (!isLt2M) {
+                this.$message.error("上传头像图片大小不能超过 2MB!");
+            }
+            return isJPG && isLt2M;
+        },
+        upLoad(file) {
+            const formData = new FormData();
+            formData.append("file", file.file);
+            formData.append("data_table", 'customer_order_express_cost');
+            formData.append("class", 'customer_order');
+            this.axios
+                .post(`/File/file_add`, formData)
+                .then(res => res.data)
+                .then(data => {
+                if (data.code === 2000) {
+                    let a = { src: data.src };
+                    this.imageUrl.push(a);
+                    this.imageUrlstate = true;
+                }else{
+                    this.$message.error(data.msg);  
+                }
+            });
+        },
+        // 获取图片
+        getimageUrl(){
+            this.axios.post('/File/file_select',{
+               class:'customer_order',
+               data_table:'customer_order_express_cost',
+            }).then(res => {
+                if(res.data != null){
+                    this.imageUrl = res.data;
+                    this.imageUrlstate = true;  
+                }else{
+                    this.imageUrl = [];
+                    this.imageUrlstate = false;  
+                }
+            })
+        },
          // 公用弹窗
         open(a,b){
             this.$message({
@@ -353,6 +457,12 @@ export default {
         },
         
     },
+    created(){
+        
+        let Group = JSON.parse(localStorage.getItem('Group'));
+        this.Group1 = Group.includes(10);
+        console.log(this.Group1)
+    }
 }
 </script>
 
@@ -365,4 +475,56 @@ export default {
     border: 1px solid #CCC;
     padding: 20px;
 }
+.contract{
+  overflow: hidden;
+  .contractInner{
+    overflow: hidden;
+    .contractInnerLeft{
+      float: left;
+    }
+  }
+}
+.avatar-uploader,.el-upload {
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+     border: 1px dashed #CCC !important;
+  }
+  .avatar-uploader,.el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .img{
+    overflow: hidden;
+    .imginner{
+      float: left;
+      width: 178px;
+      height: 178px;
+      margin-left: 10px;
+      border-radius: 5px;
+      position: relative;
+      .avatar {
+        width: 178px;
+        height: 178px;
+      }
+      
+      .avatars {
+        width: 178px;
+        height: 178px;
+        background: rgba(102, 102, 102, 0.4);
+        position: absolute;
+        top: 0;
+        display: none;
+      }
+    }
+    .imginner:hover .avatars{display:block;cursor: pointer;}  
+  }
 </style>

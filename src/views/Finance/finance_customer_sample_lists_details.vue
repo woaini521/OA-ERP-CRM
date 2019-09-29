@@ -1,9 +1,10 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
   <div class="box">
-    <div class="beizhu" style="overflow: hidden;margin-top:20px;">
-            <span style="float: left;line-height: 40px;margin-right: 10px;font-weight:bold">备注:{{remarks}}</span>
-          </div>
+    <div class="beizhu" style="overflow: hidden;">
+      <p style="line-height: 40px;font-weight:bold">时间：{{remarks.add_time}} <span style="margin-left:50px">提交人：</span> {{remarks.dep_title}}  {{remarks.user_name}}</p>
+      <p style="line-height: 40px;font-weight:bold">备注:{{remarks.remarks}}</p>
+    </div>
       <div class="content_box_product">
         <el-table :data="tableData" style="width: 100%;margin-top:20px">
           <el-table-column  label="图片" width="100">
@@ -173,7 +174,7 @@ import {mapActions} from 'vuex';
       // 订单草稿箱
       getcaogao(){
         this.axios.get('/Finance/finance_customer_sample_find?id='+this.$route.params.id).then(res => {
-            this.remarks = res.data.sample.remarks;
+            this.remarks = res.data.sample;
             this.tableData = res.data.product_sku;
             this.fixedAddress = res.data.customer;
         })

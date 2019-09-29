@@ -20,43 +20,44 @@
         </div>
         <div class="content_box">
             <el-table :data="tableData">
-                <el-table-column label="名字" prop="name" width="100px"></el-table-column>
-                <el-table-column label="类型" width="80px">
+                <el-table-column label="名字" prop="name" width="80"></el-table-column>
+                <el-table-column label="类型" width="60">
                     <template slot-scope="scope">
                         <span>{{ scope.row.leave_type.leave_type_text }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="开始时间" width="155px;">
+                <el-table-column label="开始时间" width="155">
                     <template slot-scope="scope">
                         <span>{{ scope.row.start_time }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="结束时间" width="155px;">
+                <el-table-column label="结束时间" width="155">
                     <template slot-scope="scope">
                         <span>{{ scope.row.end_time }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="预算" prop="money"></el-table-column>
-                <el-table-column label="天数">
+                <el-table-column label="预算" prop="money"  width="70"></el-table-column>
+                <el-table-column label="天数"  width="135">
                     <template slot-scope="scope">
                         <span>{{scope.row.day}}天/{{scope.row.hour}}小时</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="进度" prop="leave_flow_text">
+                <el-table-column label="进度" prop="leave_flow_text"  width="110">
                     <template slot-scope="scope">
                         <span>{{scope.row.leave_flow.leave_flow_text}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="状态" prop="status">
+                <el-table-column label="备注" prop="content"></el-table-column>
+                <el-table-column label="状态" prop="status"  width="90">
                     <template slot-scope="scope">
                         <span>{{ scope.row.status.status_text }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="210px">
+                <el-table-column label="操作" width="210">
                     <template slot-scope="scope">
                         <el-button type="primary" v-if="scope.row.status.status == 0 && zt == scope.row.user_id" @click="update(scope.row)" size="mini">修改</el-button>
                         <el-button type="success" :disabled="scope.row.shenpi == 0" @click="shenhe(scope.row)" size="mini">审核</el-button>
-                        <el-button type="danger" @click="shanchu(scope.row)" size="mini">删除</el-button>
+                        <el-button type="danger" @click="shanchu(scope.row)" :disabled="scope.row.status.status > 2" size="mini">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>

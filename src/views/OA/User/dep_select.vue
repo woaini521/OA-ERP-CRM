@@ -8,14 +8,16 @@
                 </span>
             </p>
         </div>
-        <div class="head">
-
+        <div class="head" style="margin-top:10px">
             <p style="font-weight:bold;" v-for="item in tableData[0].child" :key="item.id">{{item.title}}</p>
             <p>
                 <span v-for="item in tableData[0].child[0].user" :key="item.id" style="margin-left:10px;">
                     {{item.name}}
                 </span>
+                
             </p>
+            <p style="font-weight:bold;margin-top:10px">总经理室</p>
+            <p><span>副总 -- 周昆</span><span style="margin-left:10px">副总 -- 黄鹰翔</span></p>
         </div>
         <div class="head_er">
              <div class="lirui" v-for="items in bumen" :key="items.id">
@@ -68,7 +70,7 @@ export default {
     text-align: center;
     .head{
         width: 200px;
-        height: 50px;
+        padding-bottom: 10px;
         margin: auto;
         border:1px solid #CCC;
     }

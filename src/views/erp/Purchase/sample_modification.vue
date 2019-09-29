@@ -1,9 +1,9 @@
 <!-- 模板组件，用于模拟不同路由下的组件显示 -->
 <template>
   <div class="box">
-    <div class="beizhu" style="overflow: hidden;margin-top:20px;">
-            <span style="float: left;line-height: 40px;margin-right: 10px;font-weight:bold">备注:{{remarks}}</span>
-          </div>
+      <div class="beizhu" style="overflow: hidden;margin-top:20px;">
+        <span style="float: left;line-height: 40px;margin-right: 10px;font-weight:bold">备注:{{remarks}}</span>
+      </div>
       <div class="content_box_product">
         <el-table :data="tableData" style="width: 100%;margin-top:20px">
           <el-table-column  label="图片" width="100">
@@ -120,6 +120,64 @@
 
       <!-- 提交数据 页面清空 -->
       <el-button type="primary" style="margin-bottom:20px;" v-show="status <= 10" @click="confirm">确认提交</el-button>
+      <el-button type="primary" style="margin-bottom:20px;" @click="dayinde">打印</el-button>
+
+      <el-dialog title="打印样品信息" :visible.sync="dialogPrinting" class="dayin" width="65%">
+            <div id="printTestyang">
+                <div class="dayin" style="width:100%">
+                    <p style="text-align:center;font-size:20px;margin-bottom:10px">样品订单</p>
+                    <template v-if="fixedAddress.length>0">
+                      <p>样品订单编号:{{fixedAddress[0].customer_sample_id}} <span style="margin-left:50px">订单日期:{{fixedAddress[0].add_time}}</span><span style="margin-left:50px">打印日期:{{time}}</span></p>
+                    </template>
+                    
+                    <p><span>供应商名称：{{tableData[0].supplier_name}}</span><span style="margin-left:30px" v-if="tableData[0].supplier">供应商地址：{{tableData[0].supplier[0].province}}{{tableData[0].supplier[0].city}}{{tableData[0].supplier[0].county}}{{tableData[0].supplier[0].address}}</span> <span style="margin-left:30px;">付款方式:{{ fixedAddress[0].payment == 1 ? '到付' : '现付'}}</span></p>
+                    
+                    <el-table :data="tableData" class="dada" :header-cell-style="{color:'#000'}" show-summary>
+                        <el-table-column label="产品编号" width="80px">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.product_sku_id }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="产品名称" width="220px">
+                            <template slot-scope="scope">
+                                <span>{{scope.row.name}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="单位" width="50px">
+                             <template slot-scope="scope">
+                                <span>{{scope.row.unit}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="采购单价" >
+                            <template slot-scope="scope">
+                                <span>{{ (Number(scope.row.cost_price) / Number(scope.row.number)).toFixed(4) }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="数量" >
+                            <template slot-scope="scope">
+                                <span>{{scope.row.number}}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="采购总价" prop="cost_price"></el-table-column>
+                        <el-table-column label="采购" prop="purchase_name" width="80px"></el-table-column>
+                        <el-table-column label="备注">
+                            <template slot-scope="scope">
+                                <span>{{scope.row.remarks}}</span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <template v-if="fixedAddress.length>0">
+                      <p>备注： {{fixedAddress[0].remarks}}</p>
+                    </template>
+                    <div style="margin-top:20px">
+                        <p v-for="item in tableData" :key="item.id">开户行：{{item.opening_bank}} <span style="margin-left:10px">收款人：</span> {{item.receiving_name}}<span style="margin-left:10px">收款账号：</span>{{item.receiving_account}} </p>
+                    </div>  
+
+                    <p style="margin-top:10px"><span>采购主管：</span><span style="margin-left:25%">部门经理：</span><span style="margin-left:25%">财务：</span></p>
+                </div>
+            </div>
+            <el-button type="primary" v-print="'#printTestyang'" style="float: right;margin-top:20px;margin-bottom:20px">确 定</el-button>
+      </el-dialog>
   </div>
 </template>
 
@@ -143,6 +201,9 @@ import {mapActions} from 'vuex';
         supplier:[],//供应商
         supplierPayee:[],// 付款账号
         status:0,
+        // 打印 样品单
+        dialogPrinting:false,
+        time:'',
       };
     },
     methods:{
@@ -216,6 +277,29 @@ import {mapActions} from 'vuex';
             this.status = res.data.sample.status;
         })
       },
+      // 默认时间
+        change(t){
+            if(t<10){
+                return "0"+t;
+            }else{
+                return t;
+            }
+        },
+      dayinde(){
+       if(this.fixedAddress.length == 0){
+         this.open('无地址，无法打印','error');
+       }else{
+          let d=new Date();
+          let year=d.getFullYear();
+          let month=this.change(d.getMonth()+1);
+          let day=this.change(d.getDate());
+          let hour=this.change(d.getHours());
+          let minute=this.change(d.getMinutes());
+          let second=this.change(d.getSeconds());
+          this.time = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;
+          this.dialogPrinting = true;
+       }
+      }
     },
     created(){
       if(this.$route.params.id){

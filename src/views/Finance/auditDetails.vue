@@ -66,6 +66,8 @@
             <el-radio v-model="class_id" label="1" disabled>传统</el-radio>
             <el-radio v-model="class_id" label="2" disabled>线上</el-radio>
             <el-radio v-model="class_id" label="3" disabled>京东</el-radio>
+            <el-radio v-model="class_id" label="4" disabled>国美</el-radio>
+            <el-radio v-model="class_id" label="5" disabled>负数订单</el-radio>
           </div>
           <div class="danxuan2" style="margin-top:20px;">
             <p>备注：{{ remarks }}</p>
@@ -130,7 +132,7 @@
         </el-table>
       </div>
 
-      <div class="generatedAddress">
+      <div class="generatedAddress"  v-if="class_id != 5">
         <label>地址配货信息</label>
         <hr>
         <template v-if="fixedAddress.length>0">
@@ -160,7 +162,7 @@
       </div>
 
 
-      <div class="contract">
+      <div class="contract"  v-if="class_id != 5">
           <label>合同</label>
           <div class="contractInner">
             <div class="img">
@@ -188,40 +190,41 @@
          </el-form>
       </el-dialog>
       <!-- 审核 -->
-      <el-button v-show="statusa == 1" type="primary" style="margin-bottom:20px;" @click="confirm">审核通过</el-button>
-      <el-button v-show="statusa == 1" type="danger" style="margin-bottom:20px;" @click="refuse">审核拒绝</el-button>
-      <el-button v-show="statusa > 1" type="primary" style="margin-bottom:20px;" @click="dayin">打印信息</el-button>
+      <el-button v-show="statusa == 1" type="primary" style="margin-bottom:20px; margin-top:10px" @click="confirm">审核通过</el-button>
+      <el-button v-show="statusa < 20" type="danger" style="margin-bottom:20px; margin-top:10px" @click="refuse">审核拒绝</el-button>
+      <el-button v-show="statusa > 1" type="primary" style="margin-bottom:20px; margin-top:10px" @click="dayin">打印信息</el-button>
       <el-button v-show="statusa >= 15" type="text">已打印信息</el-button>
 
-      <el-dialog title="打印订单信息" :visible.sync="dialogPrinting" class="dayin">
+      <el-dialog title="打印订单信息" :visible.sync="dialogPrinting" class="dayin" width="62%">
             <div id="printTest1">
                 <div class="dayin" style="width:100%"  v-for="(item,index) in P_data" :key="index">
                     <p style="text-align:center;font-size:20px;">发货明细</p>
-                    <p style="margin-top:10px">客户编号: <span style="margin-right:20px">{{item.customer_id}}</span>客户姓名: <span style="margin-right:20px">{{item.customer_name}}</span>客户电话: <span style="margin-right:20px">{{item.customer_working_phone}}</span>票据类型: <span>{{item.invoice_name}}{{item.invoice_type}}</span></p>
+                    <p style="margin-top:10px">订单编号：{{item.id}} <span style="margin-left:10px">客户编号: </span> <span style="margin-right:20px">{{item.customer_id}}</span>客户姓名: <span style="margin-right:20px">{{item.customer_name}}</span>客户电话: <span style="margin-right:20px">{{item.customer_working_phone}}</span>票据类型: <span>{{item.invoice_name}}{{item.invoice_type}}</span></p>
                     <template v-if="item.address.length>0">
                       <p v-if="item.address.length>0">收货人：<span style="margin-right:20px">{{item.address[0].name}}</span> 收货人号码：{{item.address[0].phone}}</p>
                       <p  v-if="item.address.length>0">收货地址: <span style="margin-right:20px">{{item.address[0].province}}{{item.address[0].city}}{{item.address[0].county}}{{item.address[0].address}}</span></p><p>物流方式: <span>
                       <span v-if="item.address[0].delivery == 1">到楼下</span><span v-if="item.address[0].delivery == 2">上楼</span><span v-if="item.address[0].delivery == 3">自提</span></span> <span style="margin-left:20px">地址个数：{{item.address.length}}</span> <span style="margin-left:20px">运费：{{item.repair_freight}}</span></p>
                     </template>
                     <el-table width="100%" :data="item.product_sku" class="dada" :header-cell-style="{color:'#000'}">
-                        <el-table-column label="订单编号" prop="customer_order_id" width="80px"></el-table-column>
-                        <el-table-column label="产品名称" prop="name"></el-table-column>
-                        <el-table-column label="单位" prop="unit"></el-table-column>
-                        <el-table-column label="数量" prop="number"></el-table-column>
-                        <el-table-column label="价格" prop="selling_price"></el-table-column>
-                        <el-table-column label="参与人">
+                        <el-table-column label="订单编号" prop="customer_order_id" width="80"></el-table-column>
+                        <el-table-column label="产品名称" prop="name" width="200"></el-table-column>
+                        <el-table-column label="单位" prop="unit" width="80"></el-table-column>
+                        <el-table-column label="数量" prop="number" width="80"></el-table-column>
+                        <el-table-column label="价格" prop="selling_price" width="80"></el-table-column>
+                        <el-table-column label="参与人" width="80">
                           <template slot-scope="scope">
-                            <span v-for="items in scope.row.commission" :key="items.id"> {{items.user_name}} 提成{{items.profit}}</span>
+                            <span v-for="items in scope.row.commission" :key="items.id">{{items.user_name}}</span>
                           </template>
                         </el-table-column>
-                        <el-table-column label="仓库" prop="supplier_name"></el-table-column>
+                        <el-table-column label="仓库" prop="supplier_name" width="80"></el-table-column>
+                        <el-table-column label="备注" prop="remarks" width="150"></el-table-column>
                     </el-table>
                     <p style="margin-top:10px">总销售额:{{item.total_price}}</p>
                     <p style="margin-top:10px">销售日期:{{item.sales_time}}</p>
                     <p>打印日期:{{time}}</p>
                     <el-divider></el-divider>
                     <p>{{item.remarks}}</p>
-                    <p style="text-align:right;margin-right:30%">销售：{{item.user_name}}  制单：{{ren}}</p>
+                    <p style="text-align:right;margin-right:15%">销售：{{item.user_name}}  制单：{{ren}}</p>
                 </div>
                 
             </div>
@@ -379,6 +382,7 @@ import deliver from "@/views/erp/Delivery/deliver";
             
             // 获取生成的产品订单
             this.tableData = res.data.product_sku;
+            
             // 已经生成的地址和配货信息操作
             this.fixedAddress = res.data.address;
 
@@ -403,7 +407,7 @@ import deliver from "@/views/erp/Delivery/deliver";
           }).then(res => {
               if(res.data.code == 2000){
                   this.open(res.data.msg,'success');
-                  this.triggerDeleteTabs(this.$route.params.name);
+                  this.triggerDeleteTabs(this.$route.path);
                   this.$router.push({ path: "/Finance/finance_order_audit_list" });
               }else{
                  this.open(res.data.msg,'error'); 
@@ -428,7 +432,7 @@ import deliver from "@/views/erp/Delivery/deliver";
               if(res.data.code == 2000){
                   this.open(res.data.msg,'success');
                   this.dialogRefuse = false;
-                  this.triggerDeleteTabs(this.$route.params.name);
+                  this.triggerDeleteTabs(this.$route.path);
                   this.$router.push({ path: "/Finance/finance_order_audit_list" });
               }else{
                  this.open(res.data.msg,'error'); 
@@ -501,9 +505,7 @@ import deliver from "@/views/erp/Delivery/deliver";
   .danxuan{
     margin-top: 20px;
     overflow: hidden;
-    .danxuan1{
-      width: 300px;
-    }
+   
     .danxuan2{
       margin-top: 20px;
       h4{

@@ -10,6 +10,8 @@
         <el-option label="传统" value="1"></el-option>
         <el-option label="线上" value="2"></el-option>
         <el-option label="京东" value="3"></el-option>
+        <el-option label="国美" value="4"></el-option>
+        <el-option label="负数" value="5"></el-option>
       </el-select>
       <el-select v-model="value5" placeholder="状态" clearable style="width:100px;margin-left:20px;">
         <el-option label="待审核" value="1"></el-option>
@@ -55,6 +57,8 @@
             <span v-if="scope.row.class_id == 1">传统</span>
             <span v-if="scope.row.class_id == 2">线上</span>
             <span v-if="scope.row.class_id == 3">京东</span>
+            <span v-if="scope.row.class_id == 4">国美</span>
+            <el-button type="text" size="mini" v-if="scope.row.class_id == 5" @click="seeFushu(scope.row.pid)">负数</el-button>
           </template>
         </el-table-column>
         <el-table-column
@@ -206,7 +210,18 @@ export default {
       this.triggerAddTabs(ins1);
       this.triggerSetActiveIndex(ins2);
     },
-  
+    seeFushu(a){
+      this.triggerReplaceId(a);
+      this.$router.push({ path: `/Finance/auditDetails/${a}`,params:{userId:a,name:`/Finance/auditDetails/${a.id}`}});
+      let ins1 = {
+        route: `/Finance/auditDetails/${a}`,
+        name: "订单审核详情",
+        id: a
+      };
+      let ins2 = `/Finance/auditDetails/${a}`;
+      this.triggerAddTabs(ins1);
+      this.triggerSetActiveIndex(ins2);
+    },
   
     getOrderList(){
       this.axios.post('/Finance/finance_order_audit_list',{

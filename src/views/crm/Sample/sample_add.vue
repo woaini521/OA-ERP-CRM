@@ -346,6 +346,7 @@ import excel from "@/components/excel";
         });
         this.axios.post('/erp.product/product_sku_select',{
             page:val,
+            name:this.tableProductValue
           }).then(res => {
           this.tableProduct = res.data.product.data;
           this.currentPage = res.data.product.current_page;
@@ -779,31 +780,35 @@ import excel from "@/components/excel";
 
       // 确认提交订单数据 清空页面
       confirm(){
-        if(this.customer_order_id != ''){
-          this.axios.post('/crm.Sample/sample_update',{
-            id:this.customer_order_id,
-            status:'1',
-            remarks:this.remarks
-          }).then(res => {
-            if(res.data.code == 2000){
-              this.open(res.data.msg,'success')
-              this.customer_order_id = '';
-              this.tableProduct= [];
-              this.currentPage=0;//当前页
-              this.total=0;//总数
-              this.per_page=0;//每页多少条
-              this.last_page=0;//总页数
-              this.tableData = [];
-              this.ChoiceAddress=[];
-              this.distributeProduct=[];
-              this.fixedAddress=[];
-              this.distributeProduct1=[];
-            }else{
-                this.open(res.data.msg,'error');
-            }
-          })
+        if(this.fixedAddress.length == 0){
+          this.open('地址没有填写','error');
         }else{
-          this.open('请选择产品',error)
+          if(this.customer_order_id != ''){
+            this.axios.post('/crm.Sample/sample_update',{
+              id:this.customer_order_id,
+              status:'1',
+              remarks:this.remarks
+            }).then(res => {
+              if(res.data.code == 2000){
+                this.open(res.data.msg,'success')
+                this.customer_order_id = '';
+                this.tableProduct= [];
+                this.currentPage=0;//当前页
+                this.total=0;//总数
+                this.per_page=0;//每页多少条
+                this.last_page=0;//总页数
+                this.tableData = [];
+                this.ChoiceAddress=[];
+                this.distributeProduct=[];
+                this.fixedAddress=[];
+                this.distributeProduct1=[];
+              }else{
+                this.open(res.data.msg,'error');
+              }
+            })
+          }else{
+            this.open('请选择产品',error)
+          }
         }
       },  
       // 公用弹窗

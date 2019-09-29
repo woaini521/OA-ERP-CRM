@@ -3,10 +3,10 @@
         <div class="head_box_man">
                 <h3>
                     <span>客户姓名：</span><span>{{name}}</span> 
-                    <span style="margin-left: 40px;">客户电话：</span><span>{{phone}}</span> 
                     <span style="margin-left: 40px;">销售日期：</span><span>{{time}}</span>
                     <span style="margin-left: 40px;">销售员：</span><span>{{user}}</span> 
                 </h3>
+                <h3 style="margin-top:10px">备注:{{beizhu}}</h3>
             </div>
         <div class="head_box_table">
                 <el-table :data="headBoxTable">
@@ -228,6 +228,7 @@ export default {
             phone:'',
             time:'',
             user:'',
+            beizhu:'',
             headBoxTable:[],// 数据表格
             state:['','到楼下','上楼','自提'],     
             // 地址配货信息
@@ -308,6 +309,7 @@ export default {
                 this.phone = res.data.customer_working_phone;
                 this.time = res.data.sales_time;
                 this.user = res.data.user_name;
+                this.beizhu = res.data.remarks;
             })
         },
 

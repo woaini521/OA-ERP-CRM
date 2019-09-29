@@ -9,8 +9,11 @@
                 <el-option label="传统" value="1"></el-option>
                 <el-option label="线上" value="2"></el-option>
                 <el-option label="京东" value="3"></el-option>
+                <el-option label="国美" value="4"></el-option>
+                <el-option label="负数" value="5"></el-option>
             </el-select>
             <el-input v-model="user_name" placeholder="业务员" style="width:100px;margin-left:20px"></el-input>
+            <el-input v-model="id" placeholder="订单编号" style="width:100px;margin-left:20px"></el-input>
             <el-button @click="seach" style="margin-left:20px">搜索</el-button>
             <el-button @click="dao" style="margin-left:20px">导出数据</el-button>
         </div>
@@ -34,27 +37,36 @@
                     </el-table>
                 </template>
             </el-table-column>
-            <el-table-column label="订单编号" width="80px">
+            <el-table-column label="订单编号" width="80">
                 <template slot-scope="scope">
                     <span>{{ scope.row.id }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="销售类型" width="80px">
+            <el-table-column label="销售类型" width="80">
                 <template slot-scope="scope">
                     <span v-if="scope.row.class_id == 1">传统</span>
                     <span v-if="scope.row.class_id == 2">线上</span>
                     <span v-if="scope.row.class_id == 3">京东</span>
+                    <span v-if="scope.row.class_id == 4">国美</span>
+                    <span v-if="scope.row.class_id == 5">负数</span>
                 </template>
             </el-table-column>
-            <el-table-column label="部门" prop="dep_title"></el-table-column>
-            <el-table-column label="销售员" prop="user_name"></el-table-column>
-            <el-table-column label="销售日期" prop="sales_time"></el-table-column>
-            <el-table-column label="运费" prop="logistics_price"></el-table-column>
-            <el-table-column label="销售金额" prop="total_price"></el-table-column>
-            <el-table-column label="成本金额" prop="total_cost_price"></el-table-column>
-            <el-table-column label="补运费" prop="repair_freight"></el-table-column>
-            <el-table-column label="补发票" prop="repair_invoice"></el-table-column>
-            <el-table-column label="提成">
+            <el-table-column label="部门" prop="dep_title" width="100"></el-table-column>
+            <el-table-column label="销售员" prop="user_name" width="80"></el-table-column>
+            <el-table-column label="销售日期" prop="sales_time" width="100"></el-table-column>
+            <el-table-column label="运费" prop="logistics_price" width="80"></el-table-column>
+            <el-table-column label="销售金额" prop="total_price"  width="100"></el-table-column>
+            <el-table-column label="成本金额" prop="total_cost_price" width="100"></el-table-column>
+            <el-table-column label="补运费" prop="repair_freight" width="80"></el-table-column>
+            <el-table-column label="补发票" prop="repair_invoice" width="80"></el-table-column>
+            <el-table-column prop="receivables_amount" label="认款金额" width="100"></el-table-column>
+            <el-table-column prop="invoice_amount" label="开票金额" width="80"></el-table-column>
+            <el-table-column label="余额" width="100">
+                <template slot-scope="scope">
+                    <span>{{ (Number(scope.row.total_price)-Number(scope.row.receivables_amount)).toFixed(4) }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="提成" width="80">
                 <template slot-scope="scope">
                     <span>{{ (Number(scope.row.commission_price) + Number(scope.row.user_price)).toFixed(3) }}</span>
                 </template>
@@ -72,6 +84,7 @@ export default {
             name:'',
             class_:'',
             user_name:'',
+            id:'',
             tableData:[],
         }
     },
@@ -91,6 +104,7 @@ export default {
                 dep_title:this.name,
                 user_name:this.user_name,
                 class_id:this.class_,
+                id:this.id,
             }).then(res => {
                 this.tableData = res.data.customer_order;
             })   
@@ -118,8 +132,8 @@ export default {
         dao(){
             require.ensure([], () => {
                 const {export_json_to_excel} = require('@/assets/vendor/Export2Excel');
-                let tHeader = ['订单编号','销售类型','部门','销售员','销售日期','运费','销售金额','采购金额','补运费','补开票','提成'];
-                let filterVal = ['id','lei','dep_title','user_name', 'sales_time','logistics_price','total_price','total_cost_price','repair_freight','repair_invoice','ticheng'];
+                let tHeader = ['订单编号','销售类型','部门','销售员','销售日期','运费','销售金额','采购金额','补运费','补开票','认款金额','开票金额','余额','提成'];
+                let filterVal = ['id','lei','dep_title','user_name', 'sales_time','logistics_price','total_price','total_cost_price','repair_freight','repair_invoice','receivables_amount','invoice_amount','yuer','ticheng'];
                 for(let i =0;i<this.tableData.length;i++){
                     this.tableData[i]['ticheng'] = (Number(this.tableData[i].commission_price) + Number(this.tableData[i].user_price)).toFixed(4);
                     if(this.tableData[i].class_id == 1){
@@ -129,6 +143,7 @@ export default {
                     }else if(this.tableData[i].class_id == 3) {
                         this.tableData[i]['lei'] = '京东'
                     }
+                    this.tableData[i]['yuer'] = (Number(this.tableData[i].total_price) + Number(this.tableData[i].receivables_amount)).toFixed(4);
                 }
                 const list = this.tableData;
                 const data = this.formatJson(filterVal, list);

@@ -77,6 +77,15 @@
                     <el-input :disabled="show1" type="number" v-model="designForm.work_time2[index]" style="width:100px;margin-left:10px;" :placeholder="item.name == '策划'? '字数2' :'工时2'"></el-input>
                 </el-form-item>
             </el-form>
+            <el-form v-for="(item,index) in Options" :key="index+2" :model="item">
+                <el-form-item :label="item.name">
+                    <el-select :disabled="show1" v-model="designForm.user_id[index+2]" placeholder="请选择人员">
+                        <el-option v-for="items in item.list" :key="items.user_id" :label="items.name" :value="items.user_id"></el-option>
+                    </el-select>
+                    <el-input :disabled="show1" type="number" v-model="designForm.work_time1[index+2]" style="width:100px;margin-left:10px;" :placeholder="item.name == '策划'? '字数1' :'工时1'"></el-input>
+                    <el-input :disabled="show1" type="number" v-model="designForm.work_time2[index+2]" style="width:100px;margin-left:10px;" :placeholder="item.name == '策划'? '字数2' :'工时2'"></el-input>
+                </el-form-item>
+            </el-form>
            
             <p style="margin-top:10px;">任务明细</p>
             <p>{{ content }}</p>
@@ -209,13 +218,12 @@ export default {
           this.axios.post('/oa.Days/task_delete',{
               id:a.id
           }).then(res => {
-                 if(res.data.code == 2000){
-                        this.open(res.data.msg,'success');
-                        
-                        this.gettableData();
+                if(res.data.code == 2000){
+                    this.open(res.data.msg,'success');
+                    this.gettableData();
                 }else{
-                        this.open(res.data.msg,'error');
-                    } 
+                    this.open(res.data.msg,'error');
+                } 
           })  
         },
         // 审核
@@ -291,18 +299,19 @@ export default {
                   work_time2:this.designForm.work_time2[z],
                 }
                 b.push(bb);
-            }      
+            }
+           
             this.axios.post('/oa.Days/task_assign',{
                 task_id:this.task_id,
                 task_user:b,
             }).then(res => {
                 if(res.data.code == 2000){
-                        this.open(res.data.msg,'success');
-                        this.dialogVisible = false;
-                        this.gettableData();
-                    }else{
-                        this.open(res.data.msg,'error');
-                    } 
+                    this.open(res.data.msg,'success');
+                    this.dialogVisible = false;
+                    this.gettableData();
+                }else{
+                    this.open(res.data.msg,'error');
+                } 
             })
         },
         // 完成
@@ -328,7 +337,7 @@ export default {
         },
     },
     activated(){
-        console.log(this.$route.params.name)
+        //console.log(this.$route.params.name)
         if(this.$route.params.name != undefined){
             this.tongData(this.$route.params.name)
         }else{

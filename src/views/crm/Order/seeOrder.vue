@@ -66,6 +66,8 @@
             <el-radio v-model="class_id" label="1" disabled>传统</el-radio>
             <el-radio v-model="class_id" label="2" disabled>线上</el-radio>
             <el-radio v-model="class_id" label="3" disabled>京东</el-radio>
+            <el-radio v-model="class_id" label="4" disabled>国美</el-radio>
+            <el-radio v-model="class_id" label="5" disabled>负数订单</el-radio>
           </div>
           <br>
           <p>补开票费用:{{repair_invoice}} <span style="margin-left:30px">补运费费用:</span> {{repair_freight}}</p>
@@ -121,7 +123,7 @@
             </template>
           </el-table-column>
           <el-table-column label="总价" prop="total_price"></el-table-column>
-          <el-table-column  label="业务提成">
+          <el-table-column  label="业务提成" v-if="class_id != 5">
             <template slot-scope="scope">
               <el-popover
                   placement="right"
@@ -160,7 +162,7 @@
         </el-table>
       </div>
 
-      <div class="generatedAddress">
+      <div class="generatedAddress" v-if="class_id != 5">
         <label>地址配货信息</label>
         <hr>
           <div class="generatedAddressInner" v-for="item in fixedAddress" :key="item.id">
@@ -248,7 +250,7 @@
           </div>       
       </div>
 
-      <div class="contract">
+      <div class="contract"  v-if="class_id != 5">
           <label>合同</label>
           <div class="contractInner">
             <div class="img">
@@ -262,7 +264,7 @@
           </div>
       </div>
 
-      <div class="contract" v-show="img1 == true">
+      <div class="contract"  v-if="class_id != 5" v-show="img1 == true">
           <label>预付款凭证</label>
           <div class="contractInner">
             <div class="img">

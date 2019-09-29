@@ -62,6 +62,7 @@
             <el-radio v-model="class_id" label="1" :disabled="status > 10?true:false">传统</el-radio>
             <el-radio v-model="class_id" label="2" :disabled="status > 10?true:false">线上</el-radio>
             <el-radio v-model="class_id" label="3" :disabled="status > 10?true:false">京东</el-radio>
+            <el-radio v-model="class_id" label="4" :disabled="status > 10?true:false">国美</el-radio>
           </div>
           <br>
           <div class="beizhu" style="overflow: hidden;margin-top:20px;">
@@ -210,7 +211,7 @@
             </el-form-item>
           </el-form>
           <el-table :data="xianRoyalty">
-            <el-table-column property="user_name" label="业务员"></el-table-column>
+            <el-table-column property="user_name" label="参与人员"></el-table-column>
             <el-table-column property="ratio" label="提成系数"></el-table-column>
             <el-table-column label="操作">
                 <template slot-scope="scopes">
@@ -260,19 +261,19 @@
                 </el-form-item>
               <br>
               <el-form-item>
-                <el-select v-model="sheng" @change="choseProvince" placeholder="省级地区"  style="width:140px;">
+                <el-select v-model="sheng" @change="choseProvince" filterable placeholder="省级地区"  style="width:140px;">
                   <el-option v-for="item in province" :key="item.id" :label="item.value" :value="item.id"></el-option>
                 </el-select>
               </el-form-item>  
 
               <el-form-item>
-                <el-select v-model="shi" @change="choseCity" placeholder="市级地区"   style="width:140px;">
+                <el-select v-model="shi" @change="choseCity" filterable placeholder="市级地区"   style="width:140px;">
                   <el-option v-for="item in shi1" :key="item.id" :label="item.value" :value="item.id"></el-option>
                 </el-select>
               </el-form-item> 
 
               <el-form-item>
-                <el-select v-model="qu" @change="choseBlock" placeholder="区级地区"  style="width:140px;">
+                <el-select v-model="qu" @change="choseBlock" filterable clearable placeholder="区级地区"  style="width:140px;">
                   <el-option v-for="item in qu1" :key="item.id" :label="item.value" :value="item.id"></el-option>
                 </el-select>
               </el-form-item>
@@ -947,7 +948,7 @@ import {mapActions} from 'vuex';
           this.axios.post('/crm.Order/customer_order_commission_add',{
             customer_order_product_id:this.formRoyalty.product_sku_id,
             user_id:this.formRoyalty.name,
-            ratio:this.formRoyalty.xishu,
+            ratio:'0',
             profit:'',
             customer_order_id:this.customer_order_id,
           }).then(res => {
@@ -985,7 +986,7 @@ import {mapActions} from 'vuex';
       // post地址和配货信息
       tijiao(){
         if(this.formAddress.id == ''){
-            if(this.formAddress.address == '' || this.formAddress.name == '' || this.formAddress.phone == '' || this.formAddress.sheng == '' || this.formAddress.shi == '' || this.formAddress.qu == ''){
+            if(this.formAddress.address == '' || this.formAddress.name == '' || this.formAddress.phone == '' || this.formAddress.sheng == '' || this.formAddress.shi == ''){
               this.open('请填写完整客户收货地址','error');
             }else{
               this.axios.post('/crm.Customer/customer_address_add',{
@@ -1176,9 +1177,9 @@ import {mapActions} from 'vuex';
             // console.log(this.province[index2].id)//你选择的省级编码
             //console.log(this.province[index2].value)//省级编码 对应的汉字 
             this.shi1 = this.province[index2].children;
-            this.shi = this.province[index2].children[0].value;
+           // this.shi = this.province[index2].children[0].value;
             this.qu1 =this.province[index2].children[0].children;
-            this.qu = this.province[index2].children[0].children[0].value;
+           // this.qu = this.province[index2].children[0].children[0].value;
             this.E = this.qu1[0].value;
             this.formAddress.sheng = this.province[index2].value;
             this.formAddress.shi = this.province[index2].children[0].value;
@@ -1194,7 +1195,7 @@ import {mapActions} from 'vuex';
         for (var index3 in this.city) {
           if (e === this.city[index3].id) {
             this.qu1 = this.city[index3].children;
-            this.qu = this.city[index3].children[0].value;
+           // this.qu = this.city[index3].children[0].value;
             this.E = this.qu1[0].id;
             this.formAddress.shi = this.city[index3].value;;
             //console.log(this.form.shi)
@@ -1203,11 +1204,14 @@ import {mapActions} from 'vuex';
       },
        // 选区
       choseBlock:function(e) {
-        this.E=e;
-         for (var index4 in this.block) {
-          if (e === this.block[index4].id) {
-            this.formAddress.qu = this.block[index4].value;
-            //console.log(this.form.qu)
+        if(e == ''){
+          this.formAddress.qu = '';
+        }else{
+          for (var index4 in this.block) {
+            if (e === this.block[index4].id) {
+              this.formAddress.qu = this.block[index4].value;
+              //console.log(this.form.qu)
+            }
           }
         }
       },

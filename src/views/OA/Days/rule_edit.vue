@@ -82,7 +82,7 @@ export default {
             this.$nextTick( () => {
                 this.getshuju(this.$route.params.id);
             })
-            console.log(this.myConfig)
+           // console.log(this.myConfig)
         }else{
             this.title='';
             this.sort='';

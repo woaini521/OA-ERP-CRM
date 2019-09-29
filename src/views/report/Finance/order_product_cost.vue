@@ -9,6 +9,8 @@
                 <el-option label="传统" value="1"></el-option>
                 <el-option label="线上" value="2"></el-option>
                 <el-option label="京东" value="3"></el-option>
+                <el-option label="国美" value="4"></el-option>
+                <el-option label="负数" value="5"></el-option>
             </el-select>
             <el-input v-model="user_name" placeholder="业务员" style="width:100px;margin-left:20px"></el-input>
             <el-button @click="seach" style="margin-left:20px">搜索</el-button>
@@ -28,6 +30,8 @@
                     <span v-if="scope.row.customer_order_class_id == 1">传统</span>
                     <span v-if="scope.row.customer_order_class_id == 2">线上</span>
                     <span v-if="scope.row.customer_order_class_id == 3">京东</span>
+                    <span v-if="scope.row.customer_order_class_id == 4">国美</span>
+                    <span v-if="scope.row.customer_order_class_id == 5">负数</span>
                 </template>
             </el-table-column>
             <el-table-column label="产品名称" prop="name"></el-table-column>
@@ -135,6 +139,8 @@ export default {
                         this.tableData[i]['lei'] = '线上'
                     }else if(this.tableData[i].customer_order_class_id == 3) {
                         this.tableData[i]['lei'] = '京东'
+                    }else if(this.tableData[i].customer_order_class_id == 4) {
+                        this.tableData[i]['lei'] = '国美'
                     }
                 }
                 const list = this.tableData;

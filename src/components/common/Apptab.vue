@@ -4,7 +4,7 @@
         <el-header class="headeer" @touchmove.prevent>
           <img style="width: 180px;margin-top:10px;float: left;" src="@/assets/kovi_logo.png">
           <i style="margin-left:10px;float: left;line-height:60px;color:#FFF;" class="el-icon-refresh" @click="shuaxin"></i>
-          <i style="margin-left:5px;float: left;line-height:60px;color:#FFF;" class="el-icon-goods"></i>
+          <a href="http://www.kwwh.cn" target="_blank" style="color:#FFF;margin-left:5px;text-decoration:none;">官网</a>
           <div class="info_geren">
             <i class="el-icon-s-custom" style="float: left;font-size: 30px;margin-top: 13px;color:#FFF;"></i>
             <el-dropdown trigger="click">

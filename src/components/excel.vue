@@ -31,7 +31,7 @@ export default {
             //console.log(this.distributeProduct);
             require.ensure([], () => {
                 const {export_json_to_excel} = require('@/assets/vendor/Export2Excel');
-                const tHeader = ['收货人','电话', '具体地址','省','付款方式','送货方式'];
+                const tHeader = ['收货人','电话','具体地址','付款方式','送货方式','省'];
                 const filterVal = ['name','phone', 'address','province'];
                 for(let i = 0;i< this.distributeProduct.length;i++){
                     tHeader.unshift(`${this.distributeProduct[i].name}${this.distributeProduct[i].sku_name}${this.distributeProduct[i].class_name}`)
@@ -100,15 +100,17 @@ export default {
                                 //console.log(item);
                                 if(item.value == outdata[i]['省']){
                                     _this.map = item.children;
+                                    outdata[i]['具体地址']=outdata[i]['具体地址'].replace(item.value,"")
                                    // console.log(_this.map)
                                     // 匹配市 
                                     if(_this.map.length != 0){
                                         _this.map.filter(item => {
                                             if(outdata[i]['具体地址'].includes(item.value)){
                                                 outdata[i]['市'] = item.value;
-                                                outdata[i]['区'] = ' ';  
+                                                outdata[i]['区'] = ' ';
+                                                outdata[i]['具体地址']=outdata[i]['具体地址'].replace(item.value,"")
                                                 _this.map = item.children;
-                                                console.log(item)  
+                                                //console.log(outdata[i]['具体地址'])  
                                             }
                                         })
                                         // 匹配区
@@ -116,6 +118,7 @@ export default {
                                             _this.map.filter(item => {
                                                 if(outdata[i]['具体地址'].includes(item.value)){
                                                     outdata[i]['区'] = item.value;
+                                                    outdata[i]['具体地址']=outdata[i]['具体地址'].replace(item.value,"")
                                                     _this.map = []; 
                                                 }
                                             })

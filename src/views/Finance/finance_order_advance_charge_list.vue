@@ -3,30 +3,57 @@
         <div class="head_box">
             <label>筛选：</label>
             <el-date-picker v-model="time" type="daterange" value-format="timestamp" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
-            <el-input v-model="name" placeholder="采购" style="margin-left:10px;width:217px"></el-input>
-            <el-input v-model="supplier" placeholder="供应商" style="margin-left:10px;width:217px"></el-input>
+            <el-input v-model="name" placeholder="采购" style="margin-left:10px;width:100px"></el-input>
+            <el-input v-model="supplier" placeholder="供应商" style="margin-left:10px;width:120px"></el-input>
+            <el-input v-model="bumen" placeholder="部门" style="margin-left:10px;width:100px"></el-input>
+            <el-input v-model="user" placeholder="业务员" style="margin-left:10px;width:100px"></el-input>
+            <el-select v-model="classs" clearable placeholder="类型" style="margin-left:10px;width:100px">
+                <el-option label="订单" value="0"></el-option>
+                <el-option label="运费" value="1"></el-option>
+                <el-option label="版费" value="2"></el-option>
+            </el-select>
             <el-button type="primary" @click="seachName"  style="margin-left:20px;">搜索</el-button>
-            <el-button type="primary" @click="hebing" v-if="Group == true" style="margin-left:50px;">合并支付</el-button>
+            <el-button circle icon="el-icon-s-tools" type="danger" @click="hebing" v-if="Group == true" style="margin-left:10px;position: fixed;z-index: 99;opacity: 0.6;" title="合并支付"></el-button>
         </div>
 
         <div class="content_box">
-            <el-table :data="tabledata" ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange">
-                <el-table-column label="提交时间" prop="add_time" width="160px"></el-table-column>
-                <el-table-column label="订单编号" prop="customer_order_id" width="50px"></el-table-column> 
-                <el-table-column label="类型" prop="class" width="50px">
+            <el-table :data="tabledata" ref="multipleTable" show-summary tooltip-effect="dark" @selection-change="handleSelectionChange">
+                <el-table-column label="提交时间" width="160px">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.class == 1">运费</span>
+                        <span>{{ scope.row.order_dep_title}}/{{ scope.row.order_user_name}}</span><br>
+                        <span>{{ scope.row.add_time}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="编号" width="70px">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.customer_order_id}}</span>
+                    </template>
+                </el-table-column> 
+                <el-table-column label="类型" width="50px">
+                    <template slot-scope="scope">
                         <span v-if="scope.row.class == 0">订单</span>
+                        <span v-if="scope.row.class == 1">运费</span>
                         <span v-if="scope.row.class == 2">版费</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="供应商" prop="supplier_name"></el-table-column>
+                <el-table-column label="供应商">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.supplier_name}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="结算方式" width="80px">
                     <template slot-scope="scope">
                         <span>{{ scope.row.settlement == 0 ? '现结' : '月结'}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="金额" prop="prepayment"></el-table-column>
+                
+                <el-table-column label="税" prop="invoice"  width="70px">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.invoice == 0">不含税</span>
+                        <span v-if="scope.row.invoice == 1">含税</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="采购" prop="user_name" width="80px"></el-table-column>
                 <el-table-column label="状态" width="120px">
                     <template slot-scope="scope">
@@ -43,7 +70,11 @@
                         </el-popover>
                     </template>
                 </el-table-column>
-                <el-table-column label="备注" prop="remarks"></el-table-column>
+                <el-table-column label="备注">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.remarks }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column width="50" align="right" label="合并"  v-if="Group == true"></el-table-column>
                 <el-table-column type="selection" width="55"  label="合并" align="left"  v-if="Group == true"></el-table-column>
                 <el-table-column label="操作" width="175px">
@@ -141,8 +172,8 @@
         <el-dialog title="财务审核" :visible.sync="dialogHebing">
             <div v-for="item in multipleSelection" :key="item.id">
                 <p style="font-size: 20px;color:#000">
-                    <span>收款人：</span><span>{{ item.receiving_name }}</span>
-                    <span style="margin-left:30px;">收款账号：</span><span>{{ item.receiving_account }}</span>
+                    <span>收款人：</span><span>{{ item.receiving_name }}</span><br>
+                    <span>收款账号：</span><span>{{ item.receiving_account }}</span>
                 </p>
                 <p style="font-size: 20px;color:#000;margin-top:5px;"><span>开户行：</span><span>{{ item.openg_banking }}</span></p>
                 <p style="font-size: 20px;color:#000;margin-top:5px;"><span>预付款金额：</span><span>{{ item.prepayment }}￥</span></p>
@@ -161,7 +192,7 @@
                     </el-table-column>
                 </el-table>
             </div>
-            
+            <p style="font-size: 20px;color:#000;margin-top:5px">合计：{{heZong}}</p>
             <chuna @func="jiezi" :a="dddd"></chuna>
             <div class="contract">
                 <label>上传打款凭证</label>
@@ -210,6 +241,9 @@ export default {
           time:'', // 筛选
           supplier:'',
           name:'',
+          classs:'',
+          bumen:'',
+          user:'',
           starttime:'',
           stata:['等待财务审核','等待出纳审核','审核完毕'],  
           tabledata:[], // 预付款数据  
@@ -233,6 +267,7 @@ export default {
           // 合并支付数组
           multipleSelection:[],
           dialogHebing:false,
+          heZong:'',
         }  
     },
     methods:{
@@ -252,10 +287,12 @@ export default {
                 start_time:a,
                 end_time:b,
                 supplier_name:this.supplier,
-                user_name:this.name
+                user_name:this.name,
+                class:this.classs,
+                order_dep_title:this.bumen,
+                order_user_name:this.user
             }).then(res => {
                 this.tabledata = res.data.advance_charge;
-                
             })
         },
         // 获取列表数据
@@ -409,6 +446,11 @@ export default {
             if(this.multipleSelection.length < 2){
                 this.open('选中的节点低于两个或者没有选择','error')
             }else{
+                let aa =0;
+                for(let i = 0;i<this.multipleSelection.length;i++){
+                    aa = aa + Number(this.multipleSelection[i].prepayment);
+                }
+                this.heZong = aa;
                 this.dialogHebing = true;
             }
         },

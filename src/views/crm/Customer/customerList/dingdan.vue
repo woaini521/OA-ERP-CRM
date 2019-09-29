@@ -2,30 +2,29 @@
 <template>
   <div class="box">
     <div>
-      <el-date-picker v-model="value1" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd" style="margin-left: 20px;"></el-date-picker>
+      <h3 style="color:red">客户姓名：<span style="margin-right:20px">{{tableData[0].customer_name}}</span>客户电话：<span>{{tableData[0].customer_working_phone}}</span></h3>
+    </div>
+    <div style="margin-top:10px">
+      <el-date-picker v-model="value1" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd"></el-date-picker>
       <el-button @click="seach" style="margin-left:30px;">搜索</el-button>
     </div>
-
     <div class="box_content">
-      <el-table :data="tableData" style="width: 100%;">
-        <el-table-column prop="id" label="订单编号"></el-table-column>
-        <el-table-column prop="customer_name" label="客户姓名"></el-table-column>
-        <el-table-column prop="customer_working_phone" label="客户电话" width="110px"></el-table-column>
-        <el-table-column prop="sales_time" label="销售日期" width="95"></el-table-column>
-
-        <el-table-column prop="total_price" label="总销售额"></el-table-column>
-
-        <el-table-column prop="user_name" label="销售员"></el-table-column>
-
-        <el-table-column prop="user_price" label="销售提成"></el-table-column>
-
-        <el-table-column label="利润">
+      <el-table :data="tableData" style="width: 100%;" show-summary>
+        <el-table-column prop="id" label="编号" width="75" sortable></el-table-column>
+        <!-- <el-table-column prop="customer_name" label="客户姓名" width="90"></el-table-column>
+        <el-table-column label="客户电话" width="110">
           <template slot-scope="scope">
-            <span>{{Number(scope.row.total_price) - Number(scope.row.total_cost_price) - Number(scope.row.user_price) - Number(scope.row.logistics_price) - Number(scope.row.extra_price)| keepTowNum }}</span>
+            <span>{{ scope.row.customer_working_phone }}</span>
           </template>
-        </el-table-column>
-
-        <el-table-column prop="status" label="状态" width="120px">
+        </el-table-column> -->
+        <el-table-column prop="sales_time" label="销售日期" width="95"></el-table-column>
+        <el-table-column prop="total_price" label="总销售额" sortable width="100"></el-table-column>
+        <el-table-column prop="total_cost_price" label="总成本" sortable width="90"></el-table-column>
+        <el-table-column prop="logistics_price" label="运费" width="80" sortable></el-table-column>
+        <el-table-column prop="invoice_amount" label="开票金额" width="100" sortable></el-table-column>
+         <el-table-column prop="receivables_amount" label="已认款" width="100" sortable></el-table-column>
+        <el-table-column prop="user_name" label="销售员" width="70"></el-table-column>
+        <el-table-column label="状态" width="135">
           <template slot-scope="scope">
             <span v-if="scope.row.status == 0">草稿</span>
             <span v-if="scope.row.status == 1">已提交订单</span>
@@ -278,6 +277,7 @@ export default {
     }
   },
   activated() {
+    this.name = this.$route.params.id;
     this.getOrderList();
   },
 };

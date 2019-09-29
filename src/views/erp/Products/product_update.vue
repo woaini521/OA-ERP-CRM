@@ -103,8 +103,8 @@
                         <el-radio v-model="Product.originality" label="1">原创</el-radio>
                     </el-form-item>    
                     <br>
-                    <el-form-item label="参与人员" :label-width="lableWidth">
-                        <el-select v-model="Product.user" filterable multiple  placeholder="请选择" style="width:200%">
+                    <el-form-item label="创意提供人员" :label-width="lableWidth">
+                        <el-select v-model="Product.user1" filterable clearable placeholder="请选择" style="width:200%">
                             <el-option
                             v-for="item in Useroptions"
                             :key="item.user_id"
@@ -113,7 +113,28 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-
+                    <br>
+                    <el-form-item label="执行落地人员" :label-width="lableWidth">
+                        <el-select v-model="Product.user2" filterable clearable placeholder="请选择" style="width:200%">
+                            <el-option
+                            v-for="item in Useroptions"
+                            :key="item.user_id"
+                            :label="item.name"
+                            :value="item.user_id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <br>
+                    <el-form-item label="校对跟单人员" :label-width="lableWidth">
+                        <el-select v-model="Product.user3" filterable clearable placeholder="请选择" style="width:200%">
+                            <el-option
+                            v-for="item in Useroptions"
+                            :key="item.user_id"
+                            :label="item.name"
+                            :value="item.user_id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
                     <br>
                     <el-form-item label="上传图片" :label-width="lableWidth">
                       <el-upload class="avatar-uploader" 
@@ -245,7 +266,9 @@ export default {
                 size:'',
                 specifications:'',
                 material_quality:'',
-                user:[],
+                user1:'',
+                user2:'',
+                user3:'',
                 originality:'',
             },
             Useroptions:[
@@ -357,7 +380,9 @@ export default {
             this.Product.size = '';
             this.Product.specifications = '';
             this.Product.material_quality = '';
-            this.Product.user = [];
+            this.Product.user1 = '';
+            this.Product.user2 = '';
+            this.Product.user3 = '';
             this.Product.originality = '1'
         },
         // 新增是查询图片
@@ -392,7 +417,9 @@ export default {
                 specifications:this.Product.specifications,
                 material_quality:this.Product.material_quality,
                 img:this.Product.imageUrl,
-                user:this.Product.user,
+                user1:this.Product.user1,
+                user2:this.Product.user2,
+                user3:this.Product.user3,
                 originality:this.Product.originality
                 }).then(res => {
                     if(res.data.code == 2000){
@@ -450,7 +477,9 @@ export default {
             this.Product.size = a.size;
             this.Product.specifications = a.specifications;
             this.Product.material_quality = a.material_quality;
-            this.Product.user = a.user;
+            this.Product.user1 = a.user1;
+            this.Product.user2 = a.user2;
+            this.Product.user3 = a.user3;
             this.Product.originality = String(a.originality)
         },
         // 删除SKU

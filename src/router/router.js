@@ -3,7 +3,7 @@ import Router from "vue-router";
 
 import Login from "@/components/Login";
 import Apptab from "@/components/common/Apptab";
-import Template from "@/components/Template";
+import Template from "@/views/index/Template";
 // OA
 // User  用户管理
 // 员工管理----view/
@@ -12,6 +12,7 @@ import user_update from "@/views/OA/User/user_update";
 import dep_select from "@/views/OA/User/dep_select";
 import firm_select from "@/views/OA/User/firm_select";
 import wage_calculation from "@/views/OA/User/wage_calculation";
+
 
 // 日常管理----view/
 import leave_select from "@/views/OA/Days/leave_select";
@@ -23,6 +24,8 @@ import company_rule_select from "@/views/OA/Days/company_rule_select";
 import rule_edit from "@/views/OA/Days/rule_edit";
 import work_plan_select from "@/views/OA/Days/work_plan";
 import stuff_select from "@/views/OA/Days/stuff_select";
+import reward_select from "@/views/OA/Days/reward_select";
+import faqi from "@/views/OA/Days/faqi";
 
 // CRM管理----view/crm
 // 客户管理----view/
@@ -115,6 +118,7 @@ import stuff_finance_select from "@/views/Finance/stuff_finance_select";
 import sales_rank from "@/views/report/User/sales_rank";
 import order_count from "@/views/report/User/order_count";
 import leave_count from "@/views/report/User/leave_count";
+import dep_statistics from "@/views/report/User/dep_statistics";
 
 //Customer
 import customer_visit from "@/views/report/Customer/customer_visit";
@@ -122,6 +126,7 @@ import customer_increments from "@/views/report/Customer/customer_increments";
 
 //Purchase
 import product_sales from "@/views/report/Purchase/product_sales";
+import product_order_sales from "@/views/report/Purchase/product_order_sales";
 import purchase_product_sum from "@/views/report/Purchase/purchase_product_sum";
 
 //Finance
@@ -290,6 +295,24 @@ export default new Router({
           meta: {
             requireAuth: true,
             title: "stuff_select"
+          }
+        },
+        {
+          path: "/oa/Days/reward_select",
+          name: "激励列表",
+          component: reward_select,
+          meta: {
+            requireAuth: true,
+            title: "reward_select"
+          }
+        },
+        {
+          path: "/oa/Days/faqi",
+          name: "激励发起",
+          component: faqi,
+          meta: {
+            requireAuth: true,
+            title: "faqi"
           }
         },
         // 客户管理
@@ -767,7 +790,7 @@ export default new Router({
         },
         {
           path: "/Finance/finance_order_express_cost_list",
-          name: "运费预付款",
+          name: "运费付款",
           component: finance_order_express_cost_list,
           meta: {
             requireAuth: true,
@@ -913,6 +936,15 @@ export default new Router({
           }
         },
         {
+          path: "/report/User/dep_statistics",
+          name: "部门统计",
+          component: dep_statistics,
+          meta: {
+            requireAuth: true,
+            title: "dep_statistics"
+          }
+        },
+        {
           path: "/report/Customer/customer_visit",
           name: "拜访量统计",
           component: customer_visit,
@@ -930,9 +962,19 @@ export default new Router({
             title: "customer_increments"
           }
         },
+        
+        {
+          path: "/report/Purchase/product_order_sales",
+          name: "产品销售",
+          component: product_order_sales,
+          meta: {
+            requireAuth: true,
+            title: "product_order_sales"
+          }
+        },
         {
           path: "/report/Purchase/product_sales",
-          name: "产品销售",
+          name: "产品采购",
           component: product_sales,
           meta: {
             requireAuth: true,

@@ -2,61 +2,74 @@
 <template>
   <div class="box">
     <div>
-      <el-select v-model="value2" placeholder="公司查询" filterable clearable style="width:180px;">
+      <el-select v-model="value2" placeholder="公司查询" filterable clearable style="width:150px;">
         <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id"></el-option>
       </el-select>
-      <el-select v-model="sta" placeholder="状态查询" filterable clearable style="margin-left: 10px;width:150px;">
+      <el-select v-model="sta" placeholder="状态查询" filterable clearable style="margin-left: 10px;width:120px;">
         <el-option v-for="item in options1" :key="item.status" :label="item.status_txt" :value="item.status"></el-option>
       </el-select>
+      
       <el-input v-model="value"  placeholder="客户名称"  @keyup.enter.native="seach" style="margin-left: 10px;width:100px;"></el-input>
       <el-input v-model="value3"  placeholder="销售员"  @keyup.enter.native="seach" style="margin-left: 10px;width:100px;"></el-input>
       <el-input v-model="value4"  placeholder="销售金额"  @keyup.enter.native="seach" style="margin-left: 10px;width:100px;"></el-input>
+      <el-select v-model="kuan" style="margin-left: 10px;width:105px;">
+        <el-option label="下单时间" value="0"></el-option>
+        <el-option label="认款时间" value="1"></el-option>
+      </el-select>
       <el-date-picker v-model="value1" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd" style="margin-left: 10px;"></el-date-picker>
       <el-button @click="seach" style="margin-left:20px;">搜索</el-button>
     </div>
-
     <div class="box_content">
       <p style="margin-top:10px;margin-bottom:10px">未回款金额：<span style="color:red">{{ weihukuan }}</span> <span style="margin-left:20px">回款金额：{{ huikuan }}</span><span style="margin-left:20px">认款金额：{{ renkuan}}</span></p>
-      <el-table :data="tableData" style="width: 100%;" show-summary>
-        <el-table-column type="index" width="50px"></el-table-column>
-        <el-table-column label="订单编号" width="50px">
+      <el-table :data="tableData" style="width: 100%;" show-summary :height="fullHeight">
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column label="编号" width="80" prop="id" sortable></el-table-column>
+        <el-table-column label="类型" width="80">
           <template slot-scope="scope">
-            <span>{{scope.row.id}}</span>
+            <span v-if="scope.row.class_id == 1">传统</span>
+            <span v-if="scope.row.class_id == 2">线上</span>
+            <span v-if="scope.row.class_id == 3">京东</span>
+            <span v-if="scope.row.class_id == 4">国美</span>
+            <el-button type="text" size="mini" v-if="scope.row.class_id == 5" @click="seeFushu(scope.row.pid)">负数</el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="customer_name" label="客户" width="70px"></el-table-column>
-        <el-table-column prop="" label="客户电话" width="120px">
+        <el-table-column prop="customer_name" label="客户" width="70"></el-table-column>
+        <el-table-column prop="" label="客户电话" width="120">
           <template slot-scope="scope">
             <span>{{scope.row.customer_working_phone}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="sales_time" label="销售日期" width="110px"></el-table-column>
-
-        <el-table-column prop="total_price" label="总销售额">
+        <el-table-column prop="sales_time" label="销售日期" width="110"></el-table-column>
+        <el-table-column prop="total_price" label="总销售额" sortable  width="100">
           <template slot-scope="scope">
             <span>{{ Number(scope.row.total_price) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="total_cost_price" label="总成本">
+        <el-table-column prop="total_cost_price" label="总成本" sortable width="90">
           <template slot-scope="scope">
             <span>{{ Number(scope.row.total_cost_price) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="logistics_price" label="运费" width="60px"></el-table-column>
-        <el-table-column prop="user_name" label="销售员">
+        <el-table-column prop="logistics_price" label="运费" width="60"></el-table-column>
+        <el-table-column prop="invoice_amount" label="开票金额" width="80"></el-table-column>
+        <el-table-column prop="receivables_amount" label="认款金额" width="100">
+          <template slot-scope="scope">
+            <template v-if="scope.row.receivables_add_time>0">
+              <span>{{ scope.row.receivables_add_time*1000 | formatDate}}</span><br>
+              <span>认款{{ scope.row.receivables_amount}}</span>
+            </template>
+            <template v-else>
+              <span>{{ scope.row.receivables_amount}}</span>
+            </template>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="" label="边界利润"  width="80"></el-table-column>
+        <el-table-column prop="user_name" label="销售员" width="150">
           <template slot-scope="scope">
             <span>{{scope.row.dep_title}}/{{scope.row.user_name}}</span>
           </template>
         </el-table-column>
-
-        <el-table-column prop="user_price" label="销售提成"></el-table-column>
-
-        <el-table-column label="利润">
-          <template slot-scope="scope">
-            <span>{{Number(scope.row.total_price) - Number(scope.row.total_cost_price) - Number(scope.row.user_price) - Number(scope.row.logistics_price) - Number(scope.row.extra_price)| keepTowNum }}</span>
-          </template>
-        </el-table-column>
-
         <el-table-column label="状态" width="100px">
           <template slot-scope="scope">
             <span v-if="scope.row.status == 0">草稿</span>
@@ -90,20 +103,20 @@
             <el-button @click="See(scope.row)" type="primary" size="small">查看</el-button>
             <el-button
               @click="edit(scope.row)"
-              v-if="scope.row.status <= 15"
+              v-if="scope.row.status <= 15 && scope.row.class_id != 5"
               type="info"
               size="small"
             >修改</el-button>
             <el-button
               @click="deletes(scope.row)"
-              v-if="scope.row.status <= 10"
+              v-if="scope.row.status <= 10 || scope.row.class_id == 5"
               type="danger"
               size="small"
-            >作废</el-button>
+            >删除</el-button>
 
             <el-button
               @click="afterSale(scope.row)"
-              v-if="scope.row.status >= 30"
+              v-if="scope.row.status >= 20"
               type="primary"
               size="small"
             >售后</el-button>
@@ -142,7 +155,22 @@ export default {
     keepTowNum: function(value) {
       value = Number(value);
       return value.toFixed(2);
-    }
+    },
+    formatDate(value) {
+        let date = new Date(value);
+        let y = date.getFullYear();
+        let MM = date.getMonth() + 1;
+        MM = MM < 10 ? ('0' + MM) : MM;
+        let d = date.getDate();
+        d = d < 10 ? ('0' + d) : d;
+        let h = date.getHours();
+        h = h < 10 ? ('0' + h) : h;
+        let m = date.getMinutes();
+        m = m < 10 ? ('0' + m) : m;
+        let s = date.getSeconds();
+        s = s < 10 ? ('0' + s) : s;
+        return y + '-' + MM + '-' + d
+      },
   },
   data() {
     return {
@@ -153,10 +181,16 @@ export default {
       value3: "",
       value4:'',
       sta:'',
+      kuan:'0',
       options: [],
       options1:[],
-
-      tableData: [], // 订单数据
+      fullHeight:document.documentElement.clientHeight-210,
+      tableData: [
+        {id: 1, pid: 0, class_id: 1, sales_time: "2019-09-20", receivables_add_time: 0, status: 15}
+        ,{id: 2, pid: 0, class_id: 1, sales_time: "2019-09-20", receivables_add_time: 0, status: 15}
+        ,{id: 3, pid: 0, class_id: 1, sales_time: "2019-09-20", receivables_add_time: 1569223650, status: 15}
+        ,{id: 4, pid: 0, class_id: 1, sales_time: "2019-09-20", receivables_add_time: 1569223711, status: 15}
+      ], // 订单数据
       currentPage: 0, //当前页
       total: 0, //总数
       per_page: 0, //每页多少条
@@ -196,6 +230,7 @@ export default {
             start_time: '',
             end_time: '',
             total_price:this.value4,
+            receivables_add_time:this.kuan,
           })
           .then(res => {
             this.tableData = res.data.order;
@@ -217,6 +252,7 @@ export default {
             start_time: this.value1[0],
             end_time: this.value1[1],
             total_price:this.value4,
+            receivables_add_time:this.kuan,
           })
           .then(res => {
             this.tableData = res.data.order;
@@ -260,6 +296,22 @@ export default {
         id: a.id
       };
       let ins2 = `/crm/Order/seeOrder/${a.id}`;
+      this.triggerAddTabs(ins1);
+      this.triggerSetActiveIndex(ins2);
+    },
+    // 查看 负数订单详情
+    seeFushu(a) {
+      this.triggerReplaceId(a);
+      this.$router.push({
+        path: `/crm/Order/seeOrder/${a}`,
+        params: { userId: a }
+      });
+      let ins1 = {
+        route: `/crm/Order/seeOrder/${a}`,
+        name: "查看订单",
+        id: a.id
+      };
+      let ins2 = `/crm/Order/seeOrder/${a}`;
       this.triggerAddTabs(ins1);
       this.triggerSetActiveIndex(ins2);
     },
@@ -368,12 +420,19 @@ export default {
         },
   },
   created() {
+      const that = this;
       let d=new Date();
       let year=d.getFullYear();
-      let month=this.change(d.getMonth()+1);
-      let day=this.change(d.getDate());
-      this.starttime = year+'-'+month+'-'+day;
-      this.getOrderList();
+      let month=that.change(d.getMonth()+1);
+      let day=that.change(d.getDate());
+      that.starttime = year+'-'+month+'-'+day;
+      window.onresize = () => {
+            return (() => {
+              window.fullHeight = document.documentElement.clientHeight;
+              that.fullHeight = window.fullHeight
+            })()
+        };
+      that.getOrderList();
   },
 };
 </script>

@@ -63,7 +63,7 @@
             </el-table-column>
             <el-table-column label="状态">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.status == -1">等待巴长审核</span>
+                    <span v-if="scope.row.status == -1" style="color:red">等待巴长审核</span>
                     <span v-if="scope.row.status == 0">等待财务审核</span>
                     <span v-if="scope.row.status == 1">等待出纳打款</span>
                     <span v-if="scope.row.status == 2">审核通过</span>

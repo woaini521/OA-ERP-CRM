@@ -2,8 +2,11 @@
     <div>
         <div id="myChart" ref="myChart"></div>  
         <div id="myChart2" ref="myChart2"></div>
+        <div id="myChart4" ref="myChart4"></div>
+
         <div id="myChart1" ref="myChart1"></div>
         <div id="myChart3" ref="myChart3"></div>
+        <div id="myChart5" ref="myChart5"></div>
     </div>
     
 </template>
@@ -19,6 +22,8 @@ export default {
             datadep:'',
             datadepName:'',
             datadepMoney:'',
+            datadep1:'',
+            datadepMoney1:'',
         }
     },
     methods:{
@@ -27,6 +32,8 @@ export default {
           let myChart1 = echarts.init(this.$refs.myChart1);
           let myChart2 = echarts.init(this.$refs.myChart2);
           let myChart3 = echarts.init(this.$refs.myChart3);
+          let myChart4 = echarts.init(this.$refs.myChart4);
+          let myChart5 = echarts.init(this.$refs.myChart5);
           this.axios.get('/report.User/order_count').then(res => {
               let data = [];
               let data1 = [];
@@ -34,6 +41,8 @@ export default {
               let datadepMoney = [];
               let dataName = [];
               let datadepName = [];
+              let datadep1=[];
+              let datadepMoney1=[];
               
               for(let i in res.data.week) {
                    let shuju = res.data.week[i];
@@ -63,23 +72,37 @@ export default {
                 for(let i in res.data.company){
                    let shuju = res.data.company[i]; 
                    let name = shuju.dep_title;
-                   let da = { 
+                   let one1 = { 
                       name:name, 
                       type:'line',
                       stack: `${name}订单数`,
-                      data:shuju.number,
+                      data:shuju.week_one.number,
                    }
                    let da1 = { 
                       name:name, 
                       type:'line',
                       stack: `${name}订单数`,
-                      data:shuju.money,
+                      data:shuju.week_one.money,
+                   }
+                   let one2 = { 
+                      name:name, 
+                      type:'line',
+                      stack: `${name}订单数`,
+                      data:shuju.week_two.number,
+                   }
+                   let da2 = { 
+                      name:name, 
+                      type:'line',
+                      stack: `${name}订单数`,
+                      data:shuju.week_two.money,
                    }
 
                   // console.log(shuju.money)
                    datadepMoney.push(da1);
-                   datadep.push(da);
+                   datadep.push(one1);
                    datadepName.push(name);
+                   datadep1.push(one2);
+                   datadepMoney1.push(da2);
                 }
                 
 
@@ -89,13 +112,17 @@ export default {
                 this.datadep = datadep;
                 this.datadepName = datadepName;
                 this.datadepMoney = datadepMoney;
-                // console.log(this.data);
-                // console.log(this.datadepName);
-                // console.log(this.datadep);
+                this.datadep1 = datadep1;
+                this.datadepMoney1 = datadepMoney1;
+
                 this.draw('订单笔数',myChart,this.dataName,this.data)
                 this.draw('销售金额',myChart1,this.dataName,this.data1)
-                this.draw('部门订单',myChart2,this.datadepName,this.datadep)
-                this.draw('部门销售',myChart3,this.datadepName,this.datadepMoney)
+
+                this.draw('本周部门订单',myChart2,this.datadepName,this.datadep)
+                this.draw('上周部门订单',myChart4,this.datadepName,this.datadep1)
+
+                this.draw('本周部门销售',myChart3,this.datadepName,this.datadepMoney)
+                this.draw('上周部门销售',myChart5,this.datadepName,this.datadepMoney1)
             })
         },
         draw (text,myChart,a,b) {
@@ -166,6 +193,16 @@ export default {
 		margin: 20px auto;
       }
 #myChart3 {
+		width: 95%;
+		height: 300px;
+		margin: 20px auto;
+      }
+#myChart4 {
+		width: 95%;
+		height: 300px;
+		margin: 20px auto;
+      }
+#myChart5 {
 		width: 95%;
 		height: 300px;
 		margin: 20px auto;

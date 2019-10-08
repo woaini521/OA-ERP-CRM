@@ -47,15 +47,15 @@
             <span v-if="scope.row.status == 999">作废</span>
           </template>
         </el-table-column>
-        <el-table-column label="发票">
+        <el-table-column label="发票" width="60">
           <template slot-scope="scope">
             <span>{{ scope.row.invoice_tax ==0 ?'收据':'增值' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="150">
           <template slot-scope="scope">
             <el-button
-              v-if="scope.row.status == 10 || scope.row.status == 15"
+              v-if="scope.row.status == 10 || scope.row.status == 15 || (15 < scope.row.status && scope.row.status < 90)"
               @click="examine(scope.row)"
               type="danger"
               size="small"
@@ -63,7 +63,7 @@
             <el-button
               v-if="15 < scope.row.status && scope.row.status < 90"
               @click="SeeExamine(scope.row)"
-              type="text"
+              type="primary"
               size="small"
             >查看</el-button>
             <!-- <el-button v-if="15 < scope.row.status && scope.row.status < 90" type="text" size="small" @click="daochu(scope.row)">导出</el-button> -->

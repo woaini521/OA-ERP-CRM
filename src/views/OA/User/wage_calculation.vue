@@ -80,7 +80,6 @@
                     <el-radio v-model="XishuForm.salary_coefficient_b" label="0.95">超过一次以上差错0.95</el-radio>
                     <el-radio v-model="XishuForm.salary_coefficient_b" label="1.0">0差错1</el-radio>
                 </el-form-item>
-                
                 <el-form-item label="上传文件" label-width="100px">
                     <el-upload
                     class="upload-demo"
@@ -148,7 +147,6 @@
                 </el-form-item>
             </el-form>
         </el-dialog>
-
         <!-- 策划设计弹窗  -->
         <el-dialog title="提成" :visible.sync="dialogCS">
              <p v-if="dialogCSX">字数:{{CForm.work_time }} <span style="margin-left:20px">新品:{{CForm.jixiao_a }}</span><span style="margin-left:20px">销售:{{CForm.jixiao_b }}</span></p>  
@@ -297,7 +295,7 @@ export default {
                 this.TichenForm.dep_yj = a.dep_yj
                 this.TichenForm.depticheng_money = a.depticheng_money
                 this.TichenForm.deptotal_price = a.deptotal_price
-                console.log(a.dep_yj)
+                // console.log(a.dep_yj)
             }else{
                 this.TichenForm.dep_yj = null
                 this.TichenForm.depticheng_money = null

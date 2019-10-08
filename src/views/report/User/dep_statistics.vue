@@ -4,6 +4,7 @@ export default {
         return{
             tableData: [], // 表格数据
             times:null,
+            value:'',
             start_time:'',
             tableHeader:[
                 {
@@ -55,6 +56,7 @@ export default {
                  this.axios.post('/report.User/dep_statistics',{
                     start_time:this.times[0],
                     end_time:this.times[1],
+                    class_id:this.value
                 }).then(res => {
                     this.tableData = res.data.order
                 })
@@ -62,14 +64,17 @@ export default {
                 this.axios.post('/report.User/dep_statistics',{
                     start_time:'',
                     end_time:'',
+                    class_id:this.value
                 }).then(res => {
                     this.tableData = res.data.order
                 })
             }
-           
         },
         input(e){
           this.times = e;
+        },
+        select(e){
+            this.value = e;
         },
         tableColumn(h,col){
             const slotScope = {
@@ -102,6 +107,13 @@ export default {
                 <div class="head_box">
                     <label>选择日期：</label>
                     <el-date-picker value={this.times} onInput={this.input}  type="daterange" range-separator="至" value-format="yyyy-MM-dd" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+                    <el-select value={this.value} onInput={this.select} placeholder="类型" clearable style="width:100px;margin-left:20px;">
+                        <el-option label="传统" value="1"></el-option>
+                        <el-option label="线上" value="2"></el-option>
+                        <el-option label="京东" value="3"></el-option>
+                        <el-option label="国美" value="4"></el-option>
+                        <el-option label="负数" value="5"></el-option>
+                    </el-select>
                     <el-button style="margin-left:20px" onClick={this.confirm}>确定</el-button>
                 </div>
                 <el-table data={this.tableData} border show-summary style="width: 100%;margin-top:20px;">

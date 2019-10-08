@@ -483,6 +483,7 @@
             action="/file/customer_order_img"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
+            :on-error="handleAvatarError"
             :before-upload="beforeAvatarUpload"
           >
             <i class="el-icon-plus avatar-uploader-icon"></i>
@@ -1006,48 +1007,52 @@ export default {
     },
     // 负数订单同步
     fushuBtn() {
-      let shu;
-      this.InvoiceType[0].filter(item => {
-        if (item.id == this.piao) {
-          shu = item;
-        }
-      });
-      this.InvoiceType[1].filter(item => {
-        if (item.id == this.piao) {
-          shu = item;
-        }
-      });
-      this.InvoiceType[2].filter(item => {
-        if (item.id == this.piao) {
-          shu = item;
-        }
-      });
-      this.axios
-        .post("/crm.Order/order_add", {
-          customer_id: this.kehuValue,
-          sales_time: this.starttime,
-          delivery_time: this.endtime,
-          type_id: this.radio,
-          invoice_name: shu.name,
-          invoice_type: shu.type,
-          invoice_tax: shu.percentile.substring(0, shu.percentile.length - 1),
-          class_id: this.class_id,
-          remarks: this.remarks,
-          repair_invoice: this.repair_invoice,
-          repair_freight: this.repair_freight,
-          pid: this.dialogFushuForm.id
-        })
-        .then(res => {
-          if (res.data.code == 2000) {
-            this.gettableData(res.data.id);
-            this.gettableData1(res.data.id);
-            this.customer_order_id = res.data.id;
-            this.dialogFushu = false;
-            this.open(res.data.msg, "success");
-          } else {
-            this.open(res.data.msg, "error");
+      if (this.piao == "") {
+        this.open("请确认都已经勾选！", "error");
+      } else {
+        let shu;
+        this.InvoiceType[0].filter(item => {
+          if (item.id == this.piao) {
+            shu = item;
           }
         });
+        this.InvoiceType[1].filter(item => {
+          if (item.id == this.piao) {
+            shu = item;
+          }
+        });
+        this.InvoiceType[2].filter(item => {
+          if (item.id == this.piao) {
+            shu = item;
+          }
+        });
+        this.axios
+          .post("/crm.Order/order_add", {
+            customer_id: this.kehuValue,
+            sales_time: this.starttime,
+            delivery_time: this.endtime,
+            type_id: this.radio,
+            invoice_name: shu.name,
+            invoice_type: shu.type,
+            invoice_tax: shu.percentile.substring(0, shu.percentile.length - 1),
+            class_id: this.class_id,
+            remarks: this.remarks,
+            repair_invoice: this.repair_invoice,
+            repair_freight: this.repair_freight,
+            pid: this.dialogFushuForm.id
+          })
+          .then(res => {
+            if (res.data.code == 2000) {
+              this.gettableData(res.data.id);
+              this.gettableData1(res.data.id);
+              this.customer_order_id = res.data.id;
+              this.dialogFushu = false;
+              this.open(res.data.msg, "success");
+            } else {
+              this.open(res.data.msg, "error");
+            }
+          });
+      }
     },
 
     // 产品进行筛选
@@ -1496,7 +1501,6 @@ export default {
           ].children[0].children[0].value;
           //console.log(this.form.sheng);
           //console.log(this.form.shi);
-          //console.log(this.form.qu);
         }
       }
     },
@@ -1539,6 +1543,9 @@ export default {
       } else {
         this.open(response.msg, "error");
       }
+    },
+    handleAvatarError(err, file, fileList) {
+      this.open(err, "error");
     },
     beforeAvatarUpload(file) {
       let type = file.type;

@@ -8,7 +8,6 @@
       <el-select v-model="sta" placeholder="状态查询" filterable clearable style="margin-left: 10px;width:120px;">
         <el-option v-for="item in options1" :key="item.status" :label="item.status_txt" :value="item.status"></el-option>
       </el-select>
-      
       <el-input v-model="value"  placeholder="客户名称"  @keyup.enter.native="seach" style="margin-left: 10px;width:100px;"></el-input>
       <el-input v-model="value3"  placeholder="销售员"  @keyup.enter.native="seach" style="margin-left: 10px;width:100px;"></el-input>
       <el-input v-model="value4"  placeholder="销售金额"  @keyup.enter.native="seach" style="margin-left: 10px;width:100px;"></el-input>
@@ -109,17 +108,17 @@
             >修改</el-button>
             <el-button
               @click="deletes(scope.row)"
-              v-if="scope.row.status <= 10 || scope.row.class_id == 5"
+              v-if="scope.row.status <= 10 || scope.row.class_id == 5 || scope.row.status == 999"
               type="danger"
               size="small"
             >删除</el-button>
 
-            <el-button
+            <!-- <el-button
               @click="afterSale(scope.row)"
               v-if="scope.row.status >= 20"
               type="primary"
               size="small"
-            >售后</el-button>
+            >售后</el-button> -->
             <el-button
               @click="additional(scope.row)"
               v-if="scope.row.status >= 10"
@@ -184,7 +183,7 @@ export default {
       kuan:'0',
       options: [],
       options1:[],
-      fullHeight:document.documentElement.clientHeight-210,
+      fullHeight:document.documentElement.clientHeight-225,
       tableData: [
         {id: 1, pid: 0, class_id: 1, sales_time: "2019-09-20", receivables_add_time: 0, status: 15}
         ,{id: 2, pid: 0, class_id: 1, sales_time: "2019-09-20", receivables_add_time: 0, status: 15}
@@ -325,7 +324,7 @@ export default {
         .then(res => {
           if (res.data.code == 2000) {
             this.open(res.data.msg, "success");
-            this.getOrderList();
+            this.seach();
           } else {
             this.open(res.data.msg, "error");
           }
@@ -434,10 +433,19 @@ export default {
         };
       that.getOrderList();
   },
+  activated(){
+    const that = this;
+    window.onresize = () => {
+            return (() => {
+              window.fullHeight = document.documentElement.clientHeight;
+              that.fullHeight = window.fullHeight
+            })()
+        };
+  }
 };
 </script>
 <style lang="less" scoped>
 .box{
-  min-width: 1000px;
+  min-width: 1200px;
 }
 </style>

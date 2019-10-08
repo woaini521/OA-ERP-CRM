@@ -5,7 +5,7 @@
             <el-date-picker v-model="time1" type="daterange" range-separator="至" start-placeholder="开始日期" value-format="timestamp" end-placeholder="结束日期">
             </el-date-picker>
             
-            <el-select v-model="status" placeholder="请选择状态" style="margin-left:15px;">
+            <el-select v-model="status" placeholder="请选择状态" style="margin-left:15px;width:130px">
                 <el-option
                 v-for="item in optionsStatus"
                 :key="item.id"
@@ -13,6 +13,9 @@
                 :value="item.status">
                 </el-option>
             </el-select>
+            <el-input v-model="name" placeholder="人员" style="margin-left:15px;width:130px"></el-input>
+            <el-input v-model="dep" placeholder="部门" style="margin-left:15px;width:130px"></el-input>
+            <el-input v-model="money" placeholder="金额" style="margin-left:15px;width:130px"></el-input>
             <el-button @click="seach"  style="margin-left:20px;">搜索</el-button>
             <el-button type="primary" @click="add"  style="margin-left:20px;">增加</el-button>
         </div>
@@ -191,6 +194,9 @@ export default {
             channel:'',
             status:'',
             time1:null,
+            name:'',
+            dep:'',
+            money:'',
             starttime:'',
             options:[
                 {
@@ -265,6 +271,9 @@ export default {
                 start_time:a,
                 end_time:b,
                 status:this.status,
+                confirm_user_name:this.name,
+                dep_title:this.dep,
+                payment_amount:this.money,
             }).then(res => {
                 this.optionsCompany = res.data.company;
                 this.optionsK = res.data.payee;

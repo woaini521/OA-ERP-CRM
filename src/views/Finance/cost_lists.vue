@@ -458,7 +458,7 @@ export default {
             this.Form.type = '';
             this.Form.id = '';
             this.imgId = 0;
-            this.getimgUrl(0)
+            this.getimgUrl(0,0,'add')
         },
         // 修改按钮
         update(a){
@@ -468,7 +468,7 @@ export default {
             this.Form.type = String(a.type);  
             this.Form.id = a.id;
             this.imgId = a.id;
-            this.getimgUrl(a.id)
+            this.getimgUrl(a.id,0,'add')
         },
         // 删除按钮
         deletes(a){ 
@@ -488,7 +488,7 @@ export default {
         examine(a){
             this.Auditor = true;
             this.ID = a.id;
-            this.getimgUrl(a.id);
+            // this.getimgUrl(a.id);
             this.AuditorForm.type = a.type;
             this.AuditorForm.money = a.money;
             this.AuditorForm.user = a.user_name;
@@ -497,7 +497,11 @@ export default {
                 this.chuna=false;
                 this.chuna1=true;
                 this.Cstatus = a.status;
-            };
+                this.getimgUrl(a.id,0,'add');
+            }else{
+                this.Cstatus = '';
+                this.getimgUrl(a.id,1,'chakan');
+            }
             this.dddd = a.id;
         },
         // 放大
@@ -565,7 +569,7 @@ export default {
             }).then(res => {
                 if(res.data.code == 2000){
                     this.open(res.data.msg,'success');
-                    this.getimgUrl(this.imgId)
+                    this.getimgUrl(this.imgId,0,'add')
                 }else{
                     this.open(res.data.msg,'error');
                     
@@ -573,7 +577,7 @@ export default {
             })
         },
         handleAvatarSuccess() {
-            this.getimgUrl(0);
+            this.getimgUrl(0,0,'add');
         },
         beforeAvatarUpload(file) {
             const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
@@ -603,11 +607,13 @@ export default {
             })  
         },
         // 获取合同图片
-        getimgUrl(a){
+        getimgUrl(a,b,c){
             this.axios.post('/File/file_select',{
               data_table:'cost',
               class:'temporary_file',
+              control:c,
               id:a,
+              status:b
             }).then(res => {
                 if(res.data != null){
                   this.imageUrlstate = true;
@@ -621,9 +627,13 @@ export default {
                 if(this.zichuan.length == 0){
                      this.open('选择付款账号','error');
                 }else{
+                    let img = [];
+                    for(let i =0;i<this.imageUrl.length;i++){
+                        img.push(this.imageUrl[i].src)
+                    }
                     this.axios.post('/Finance/cost_status',{
                         id:this.ID,
-                        src:this.imageUrl,
+                        src:img,
                         paye:this.zichuan,
                     }).then(res => {
                         if(res.data.code == 2000){
@@ -644,7 +654,6 @@ export default {
                         this.open(res.data.msg,'success');
                         this.gettableData(this.starttime);
                         this.Auditor = false;
-                        
                     }else{
                         this.open(res.data.msg,'error');
                     } 

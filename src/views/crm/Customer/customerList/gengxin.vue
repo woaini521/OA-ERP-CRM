@@ -262,9 +262,6 @@ export default {
             this.form.sheng = this.province[index2].value;
             this.form.shi = this.province[index2].children[0].value;
             this.form.qu = this.province[index2].children[0].children[0].value;
-            //console.log(this.form.sheng);
-            //console.log(this.form.shi);
-            //console.log(this.form.qu);
           }
         }
       },
@@ -276,13 +273,14 @@ export default {
             this.qu = this.city[index3].children[0].value;
             this.E = this.qu1[0].id;
             this.form.shi = this.city[index3].value;
+            this.form.qu = this.city[index3].children[0].value;
           }
         }
       },
        // 选区
       choseBlock:function(e) {
         this.E=e;
-         for (var index4 in this.block) {
+        for (var index4 in this.block) {
           if (e === this.block[index4].id) {
             this.form.qu = this.block[index4].value;
             //console.log(this.form.qu)
